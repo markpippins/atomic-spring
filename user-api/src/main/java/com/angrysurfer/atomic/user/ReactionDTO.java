@@ -15,7 +15,7 @@ public class ReactionDTO implements Serializable {
      */
     private static final long serialVersionUID = -2161409918544474273L;
 
-    private Long id;
+    private String id;
 
     private String type;
 

@@ -5,9 +5,9 @@ import lombok.Data;
 @Data
 public class CommentDTO extends AbstractContentDTO {
 
-    private Long postId;
+    private String postId;
 
-    private Long parentId;
+    private String parentId;
 
     public CommentDTO() {
         super();

@@ -51,7 +51,7 @@ public class PostService {
     }
 
     @BrokerOperation("delete")
-    public ServiceResponse<String> delete(@BrokerParam("postId") Long postId) {
+    public ServiceResponse<String> delete(@BrokerParam("postId") String postId) {
         log.info("Delete post id {}", postId);
         try {
             postRepository.deleteById(postId);
@@ -66,7 +66,7 @@ public class PostService {
     }
 
     @BrokerOperation("findById")
-    public ServiceResponse<PostDTO> findById(@BrokerParam("postId") Long postId) {
+    public ServiceResponse<PostDTO> findById(@BrokerParam("postId") String postId) {
         log.info("Find post by id {}", postId);
         try {
             Optional<Post> result = postRepository.findById(postId);
@@ -218,13 +218,14 @@ public class PostService {
     }
 
     @BrokerOperation("incrementRating")
-    public ServiceResponse<PostStatDTO> incrementRating(@BrokerParam("postId") Long postId) {
+    public ServiceResponse<PostStatDTO> incrementRating(@BrokerParam("postId") String postId) {
         log.info("Increment rating for post id {}", postId);
         try {
             Optional<Post> postOpt = postRepository.findById(postId);
             if (postOpt.isPresent()) {
                 Post post = postOpt.get();
-                post.setRating(post.getRating() + 1);
+                Long currentRating = post.getRating();
+                post.setRating(currentRating != null ? currentRating + 1 : 1);
                 postRepository.save(post);
                 return ServiceResponse.ok(post.toStatDTO(), "incrementRating-" + System.currentTimeMillis());
             }
@@ -242,13 +243,14 @@ public class PostService {
     }
 
     @BrokerOperation("decrementRating")
-    public ServiceResponse<PostStatDTO> decrementRating(@BrokerParam("postId") Long postId) {
+    public ServiceResponse<PostStatDTO> decrementRating(@BrokerParam("postId") String postId) {
         log.info("Decrement rating for post id {}", postId);
         try {
             Optional<Post> postOpt = postRepository.findById(postId);
             if (postOpt.isPresent()) {
                 Post post = postOpt.get();
-                post.setRating(post.getRating() - 1);
+                Long currentRating = post.getRating();
+                post.setRating(currentRating != null && currentRating > 0 ? currentRating - 1 : 0);
                 postRepository.save(post);
                 return ServiceResponse.ok(post.toStatDTO(), "decrementRating-" + System.currentTimeMillis());
             }
@@ -266,7 +268,7 @@ public class PostService {
     }
 
     @BrokerOperation("addReaction")
-    public ServiceResponse<ReactionDTO> addReaction(@BrokerParam("postId") Long postId, @BrokerParam("reactionDTO") ReactionDTO reactionDTO) {
+    public ServiceResponse<ReactionDTO> addReaction(@BrokerParam("postId") String postId, @BrokerParam("reactionDTO") ReactionDTO reactionDTO) {
         log.info("Add reaction to post id {}", postId);
         try {
             Reaction.ReactionType type = Reaction.ReactionType.valueOf(reactionDTO.getType().toUpperCase());
@@ -305,7 +307,7 @@ public class PostService {
     }
 
     @BrokerOperation("removeReaction")
-    public ServiceResponse<String> removeReaction(@BrokerParam("postId") Long postId, @BrokerParam("reactionDTO") ReactionDTO reactionDTO) {
+    public ServiceResponse<String> removeReaction(@BrokerParam("postId") String postId, @BrokerParam("reactionDTO") ReactionDTO reactionDTO) {
         log.info("Remove reaction from post id {}", postId);
         try {
             Optional<Reaction> reactionOpt = this.reactionRepository.findById(reactionDTO.getId());
@@ -343,7 +345,7 @@ public class PostService {
     }
 
     @BrokerOperation("getRepliesForPost")
-    public ServiceResponse<java.util.Set<CommentDTO>> getRepliesForPost(@BrokerParam("postId") Long postId) {
+    public ServiceResponse<java.util.Set<CommentDTO>> getRepliesForPost(@BrokerParam("postId") String postId) {
         log.info("Get replies for post id {}", postId);
         try {
             Optional<Post> result = postRepository.findById(postId);

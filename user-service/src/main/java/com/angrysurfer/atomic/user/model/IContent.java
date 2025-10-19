@@ -4,7 +4,7 @@ import java.util.Set;
 
 public interface IContent {
 
-    Long getId();
+    String getId();
 
     Set<Edit> getEdits();
 

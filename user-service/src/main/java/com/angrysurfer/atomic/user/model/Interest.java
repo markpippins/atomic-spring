@@ -1,13 +1,11 @@
 package com.angrysurfer.atomic.user.model;
 
-
-
-
-import jakarta.persistence.*;
 import java.io.Serializable;
 
-@Entity()
-//@Table(schema = "social")
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+
+@Document(collection = "interests")
 public class Interest implements Serializable {
 
     /**
@@ -16,18 +14,15 @@ public class Interest implements Serializable {
     private static final long serialVersionUID = 1896715641419245592L;
 
     @Id
-    @SequenceGenerator(name = "interest_sequence", sequenceName = "interest_sequence", allocationSize = 1)
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "interest_sequence")
-    @Column(name = "id", updatable = false, nullable = false, unique = true)
-    private Long id;
+    private String id;
 
     private String name;
 
-    public Long getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(String id) {
         this.id = id;
     }
 

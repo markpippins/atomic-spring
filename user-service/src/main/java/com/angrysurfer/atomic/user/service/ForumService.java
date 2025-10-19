@@ -26,7 +26,7 @@ public class ForumService {
     }
 
     @BrokerOperation("delete")
-    public ServiceResponse<String> delete(@BrokerParam("forumId") Long forumId) {
+    public ServiceResponse<String> delete(@BrokerParam("forumId") String forumId) {
         log.info("Delete forum id {}", forumId);
         try {
             forumRepository.deleteById(forumId);
@@ -41,7 +41,7 @@ public class ForumService {
     }
 
     @BrokerOperation("findById")
-    public ServiceResponse<ForumDTO> findById(@BrokerParam("forumId") Long forumId) {
+    public ServiceResponse<ForumDTO> findById(@BrokerParam("forumId") String forumId) {
         log.info("Find forum by id {}", forumId);
         try {
             Optional<Forum> forum = forumRepository.findById(forumId);

@@ -1,86 +1,102 @@
 # User Service
 
-The user management service module for the Nucleus system, responsible for handling all user-related operations including registration, authentication, and profile management.
+The User Service is a microservice responsible for managing user-related operations in the Atomic platform.
 
 ## Overview
 
-The user service provides comprehensive user management capabilities within the Nucleus system. It handles user registration, authentication, profile management, and all other user-related operations. The service integrates with the broker system to process user requests from various clients.
+This service provides functionality for:
+- User management (create, read, update, delete)
+- Profile management
+- Post and comment management
+- Forum interactions
+- Reactions and ratings
 
-## Key Features
+## Database
 
-- **User Registration**: Create new user accounts with validation
-- **Authentication**: Secure user login and credential verification
-- **Profile Management**: View and update user profile information
-- **User Search**: Find and retrieve user information by various criteria
-- **Password Management**: Secure password updates and recovery
-- **Account Security**: Multi-factor authentication support
-- **User Validation**: Verify user data integrity and compliance
-- **Session Management**: Handle user sessions and authentication tokens
-
-## Architecture
-
-The user service includes:
-
-- **UserController**: REST endpoints for receiving user requests
-- **UserService**: Core business logic for user operations
-- **UserManager**: Handles user creation, updates, and management
-- **AuthenticationService**: Manages user authentication processes
-- **UserDataValidator**: Validates user input and data integrity
-- **UserProfileService**: Manages extended user profile operations
-- **UserRepository**: Handles user data persistence
-
-## API
-
-The service handles requests through the broker system with operations including:
-
-- `login`: Authenticate user with credentials
-- `getUserByAlias`: Retrieve user information by alias/username
-- `create`: Create a new user account
-- `update`: Update existing user profile information
-- `validateUser`: Verify user data integrity
-- `searchUsers`: Find users matching specified criteria
-- `changePassword`: Update user password securely
-
-## Security Features
-
-- **Password Security**: Secure password hashing and verification
-- **Input Validation**: Comprehensive validation of all user inputs
-- **SQL Injection Protection**: Safe database queries with parameter binding
-- **XSS Prevention**: Proper output encoding for user-generated content
-- **Rate Limiting**: Protection against brute force attacks
-- **Session Security**: Secure session management and token handling
+This service uses MongoDB as its primary data store instead of a relational database. The document-based approach allows for more flexible data modeling and better performance for the social features.
 
 ## Configuration
 
-The user service supports configuration for:
-- Password complexity requirements
-- User registration settings
-- Account lockout policies
-- Session timeout values
-- Email verification requirements
-- Security logging levels
+The service connects to MongoDB using the following configuration in `application.properties`:
+```
+spring.data.mongodb.uri=mongodb://mongoUser:somePassword@localhost:27017/user-service?authSource=admin
+```
 
-## Data Management
+## Running with MongoDB
 
-- **User Data Storage**: Secure storage of user information
-- **Privacy Compliance**: Adherence to data privacy regulations
-- **Data Encryption**: Encryption of sensitive user information
-- **Audit Logging**: Tracking of user account changes
-- **Backup and Recovery**: Secure backup of user data
+### Prerequisites
+- Docker installed
 
-## Integration
+### Running MongoDB with Docker
 
-The user service integrates with:
-- Login service for authentication operations
-- Security components for access control
-- Email service for user notifications
-- The broker service for request routing
-- External identity providers for single sign-on
+The Atomic platform provides convenient scripts to start MongoDB:
 
-## Best Practices
+**On Windows:**
+```bash
+mongodb-docker-start.bat
+```
 
-- All sensitive operations require proper authentication
-- Regular security audits of user management code
-- Proper validation of all user inputs
-- Secure handling of password recovery processes
-- Regular updates to security measures
+**On Linux/Mac:**
+```bash
+./mongodb-docker-start.sh
+```
+
+Alternatively, you can start MongoDB manually with:
+
+```bash
+docker run --name atomic-mongodb -p 27017:27017 -e MONGO_INITDB_ROOT_USERNAME=mongoUser -e MONGO_INITDB_ROOT_PASSWORD=somePassword -d mongo:latest
+```
+
+Or use a docker-compose file:
+
+```yaml
+version: '3.8'
+services:
+  mongodb:
+    image: mongo:latest
+    container_name: atomic-mongodb
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: mongoUser
+      MONGO_INITDB_ROOT_PASSWORD: somePassword
+    volumes:
+      - mongodb_data:/data/db
+
+volumes:
+  mongodb_data:
+```
+
+### Running the Service
+Once MongoDB is running, you can start the user service with:
+
+```bash
+mvn spring-boot:run
+```
+
+## MongoDB Collections
+
+The service uses the following collections:
+- `users`: Stores user information and relationships
+- `profiles`: Stores user profile details
+- `posts`: Contains posts made by users
+- `comments`: Stores comments on posts
+- `reactions`: Tracks user reactions to posts/comments
+- `edits`: Stores edit history for content
+- `interests`: User interests and tags
+- `forums`: Forum information
+
+## Features
+
+- User registration and authentication
+- Profile management
+- Creating and managing posts
+- Commenting on posts
+- Reacting to content (like, love, anger, sadness, surprise)
+- Following other users
+- Forum participation
+- Content rating system
+
+## API
+
+The service exposes operations through the broker pattern, allowing for flexible integration with other services in the Atomic platform.

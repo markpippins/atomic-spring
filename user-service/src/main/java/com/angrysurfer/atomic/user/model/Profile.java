@@ -6,17 +6,11 @@ import java.util.Set;
 
 import com.angrysurfer.atomic.user.ProfileDTO;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.SequenceGenerator;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.DBRef;
 
-@Entity(name = "Profile")
+@Document(collection = "profiles")
 public class Profile implements Serializable {
 
     /**
@@ -25,10 +19,7 @@ public class Profile implements Serializable {
     private static final long serialVersionUID = 6188258652004048094L;
 
     @Id
-    @SequenceGenerator(name = "profile_sequence", sequenceName = "profile_sequence", allocationSize = 1)
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "profile_sequence")
-    @Column(name = "id", updatable = false, nullable = false, unique = true)
-    private Long id;
+    private String id;
 
     private String firstName;
 
@@ -40,15 +31,15 @@ public class Profile implements Serializable {
 
     private String profileImageUrl;
 
-    @OneToOne(fetch = FetchType.EAGER)
+    @DBRef
     private User user;
 
-    @OneToMany(fetch = FetchType.LAZY)
+    @DBRef
     private Set<Interest> interests = new HashSet<>();
 
     public ProfileDTO toDTO() {
         ProfileDTO dto = new ProfileDTO();
-        dto.setId(getId());
+        dto.setId(getId()); // MongoDB ObjectId as String
         dto.setFirstName(getFirstName());
         dto.setLastName(getLastName());
         dto.setCity(getCity());
@@ -62,11 +53,11 @@ public class Profile implements Serializable {
         this.user = user;
     }
 
-    public Long getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(String id) {
         this.id = id;
     }
 

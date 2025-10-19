@@ -12,7 +12,7 @@ import jakarta.persistence.*;
 @Getter
 @Setter
 @Entity
-@Table(name = "value_string", schema = "shrapnel")
+@Table(name = "value_string", schema = "shrapnel_data")
 public class StringValue {
 
 	@Id

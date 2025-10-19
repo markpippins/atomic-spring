@@ -1,14 +1,13 @@
 package com.angrysurfer.atomic.user.model;
 
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.DBRef;
 
-import jakarta.persistence.*;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
-@Entity(name = "Edit")
-//@Table(schema = "social")
+@Document(collection = "edits")
 public class Edit implements Serializable {
 
     /**
@@ -17,26 +16,42 @@ public class Edit implements Serializable {
     private static final long serialVersionUID = -7243938370276557466L;
 
     @Id
-    @SequenceGenerator(name = "edit_sequence", sequenceName = "edit_sequence", allocationSize = 1)
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "edit_sequence")
-    @Column(name = "id", updatable = false, nullable = false, unique = true)
-    private Long id;
+    private String id;
 
-    @CreationTimestamp
     private LocalDateTime created;
 
-    @UpdateTimestamp
     private LocalDateTime updated;
 
-    @Lob
     private String text;
+    
+    @DBRef
+    private Post post;
 
-    public Long getId() {
+    @DBRef
+    private Comment comment;
+
+    public String getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(String id) {
         this.id = id;
+    }
+    
+    public Post getPost() {
+        return post;
+    }
+    
+    public void setPost(Post post) {
+        this.post = post;
+    }
+    
+    public Comment getComment() {
+        return comment;
+    }
+    
+    public void setComment(Comment comment) {
+        this.comment = comment;
     }
 
     public LocalDateTime getCreated() {

@@ -30,7 +30,7 @@ public class UserService {
      * Record representing a test user with basic information. Used for
      * demonstration and testing purposes.
      */
-    public record TestUser(Long id, String email, String alias) {
+    public record TestUser(String id, String email, String alias) {
 
         // Record body is intentionally empty as all functionality
         // is provided by the record's automatic implementation
@@ -59,18 +59,18 @@ public class UserService {
         log.info("UserService initialized");
     }
 
-   @BrokerOperation("login")
-   public UserDTO login(@BrokerParam("alias") String alias, @BrokerParam("identifier") String password) {
+//    @BrokerOperation("login")
+//    public UserDTO login(@BrokerParam("alias") String alias, @BrokerParam("identifier") String password) {
 
-       log.info("Login user {}", alias);
-       User user = userRepository.findByAlias(alias).orElse(null);
+//        log.info("Login user {}", alias);
+//        User user = userRepository.findByAlias(alias).orElse(null);
 
-       if (user == null || !user.getIdentifier().equals(password)) {
-           return null;
-       }
+//        if (user == null || !user.getIdentifier().equals(password)) {
+//            return null;
+//        }
 
-       return user.toDTO();
-   }
+//        return user.toDTO();
+//    }
 
     @BrokerOperation("createUser")
     public UserDTO createUser(@BrokerParam("email") String email,
@@ -87,7 +87,7 @@ public class UserService {
     }
 
     @BrokerOperation("delete")
-    public void delete(@BrokerParam("userId") Long userId) {
+    public void delete(@BrokerParam("userId") String userId) {
         log.info("Delete user id {}", userId);
         userRepository.deleteById(userId);
     }
@@ -101,14 +101,14 @@ public class UserService {
     }
 
     @BrokerOperation("findById")
-    public UserDTO findById(@BrokerParam("userId") Long userId) throws ResourceNotFoundException {
+    public UserDTO findById(@BrokerParam("userId") String userId) throws ResourceNotFoundException {
         log.info("Find user by id {}", userId);
         Optional<User> result = userRepository.findById(userId);
         if (result.isPresent()) {
             return result.get().toDTO();
         }
 
-        throw new ResourceNotFoundException("User ".concat(Long.toString(userId).concat(" not found.")));
+        throw new ResourceNotFoundException("User ".concat(userId).concat(" not found."));
     }
 
     @BrokerOperation("findByAlias")
@@ -118,13 +118,8 @@ public class UserService {
 
         Optional<User> user = userRepository.findByAlias(alias);
         if (user.isPresent()) {
-            Optional<Profile> profile = profileRepository.findByUserId(user.get().getId());
-            if (profile.isPresent()) {
-                user.get().setProfile(profile.get());
-                result = user.get().toDTO();
-            } else {
-                result = user.get().toDTO();
-            }
+            // In MongoDB, the profile might be directly embedded or we might need to handle it differently
+            result = user.get().toDTO();
 
             return result;
         }
@@ -139,12 +134,7 @@ public class UserService {
 
         Optional<User> user = userRepository.findByEmail(email);
         if (user.isPresent()) {
-            Optional<Profile> profile = profileRepository.findByUserId(user.get().getId());
-            if (profile.isPresent()) {
-                result = user.get().toDTO();
-            } else {
-                result = user.get().toDTO();
-            }
+            result = user.get().toDTO();
 
             return result;
         }
@@ -197,12 +187,12 @@ public class UserService {
     }
 
     @BrokerOperation("getUser")
-    public UserDTO getUser(@BrokerParam("id") Long id) throws ResourceNotFoundException {
+    public UserDTO getUser(@BrokerParam("id") String id) throws ResourceNotFoundException {
         return findById(id);
     }
 
     @BrokerOperation("deleteUser")
-    public void deleteUser(@BrokerParam("id") Long id) {
+    public void deleteUser(@BrokerParam("id") String id) {
         delete(id);
     }
 

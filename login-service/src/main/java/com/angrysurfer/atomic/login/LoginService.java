@@ -8,17 +8,17 @@ import com.angrysurfer.atomic.broker.api.ServiceResponse;
 import com.angrysurfer.atomic.broker.spi.BrokerOperation;
 import com.angrysurfer.atomic.broker.spi.BrokerParam;
 import com.angrysurfer.atomic.user.UserDTO;
-import com.angrysurfer.atomic.user.service.UserService;
+import com.angrysurfer.atomic.user.service.UserAccessService;
 
 @Service("loginService")
 public class LoginService {
 
     private static final Logger log = LoggerFactory.getLogger(LoginService.class);
 
-    private final UserService userService;
+    private final UserAccessService userAccessService;
 
-    public LoginService(UserService userService) {
-        this.userService = userService;
+    public LoginService(UserAccessService userAccessService) {
+        this.userAccessService = userAccessService;
         log.info("LoginService initialized");
     }
 
@@ -31,10 +31,9 @@ public class LoginService {
         ServiceResponse<LoginResponse> serviceResponse = new ServiceResponse<>();
 
         try {
-            UserDTO user = userService.findByAlias(alias);
+            UserDTO user = userAccessService.login(alias, password);
 
-            if (user == null || !user.getIdentifier().equals(password)) {
-
+            if (user == null) {
                 LoginResponse response = new LoginResponse("FAILURE", "invalid password");
                 response.setOk(false);
                 response.addError("identifier", "invalid password");

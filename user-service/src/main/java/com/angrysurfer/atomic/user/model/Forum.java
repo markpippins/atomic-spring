@@ -6,16 +6,11 @@ import java.util.Set;
 
 import com.angrysurfer.atomic.user.ForumDTO;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToMany;
-import jakarta.persistence.SequenceGenerator;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.DBRef;
 
-@Entity
+@Document(collection = "forums")
 public class Forum implements Serializable {
 
     /**
@@ -24,26 +19,23 @@ public class Forum implements Serializable {
     private static final long serialVersionUID = 2527484659765374240L;
 
     @Id
-    @SequenceGenerator(name = "forum_sequence", sequenceName = "forum_sequence", allocationSize = 1)
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "forum_sequence")
-    @Column(name = "id", updatable = false, nullable = false, unique = true)
-    private Long id;
+    private String id;
 
     private String name;
 
     public ForumDTO toDTO() {
         ForumDTO dto = new ForumDTO();
-        dto.setId(getId());
+        dto.setId(getId()); // MongoDB ObjectId as String
         dto.setName(getName());
         getMembers().forEach(member -> dto.getMembers().add(member.toDTO()));
         return dto;
     }
 
-    public Long getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(String id) {
         this.id = id;
     }
 
@@ -55,8 +47,7 @@ public class Forum implements Serializable {
         this.name = name;
     }
 
-    @ManyToMany
-    @JoinTable(name = "forum_members")
+    @DBRef
     private Set<User> members = new HashSet<>();
 
     public Forum() {

@@ -16,7 +16,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
-@Table(name = "data_source", schema = "shrapnel")
+@Table(name = "data_source", schema = "shrapnel_data")
 public class DBDataSource {
 
 	@ManyToOne

@@ -40,7 +40,7 @@ public class CommentService {
     }
 
     @BrokerOperation("delete")
-    public ServiceResponse<String> delete(@BrokerParam("commentId") Long commentId) {
+    public ServiceResponse<String> delete(@BrokerParam("commentId") String commentId) {
         log.info("Deleting comment id {}", commentId);
         try {
             commentRepository.deleteById(commentId);
@@ -55,7 +55,7 @@ public class CommentService {
     }
 
     @BrokerOperation("findById")
-    public ServiceResponse<CommentDTO> findById(@BrokerParam("commentId") Long commentId) {
+    public ServiceResponse<CommentDTO> findById(@BrokerParam("commentId") String commentId) {
         log.info("Find comment by id {}", commentId);
         try {
             Optional<Comment> comment = commentRepository.findById(commentId);
@@ -103,9 +103,11 @@ public class CommentService {
     }
 
     @BrokerOperation("findCommentsForPost")
-    public ServiceResponse<Iterable<Comment>> findCommentsForPost(@BrokerParam("postId") Long postId) {
+    public ServiceResponse<Iterable<Comment>> findCommentsForPost(@BrokerParam("postId") String postId) {
         log.info("Find comments for post id {}", postId);
         try {
+            // Note: In MongoDB, the way to find comments for a post might be different
+            // We may need to implement a custom method in the repository
             Iterable<Comment> comments = commentRepository.findByPostId(postId);
             return ServiceResponse.ok(comments, "findCommentsForPost-" + System.currentTimeMillis());
         } catch (Exception e) {
@@ -189,8 +191,9 @@ public class CommentService {
 
 
 
+
     @BrokerOperation("addReaction")
-    public ServiceResponse<ReactionDTO> addReaction(@BrokerParam("commentId") Long commentId, @BrokerParam("reactionDTO") ReactionDTO reactionDTO) {
+    public ServiceResponse<ReactionDTO> addReaction(@BrokerParam("commentId") String commentId, @BrokerParam("reactionDTO") ReactionDTO reactionDTO) {
         log.info("Adding reaction to comment id {}", commentId);
         try {
             Reaction.ReactionType type = Reaction.ReactionType.valueOf(reactionDTO.getType().toUpperCase());
@@ -231,7 +234,7 @@ public class CommentService {
     }
 
     @BrokerOperation("removeReaction")
-    public ServiceResponse<String> removeReaction(@BrokerParam("commentId") Long commentId, @BrokerParam("reactionDTO") ReactionDTO reactionDTO) {
+    public ServiceResponse<String> removeReaction(@BrokerParam("commentId") String commentId, @BrokerParam("reactionDTO") ReactionDTO reactionDTO) {
         log.info("Removing reaction from comment id {}", commentId);
         try {
             Optional<Reaction> reactionOpt = this.reactionRepository.findById(reactionDTO.getId());

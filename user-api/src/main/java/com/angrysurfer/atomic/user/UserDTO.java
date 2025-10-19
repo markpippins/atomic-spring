@@ -15,7 +15,7 @@ public class UserDTO implements Serializable {
 
     private static final String TYPE = "user";
 
-	private Long id;
+	private String id;
 
     private String alias;
 

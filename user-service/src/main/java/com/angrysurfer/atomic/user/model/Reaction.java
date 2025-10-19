@@ -1,15 +1,15 @@
 package com.angrysurfer.atomic.user.model;
 
-import jakarta.persistence.*;
-import org.hibernate.annotations.CreationTimestamp;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.DBRef;
 
 import com.angrysurfer.atomic.user.ReactionDTO;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
-//@Table(schema = "social")
-@Entity(name = "Reaction")
+@Document(collection = "reactions")
 public class Reaction implements Serializable {
 
     /**
@@ -19,17 +19,17 @@ public class Reaction implements Serializable {
 
     public ReactionDTO toDTO() {
         ReactionDTO dto = new ReactionDTO();
-        dto.setId(getId());
+        dto.setId(getId()); // MongoDB ObjectId as String
         dto.setType(getReactionType().toString());
         dto.setAlias(getUser().getAlias());
         return dto;
     }
 
-    public Long getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(String id) {
         this.id = id;
     }
 
@@ -62,19 +62,20 @@ public class Reaction implements Serializable {
     }
 
     @Id
-    @SequenceGenerator(name = "reaction_sequence", sequenceName = "reaction_sequence", allocationSize = 1)
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "reaction_sequence")
-    @Column(name = "id", updatable = false, nullable = false, unique = true)
-    private Long id;
+    private String id;
 
-    @CreationTimestamp
     private LocalDateTime created;
 
-    @Enumerated(EnumType.STRING)
     private ReactionType reactionType;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @DBRef
     private User user;
+    
+    @DBRef
+    private Post post;
+
+    @DBRef
+    private Comment comment;
 
     public Reaction() {
 
@@ -83,6 +84,22 @@ public class Reaction implements Serializable {
     public Reaction(User user, ReactionType type) {
         this.user = user;
         this.reactionType = type;
+    }
+    
+    public Post getPost() {
+        return post;
+    }
+    
+    public void setPost(Post post) {
+        this.post = post;
+    }
+    
+    public Comment getComment() {
+        return comment;
+    }
+    
+    public void setComment(Comment comment) {
+        this.comment = comment;
     }
 
 }

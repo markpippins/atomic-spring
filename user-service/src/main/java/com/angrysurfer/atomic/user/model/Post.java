@@ -3,25 +3,16 @@ package com.angrysurfer.atomic.user.model;
 import java.util.HashSet;
 import java.util.Set;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.SequenceGenerator;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.DBRef;
 
 import java.util.stream.Collectors;
 
 import com.angrysurfer.atomic.user.PostDTO;
 import com.angrysurfer.atomic.user.PostStatDTO;
 
-@Entity(name = "Post")
+@Document(collection = "posts")
 public class Post extends AbstractContent {
 
     /**
@@ -30,15 +21,12 @@ public class Post extends AbstractContent {
     private static final long serialVersionUID = -6085955136753566931L;
 
     @Id
-    @SequenceGenerator(name = "post_sequence", sequenceName = "post_sequence", allocationSize = 1)
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "post_sequence")
-    @Column(name = "id", updatable = false, nullable = false, unique = true)
-    private Long id;
+    private String id;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @DBRef
     private User postedBy;
 
-    @OneToOne(fetch = FetchType.EAGER)
+    @DBRef
     private User postedTo;
 
     private Long forumId;
@@ -49,7 +37,7 @@ public class Post extends AbstractContent {
 
     public PostDTO toDTO() {
         PostDTO dto = new PostDTO();
-        dto.setId(getId());
+        dto.setId(getId()); // MongoDB ObjectId as String
         dto.setText(getText());
         dto.setPostedBy(getPostedBy().getAlias());
         dto.setForumId(getForumId());
@@ -63,16 +51,16 @@ public class Post extends AbstractContent {
 
     public PostStatDTO toStatDTO() {
         PostStatDTO dto = new PostStatDTO();
-        dto.setId(getId());
+        dto.setId(getId() != null ? Long.valueOf(getId().hashCode()) : null); // MongoDB ObjectId to Long
         dto.setRating(getRating());
         return dto;
     }
 
-    public Long getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(String id) {
         this.id = id;
     }
 
@@ -116,22 +104,13 @@ public class Post extends AbstractContent {
         this.title = title;
     }
 
-    @OneToMany(fetch = FetchType.EAGER)
-    @JoinTable(name = "post_comment", joinColumns = {
-        @JoinColumn(name = "comment_id")}, inverseJoinColumns = {
-        @JoinColumn(name = "post_id")})
+    @DBRef
     private Set<Comment> replies = new HashSet<>();
 
-    @OneToMany(fetch = FetchType.EAGER)
-    @JoinTable(name = "post_edit", joinColumns = {
-        @JoinColumn(name = "edit_id")}, inverseJoinColumns = {
-        @JoinColumn(name = "post_id")})
+    @DBRef
     private Set<Edit> edits = new HashSet<>();
 
-    @OneToMany(fetch = FetchType.EAGER)
-    @JoinTable(name = "post_reaction", joinColumns = {
-        @JoinColumn(name = "reaction_id")}, inverseJoinColumns = {
-        @JoinColumn(name = "post_id")})
+    @DBRef
     private Set<Reaction> reactions = new HashSet<>();
 
     public Post() {

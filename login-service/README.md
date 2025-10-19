@@ -27,6 +27,13 @@ The login service includes:
 - **SessionManager**: Manages active user sessions
 - **SecurityProvider**: Abstracts security implementation details
 
+## User Integration
+
+The login service specifically integrates with the `user-access-service` for user credential validation. It retrieves user information using the `UserService` from the user-access-service, which implements a dual ID system:
+
+- **Long ID**: For client compatibility with existing web clients
+- **String mongoId**: Internal MongoDB storage ID
+
 ## API
 
 The service handles requests through the broker system with operations including:
@@ -57,7 +64,7 @@ The login service supports configuration for:
 ## Integration
 
 The login service integrates with:
-- User management system for credentials verification
+- User-access-service for credentials verification and user management
 - Session management for cross-service authentication
 - Security audit system for tracking login events
 - The broker service for request routing

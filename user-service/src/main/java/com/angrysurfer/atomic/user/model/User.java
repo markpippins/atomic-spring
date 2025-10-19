@@ -7,18 +7,11 @@ import java.util.stream.Collectors;
 
 import com.angrysurfer.atomic.user.UserDTO;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Lob;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.SequenceGenerator;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.DBRef;
 
-@Entity(name = "User")
+@Document(collection = "users")
 public class User implements Serializable {
 
     /**
@@ -27,10 +20,7 @@ public class User implements Serializable {
     private static final long serialVersionUID = 2747813660378401172L;
 
     @Id
-    @SequenceGenerator(name = "user_sequence", sequenceName = "user_sequence", allocationSize = 1)
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "user_sequence")
-    @Column(name = "id", updatable = false, nullable = false, unique = true)
-    private Long id;
+    private String id;
 
     private String identifier;
 
@@ -38,24 +28,23 @@ public class User implements Serializable {
 
     private String email;
 
-    @Lob
     private String avatarUrl = "https://picsum.photos/50/50";
 
-    @OneToOne
+    @DBRef
     private Profile profile;
 
-    @OneToMany(fetch = FetchType.EAGER)
+    @DBRef
     private Set<User> followers = new HashSet<>();
 
-    @OneToMany(fetch = FetchType.EAGER)
+    @DBRef
     private Set<User> following = new HashSet<>();
 
-    @OneToMany(fetch = FetchType.EAGER)
+    @DBRef
     private Set<User> friends = new HashSet<>();
 
     public UserDTO toDTO() {
         UserDTO dto = new UserDTO();
-        dto.setId(getId());
+        dto.setId(getId()); // MongoDB ObjectId as String
         dto.setAlias(getAlias());
         dto.setEmail(getEmail());
         dto.setIdentifier(getIdentifier());
@@ -83,11 +72,11 @@ public class User implements Serializable {
         setIdentifier(identifier);
     }
 
-    public Long getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(String id) {
         this.id = id;
     }
 

@@ -4,36 +4,37 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 
-import jakarta.persistence.EntityListeners;
-import jakarta.persistence.Lob;
-import jakarta.persistence.MappedSuperclass;
-
-@MappedSuperclass
-@EntityListeners(AuditingEntityListener.class)
-abstract class AbstractContent implements IContent, Serializable {
+@Document
+public abstract class AbstractContent implements IContent, Serializable {
 
     /**
      *
      */
     private static final long serialVersionUID = 8556528798660585653L;
 
-    @CreationTimestamp
+    @Id
+    private String id;
+
     private LocalDateTime created;
 
-    @UpdateTimestamp
     private LocalDateTime updated;
 
-    @Lob
     private String text;
 
-    @Lob
     private String url;
 
     private Long rating;
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
 
     public LocalDateTime getCreated() {
         return created;

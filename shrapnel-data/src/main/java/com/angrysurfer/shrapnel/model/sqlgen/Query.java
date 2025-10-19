@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 @Getter
 @Setter
 @Entity
-@Table(name = "qbe_query", schema = "shrapnel")
+@Table(name = "qbe_query", schema = "shrapnel_data")
 public class Query {
 
 	public static String SELECT = "\n\tSELECT \n\t";

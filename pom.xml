@@ -21,6 +21,7 @@
         <module>login-service</module>
         <module>user-api</module>
         <module>user-service</module>
+        <module>user-access-service</module>
         <!-- <module>upload-service</module> -->
         <!-- <module>vaadin-nucleus-client</module> -->
         <module>shrapnel-data</module>
@@ -171,6 +172,11 @@
             <dependency>
                 <groupId>com.angrysurfer.atomic</groupId>
                 <artifactId>user-service</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.angrysurfer.atomic</groupId>
+                <artifactId>user-access-service</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

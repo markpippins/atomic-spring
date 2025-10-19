@@ -26,7 +26,7 @@ public class ProfileService {
     }
 
     @BrokerOperation("findByUserId")
-    public ServiceResponse<ProfileDTO> findByUserId(@BrokerParam("userId") Long userId) {
+    public ServiceResponse<ProfileDTO> findByUserId(@BrokerParam("userId") String userId) {
         log.info("Find profile by user id {}", userId);
         try {
             Optional<Profile> profile = profileRepository.findByUserId(userId);
@@ -47,7 +47,7 @@ public class ProfileService {
     }
 
     @BrokerOperation("deleteByUserId")
-    public ServiceResponse<String> deleteByUserId(@BrokerParam("userId") Long userId) {
+    public ServiceResponse<String> deleteByUserId(@BrokerParam("userId") String userId) {
         log.info("Delete profile by user id {}", userId);
         try {
             profileRepository.deleteByUserId(userId);

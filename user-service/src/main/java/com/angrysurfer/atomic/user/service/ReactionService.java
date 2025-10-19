@@ -22,13 +22,13 @@ public class ReactionService {
         log.info("ReactionService initialized");
     }
 
-    public String delete(Long reactionId) {
+    public String delete(String reactionId) {
         log.info("Delete reaction id {}", reactionId);
         reactionRepository.deleteById(reactionId);
         return "redirect:/Reaction/all";
     }
 
-    public Optional<Reaction> findById(Long reactionId) {
+    public Optional<Reaction> findById(String reactionId) {
         log.info("Find reaction by id {}", reactionId);
         return reactionRepository.findById(reactionId);
     }
@@ -45,7 +45,7 @@ public class ReactionService {
         return reactionRepository.save(n);
     }
 
-    public void update(Long id) {
+    public void update(String id) {
         log.info("Update reaction id {}", id);
         reactionRepository.deleteById(id);
     }
