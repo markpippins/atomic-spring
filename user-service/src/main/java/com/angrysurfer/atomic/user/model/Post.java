@@ -20,7 +20,6 @@ public class Post extends AbstractContent {
      */
     private static final long serialVersionUID = -6085955136753566931L;
 
-    @Id
     private String id;
 
     @DBRef

@@ -19,7 +19,6 @@ public class Comment extends AbstractContent {
 	 */
 	private static final long serialVersionUID = 1902851597891565438L;
 
-	@Id
 	private String id;
 
 	@DBRef
