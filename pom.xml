@@ -15,17 +15,17 @@
         <module>broker-service-spi</module>
         <module>broker-service</module>
         <module>broker-gateway</module>
+        <module>broker-gateway-sec-bot</module>
         <module>file-service-api</module>
         <module>file-service</module>
-        <!-- <module>export-service</module> -->
+        <module>export-service</module>
         <module>login-service</module>
+        <module>shrapnel-data</module>
         <module>user-api</module>
         <module>user-service</module>
         <module>user-access-service</module>
-        <!-- <module>upload-service</module> -->
-        <!-- <module>vaadin-nucleus-client</module> -->
-        <module>shrapnel-data</module>
-        <module>broker-gateway-sec-bot</module>
+        <module>upload-service</module>
+        <module>vaadin-client</module>
     </modules>
     
     <properties>

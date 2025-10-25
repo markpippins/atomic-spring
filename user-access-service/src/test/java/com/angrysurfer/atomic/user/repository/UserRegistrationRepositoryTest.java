@@ -7,17 +7,17 @@ import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import com.angrysurfer.atomic.user.model.ValidUser;
+import com.angrysurfer.atomic.user.model.UserRegistration;
 
-class UserRepositoryTest {
+class UserRegistrationRepositoryTest {
 
-    private ValidUser validUser;
+    private UserRegistration validUser;
 
     @BeforeEach
     void setUp() {
         // Since UserRepository is an interface extending MongoRepository, 
         // we'll test the behavior through mocking
-        validUser = new ValidUser();
+        validUser = new UserRegistration();
         validUser.setMongoId("507f1f77bcf86cd799439011");
         validUser.setId(123L);
         validUser.setAlias("testUser");
@@ -41,7 +41,7 @@ class UserRepositoryTest {
     @Test
     void testSave() {
         // Test that the user object can be saved and maintains its properties
-        ValidUser savedUser = validUser; // In real scenario, this would be the result of save operation
+        UserRegistration savedUser = validUser; // In real scenario, this would be the result of save operation
         
         assertEquals("507f1f77bcf86cd799439011", savedUser.getMongoId());
         assertEquals(123L, savedUser.getId());
@@ -51,7 +51,7 @@ class UserRepositoryTest {
 
     @Test
     void testFindById() {
-        Optional<ValidUser> userOpt = Optional.of(validUser);
+        Optional<UserRegistration> userOpt = Optional.of(validUser);
         
         assertTrue(userOpt.isPresent());
         assertEquals("507f1f77bcf86cd799439011", userOpt.get().getMongoId());

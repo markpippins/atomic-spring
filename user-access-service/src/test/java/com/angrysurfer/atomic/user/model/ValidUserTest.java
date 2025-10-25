@@ -7,16 +7,16 @@ import org.junit.jupiter.api.Test;
 
 class ValidUserTest {
 
-    private ValidUser validUser;
+    private UserRegistration validUser;
 
     @BeforeEach
     void setUp() {
-        validUser = new ValidUser();
+        validUser = new UserRegistration();
     }
 
     @Test
     void testConstructorWithParameters() {
-        ValidUser user = new ValidUser("testAlias", "test@example.com", "avatar.jpg");
+        UserRegistration user = new UserRegistration("testAlias", "test@example.com", "avatar.jpg");
         
         assertEquals("testAlias", user.getAlias());
         assertEquals("test@example.com", user.getEmail());
@@ -25,7 +25,7 @@ class ValidUserTest {
 
     @Test
     void testConstructorWithAllParameters() {
-        ValidUser user = new ValidUser("testAlias", "test@example.com", "avatar.jpg", "password123");
+        UserRegistration user = new UserRegistration("testAlias", "test@example.com", "avatar.jpg", "password123");
         
         assertEquals("testAlias", user.getAlias());
         assertEquals("test@example.com", user.getEmail());
@@ -92,7 +92,7 @@ class ValidUserTest {
         validUser.setAvatarUrl("https://example.com/avatar.jpg");
 
         // Convert to DTO
-        com.angrysurfer.atomic.user.UserDTO dto = validUser.toDTO();
+        com.angrysurfer.atomic.user.UserRegistrationDTO dto = validUser.toDTO();
 
         // Verify DTO values
         assertEquals("123", dto.getId()); // Long id converted to String
@@ -105,7 +105,7 @@ class ValidUserTest {
     @Test
     void testSerialVersionUID() throws NoSuchFieldException, IllegalAccessException {
         // Get the serialVersionUID from the class
-        java.lang.reflect.Field serialVersionUIDField = ValidUser.class.getDeclaredField("serialVersionUID");
+        java.lang.reflect.Field serialVersionUIDField = UserRegistration.class.getDeclaredField("serialVersionUID");
         serialVersionUIDField.setAccessible(true);
         long serialVersionUID = (long) serialVersionUIDField.get(null);
         

@@ -2,16 +2,16 @@ package com.angrysurfer.atomic.user.model;
 
 import java.io.Serializable;
 
-import com.angrysurfer.atomic.user.UserDTO;
-
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+
+import com.angrysurfer.atomic.user.UserRegistrationDTO;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 
 @Document(collection = "users")
-public class ValidUser implements Serializable {
+public class UserRegistration implements Serializable {
 
     /**
      *
@@ -34,8 +34,8 @@ public class ValidUser implements Serializable {
 
     private String avatarUrl = "https://picsum.photos/50/50";
 
-    public UserDTO toDTO() {
-        UserDTO dto = new UserDTO();
+    public UserRegistrationDTO toDTO() {
+        UserRegistrationDTO dto = new UserRegistrationDTO();
         dto.setId(String.valueOf(getId())); // Convert Long to String for DTO
         dto.setAlias(getAlias());
         dto.setEmail(getEmail());
@@ -44,17 +44,17 @@ public class ValidUser implements Serializable {
         return dto;
     }
 
-    public ValidUser() {
+    public UserRegistration() {
 
     }
 
-    public ValidUser(String alias, String email, String avatarUrl) {
+    public UserRegistration(String alias, String email, String avatarUrl) {
         setAlias(alias);
         setEmail(email);
         setAvatarUrl(avatarUrl);
     }
 
-    public ValidUser(String alias, String email, String avatarUrl, String identifier) {
+    public UserRegistration(String alias, String email, String avatarUrl, String identifier) {
         setAlias(alias);
         setEmail(email);
         setAvatarUrl(avatarUrl);
