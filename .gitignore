@@ -381,3 +381,7 @@ user-access-service/target/classes/com/angrysurfer/atomic/user/repository/UserRe
 user-access-service/target/test-classes/com/angrysurfer/atomic/user/repository/UserRegistrationRepositoryTest.class
 user-access-service/target/test-classes/com/angrysurfer/atomic/user/service/UserRegistrationServiceTest.class
 user-api/target/classes/com/angrysurfer/atomic/user/UserRegistrationDTO.class
+broker-gateway/target/classes/com/angrysurfer/atomic/broker/gateway/BrokerGatewayApplication.class
+broker-gateway/target/classes/com/angrysurfer/atomic/broker/gateway/CorsConfig.class
+broker-gateway/target/classes/com/angrysurfer/atomic/broker/gateway/OpenApiConfig.class
+broker-gateway/target/classes/com/angrysurfer/atomic/broker/gateway/RestTemplateConfig.class
