@@ -1,4 +1,4 @@
-package com.angrysurfer.atomic.gateway;
+package com.angrysurfer.atomic.broker.gateway;
 
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;

@@ -1,4 +1,4 @@
-package com.angrysurfer.atomic.broker;
+package com.angrysurfer.atomic.broker.gateway;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

@@ -1,4 +1,4 @@
-package com.angrysurfer.atomic.broker.config;
+package com.angrysurfer.atomic.broker.gateway;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
