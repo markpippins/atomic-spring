@@ -406,3 +406,7 @@ export-service/.project
 broker-gateway/target/classes/com/angrysurfer/atomic/broker/gateway/HealthController.class
 broker-gateway/target/classes/com/angrysurfer/atomic/broker/gateway/CorsConfig$1.class
 .gitignore
+broker-gateway/target/classes/application-beryllium.properties
+broker-gateway/target/classes/application-dev.properties
+broker-gateway/target/classes/application-selenium.properties
+broker-gateway/target/classes/com/angrysurfer/atomic/broker/gateway/CorsFilter.class

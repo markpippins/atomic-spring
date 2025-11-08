@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.angrysurfer.atomic.broker.api.ServiceRequest;
 import com.angrysurfer.atomic.broker.api.ServiceResponse;
 
-@CrossOrigin(origins = "*", allowedHeaders = "*", methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT, RequestMethod.DELETE, RequestMethod.OPTIONS})
+@CrossOrigin(originPatterns = "*", allowedHeaders = "*", allowCredentials = "true", methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT, RequestMethod.DELETE, RequestMethod.OPTIONS})
 @RestController
 @RequestMapping("/api/broker")
 public class BrokerController {
