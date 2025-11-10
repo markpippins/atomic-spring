@@ -1,6 +1,8 @@
 package com.angrysurfer.atomic.fs.api;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
@@ -17,9 +19,19 @@ public class FsRequest {
     private String filename;
     private String newName;
 
+    private List<String> getUserPath(String alias, List<String> path) {
+        var userPath = new ArrayList<String>();
+        userPath.add("users");
+        userPath.add(alias);
+        if (Objects.nonNull(path))
+            userPath.addAll(path);
+        return userPath;        
+    }
+
+
     public FsRequest(String alias, List<String> path, String string) {
         this.alias = alias;
-        this.path = path;
+        this.path = getUserPath(alias, path);
         this.operation = string;
     }
 

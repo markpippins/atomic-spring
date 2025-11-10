@@ -94,4 +94,20 @@ public class RestFsClient {
         req.setToPath(toPath);
         return post(req, Map.class);
     }
+
+    // ===============================
+    // Existence Check Operations
+    // ===============================
+
+    public Map<String, Object> hasFile(String alias, List<String> path, String filename) {
+        FsRequest req = new FsRequest(alias, path, "hasfile");
+        req.setFilename(filename);
+        return post(req, Map.class);
+    }
+
+    public Map<String, Object> hasFolder(String alias, List<String> path, String foldername) {
+        FsRequest req = new FsRequest(alias, path, "hasfolder");
+        req.setFilename(foldername);
+        return post(req, Map.class);
+    }
 }

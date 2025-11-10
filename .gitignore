@@ -410,3 +410,4 @@ broker-gateway/target/classes/application-beryllium.properties
 broker-gateway/target/classes/application-dev.properties
 broker-gateway/target/classes/application-selenium.properties
 broker-gateway/target/classes/com/angrysurfer/atomic/broker/gateway/CorsFilter.class
+file-service-api/src/main/java/com/angrysurfer/atomic/fs/api/FsRequest.java
