@@ -47,13 +47,13 @@ public class JasyptConfig {
 							             !e.getKey().toString().contains("#") &&
 							             !e.getValue().toString().contains("ENC("))
 					.forEach(e -> {
-						log.info("{} = {}", e.getKey().toString(), e.getValue());
+						// log.info("{} = {}", e.getKey().toString(), e.getValue());
 						properties.put(e.getKey(), encryptor.encrypt(e.getValue().toString()));
 					});
 //			.sorted((a, b) -> a.getKey().toString().compareTo(b.getKey().toString()))
 		}
 		catch (Exception e) {
-			log.error(e.getMessage(), e);
+			// log.error(e.getMessage(), e);
 			throw new RuntimeException(e.getMessage(), e);
 		}
 

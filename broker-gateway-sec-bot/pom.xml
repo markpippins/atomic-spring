@@ -10,17 +10,14 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>broker-gateway-sec-bot</artifactId>
     <packaging>jar</packaging>
-
     <dependencies>
         <dependency>
             <groupId>com.angrysurfer.atomic</groupId>
             <artifactId>broker-service-api</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.angrysurfer.atomic</groupId>
             <artifactId>shrapnel-data</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
