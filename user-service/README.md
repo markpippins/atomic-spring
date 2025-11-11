@@ -19,7 +19,7 @@ This service uses MongoDB as its primary data store instead of a relational data
 
 The service connects to MongoDB using the following configuration in `application.properties`:
 ```
-spring.data.mongodb.uri=mongodb://mongoUser:somePassword@localhost:27017/user-service?authSource=admin
+spring.data.mongodb.uri=mongodb://mongoUser:somePassword@localhost:27017/userservice?authSource=admin
 ```
 
 ## Running with MongoDB

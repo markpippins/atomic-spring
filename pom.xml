@@ -186,7 +186,7 @@
             </dependency>
             <dependency>
                 <groupId>com.angrysurfer.atomic</groupId>
-                <artifactId>shrapnel</artifactId>
+                <artifactId>shrapnel-data</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <!-- Lombok with version management -->
