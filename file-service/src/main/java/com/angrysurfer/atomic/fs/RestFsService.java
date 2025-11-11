@@ -1,7 +1,9 @@
 package com.angrysurfer.atomic.fs;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -17,6 +19,15 @@ public class RestFsService {
     private final RestFsClient restFsClient;
     private final ReactiveRestFsClient reactiveRestFsClient;
 
+    private List<String> getUserPath(String alias, List<String> path) {
+        var userPath = new ArrayList<String>();
+        userPath.add("users");
+        userPath.add(alias);
+        if (Objects.nonNull(path))
+            userPath.addAll(path);
+        return userPath;        
+    }
+
     public RestFsService(@Qualifier("restFsClient") RestFsClient restFsClient,
             @Qualifier("reactiveRestFsClient") ReactiveRestFsClient reactiveRestFsClient) {
         this.restFsClient = restFsClient;
@@ -25,6 +36,7 @@ public class RestFsService {
 
     @BrokerOperation("listFiles")
     public FsListResponse listFiles(@BrokerParam("alias") String alias, @BrokerParam("path") List<String> path) {
+        
         return restFsClient.listFiles(alias, path);
     }
 
@@ -66,6 +78,18 @@ public class RestFsService {
             @BrokerParam("fromPath") List<String> fromPath, @BrokerParam("toAlias") String toAlias,
             @BrokerParam("toPath") List<String> toPath) {
         return restFsClient.copy(fromAlias, fromPath, toAlias, toPath);
+    }
+
+    @BrokerOperation("hasFile")
+    public Map<String, Object> hasFile(@BrokerParam("alias") String alias, @BrokerParam("path") List<String> path,
+            @BrokerParam("filename") String filename) {
+        return restFsClient.hasFile(alias, path, filename);
+    }
+
+    @BrokerOperation("hasFolder")
+    public Map<String, Object> hasFolder(@BrokerParam("alias") String alias, @BrokerParam("path") List<String> path,
+            @BrokerParam("foldername") String foldername) {
+        return restFsClient.hasFolder(alias, path, foldername);
     }
 
 }
