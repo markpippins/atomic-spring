@@ -24,10 +24,10 @@ public class UserAccessService {
         log.info("UserAccessService initialized");
     }
 
-    @BrokerOperation("login")
-    public UserRegistrationDTO login(@BrokerParam("alias") String alias, @BrokerParam("identifier") String password) {
+    @BrokerOperation("validateUser")
+    public UserRegistrationDTO validateUser(@BrokerParam("alias") String alias, @BrokerParam("identifier") String password) {
 
-        log.info("Login user {}", alias);
+        log.info("Validating user {}", alias);
         UserRegistration user = userRepository.findByAlias(alias).orElse(null);
 
         if (user == null || !user.getIdentifier().equals(password)) {

@@ -49,5 +49,17 @@
             <groupId>com.angrysurfer.atomic</groupId>
             <artifactId>broker-service-spi</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.angrysurfer.atomic</groupId>
+            <artifactId>login-service</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.angrysurfer.atomic</groupId>
+            <artifactId>user-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.angrysurfer.atomic</groupId>
+            <artifactId>user-access-service</artifactId>
+        </dependency>
     </dependencies>
 </project>

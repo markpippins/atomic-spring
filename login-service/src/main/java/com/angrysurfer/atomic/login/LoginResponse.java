@@ -20,6 +20,9 @@ public class LoginResponse {
 
     private Map<String, String> errors = new HashMap<>();
 
+    private LoginResponse() {
+    }
+    
     public LoginResponse(String token) {
         this.token = token;
     }
