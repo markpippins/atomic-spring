@@ -47,11 +47,11 @@
         </dependency>
         <dependency>
             <groupId>com.angrysurfer.atomic</groupId>
-            <artifactId>broker-service-spi</artifactId>
+            <artifactId>broker-service</artifactId>
         </dependency>
         <dependency>
             <groupId>com.angrysurfer.atomic</groupId>
-            <artifactId>login-service</artifactId>
+            <artifactId>broker-service-spi</artifactId>
         </dependency>
         <dependency>
             <groupId>com.angrysurfer.atomic</groupId>

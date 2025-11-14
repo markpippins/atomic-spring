@@ -2,7 +2,6 @@ package com.angrysurfer.atomic.fs;
 
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -14,7 +13,6 @@ import org.springframework.web.client.RestTemplate;
 
 import com.angrysurfer.atomic.fs.api.FsListResponse;
 import com.angrysurfer.atomic.fs.api.FsRequest;
-import com.angrysurfer.atomic.login.LoginService;
 
 @Service("restFsClient")
 public class RestFsClient {

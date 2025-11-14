@@ -419,3 +419,4 @@ note-service/target/classes/com/angrysurfer/atomic/note/NoteServiceImpl.class
 note-service/target/classes/com/angrysurfer/atomic/note/NoteTokenService.class
 note-service/target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst
 note-service/target/maven-status/maven-compiler-plugin/compile/default-compile/inputFiles.lst
+file-service/src/main/java/com/angrysurfer/atomic/fs/RestFsService.java
