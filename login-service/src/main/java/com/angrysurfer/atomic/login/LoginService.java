@@ -129,8 +129,8 @@ public class LoginService {
         }
     }
 
-    @BrokerOperation("getUserByToken")
-    public ServiceResponse<UserRegistrationDTO> getUserByToken(@BrokerParam("token") String token) {
+    @BrokerOperation("getUserRegistrationForToken")
+    public ServiceResponse<UserRegistrationDTO> getUserRegistrationForToken(@BrokerParam("token") String token) {
         log.debug("Retrieving user for token {}", token);
         
         ServiceResponse<UserRegistrationDTO> serviceResponse = new ServiceResponse<>();

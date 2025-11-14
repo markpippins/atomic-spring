@@ -412,3 +412,10 @@ broker-gateway/target/classes/application-dev.properties
 broker-gateway/target/classes/application-selenium.properties
 broker-gateway/target/classes/com/angrysurfer/atomic/broker/gateway/CorsFilter.class
 file-service-api/src/main/java/com/angrysurfer/atomic/fs/api/FsRequest.java
+note-service/target/classes/com/angrysurfer/atomic/note/Note.class
+note-service/target/classes/com/angrysurfer/atomic/note/NoteBrokerService.class
+note-service/target/classes/com/angrysurfer/atomic/note/NoteRepository.class
+note-service/target/classes/com/angrysurfer/atomic/note/NoteServiceImpl.class
+note-service/target/classes/com/angrysurfer/atomic/note/NoteTokenService.class
+note-service/target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst
+note-service/target/maven-status/maven-compiler-plugin/compile/default-compile/inputFiles.lst

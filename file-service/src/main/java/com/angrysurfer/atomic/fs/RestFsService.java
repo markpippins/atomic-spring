@@ -27,7 +27,7 @@ public class RestFsService {
         
         // Get the user alias from the login service using the token
         if (Objects.nonNull(token)) {
-            var userResponse = loginService.getUserByToken(token);
+            var userResponse = loginService.getUserRegistrationForToken(token);
             if (userResponse.isOk() && userResponse.getData() != null) {
                 String userAlias = userResponse.getData().getAlias();
                 userPath.add(userAlias);
@@ -54,7 +54,7 @@ public class RestFsService {
 
     @BrokerOperation("listFiles")
     public FsListResponse listFiles(@BrokerParam("token") String token, @BrokerParam("path") List<String> path) {
-        var userResponse = loginService.getUserByToken(token);
+        var userResponse = loginService.getUserRegistrationForToken(token);
         if (!userResponse.isOk() || userResponse.getData() == null) {
             throw new RuntimeException("Invalid token or user not found");
         }
@@ -64,7 +64,7 @@ public class RestFsService {
 
     @BrokerOperation("changeDirectory")
     public Map<String, Object> changeDirectory(@BrokerParam("token") String token, @BrokerParam("path") List<String> path) {
-        var userResponse = loginService.getUserByToken(token);
+        var userResponse = loginService.getUserRegistrationForToken(token);
         if (!userResponse.isOk() || userResponse.getData() == null) {
             throw new RuntimeException("Invalid token or user not found");
         }
@@ -74,7 +74,7 @@ public class RestFsService {
 
     @BrokerOperation("createDirectory")
     public Map<String, Object> createDirectory(@BrokerParam("token") String token, @BrokerParam("path") List<String> path) {
-        var userResponse = loginService.getUserByToken(token);
+        var userResponse = loginService.getUserRegistrationForToken(token);
         if (!userResponse.isOk() || userResponse.getData() == null) {
             throw new RuntimeException("Invalid token or user not found");
         }
@@ -84,7 +84,7 @@ public class RestFsService {
 
     @BrokerOperation("removeDirectory")
     public Map<String, Object> removeDirectory(@BrokerParam("token") String token, @BrokerParam("path") List<String> path) {
-        var userResponse = loginService.getUserByToken(token);
+        var userResponse = loginService.getUserRegistrationForToken(token);
         if (!userResponse.isOk() || userResponse.getData() == null) {
             throw new RuntimeException("Invalid token or user not found");
         }
@@ -95,7 +95,7 @@ public class RestFsService {
     @BrokerOperation("createFile")
     public Map<String, Object> createFile(@BrokerParam("token") String token, @BrokerParam("path") List<String> path,
             @BrokerParam("filename") String filename) {
-        var userResponse = loginService.getUserByToken(token);
+        var userResponse = loginService.getUserRegistrationForToken(token);
         if (!userResponse.isOk() || userResponse.getData() == null) {
             throw new RuntimeException("Invalid token or user not found");
         }
@@ -106,7 +106,7 @@ public class RestFsService {
     @BrokerOperation("deleteFile")
     public Map<String, Object> deleteFile(@BrokerParam("token") String token, @BrokerParam("path") List<String> path,
             @BrokerParam("filename") String filename) {
-        var userResponse = loginService.getUserByToken(token);
+        var userResponse = loginService.getUserRegistrationForToken(token);
         if (!userResponse.isOk() || userResponse.getData() == null) {
             throw new RuntimeException("Invalid token or user not found");
         }
@@ -117,7 +117,7 @@ public class RestFsService {
     @BrokerOperation("rename")
     public Map<String, Object> rename(@BrokerParam("token") String token, @BrokerParam("path") List<String> path,
             @BrokerParam("newName") String newName) {
-        var userResponse = loginService.getUserByToken(token);
+        var userResponse = loginService.getUserRegistrationForToken(token);
         if (!userResponse.isOk() || userResponse.getData() == null) {
             throw new RuntimeException("Invalid token or user not found");
         }
@@ -128,8 +128,8 @@ public class RestFsService {
     @BrokerOperation("copy")
     public Map<String, Object> copy(@BrokerParam("fromToken") String fromToken, @BrokerParam("fromPath") List<String> fromPath, 
             @BrokerParam("toToken") String toToken, @BrokerParam("toPath") List<String> toPath) {
-        var fromUserResponse = loginService.getUserByToken(fromToken);
-        var toUserResponse = loginService.getUserByToken(toToken);
+        var fromUserResponse = loginService.getUserRegistrationForToken(fromToken);
+        var toUserResponse = loginService.getUserRegistrationForToken(toToken);
         if (!fromUserResponse.isOk() || fromUserResponse.getData() == null) {
             throw new RuntimeException("Invalid 'from' token or user not found");
         }
@@ -144,7 +144,7 @@ public class RestFsService {
     @BrokerOperation("hasFile")
     public Map<String, Object> hasFile(@BrokerParam("token") String token, @BrokerParam("path") List<String> path,
             @BrokerParam("filename") String filename) {
-        var userResponse = loginService.getUserByToken(token);
+        var userResponse = loginService.getUserRegistrationForToken(token);
         if (!userResponse.isOk() || userResponse.getData() == null) {
             throw new RuntimeException("Invalid token or user not found");
         }
@@ -155,7 +155,7 @@ public class RestFsService {
     @BrokerOperation("hasFolder")
     public Map<String, Object> hasFolder(@BrokerParam("token") String token, @BrokerParam("path") List<String> path,
             @BrokerParam("foldername") String foldername) {
-        var userResponse = loginService.getUserByToken(token);
+        var userResponse = loginService.getUserRegistrationForToken(token);
         if (!userResponse.isOk() || userResponse.getData() == null) {
             throw new RuntimeException("Invalid token or user not found");
         }

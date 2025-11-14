@@ -52,13 +52,13 @@ public class BrokerController {
         log.debug("Received request: {}", request);
 
         ServiceResponse<?> response = broker.submit(request);
+        log.debug("returning: {}", response);
 
         if (response.isOk()) {
             return ResponseEntity.ok(response);
         } else {
             // decide on HTTP code: validation errors = 400, not_found = 404, etc.
             // simplest case: always return 400 for errors
-            log.debug("returning: {}", response);
             return ResponseEntity.badRequest().body(response);
         }
     }

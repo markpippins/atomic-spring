@@ -13,6 +13,9 @@
     <artifactId>login-service</artifactId>
     <packaging>jar</packaging>
 
+    <name>Login Service</name>
+    <description>Atomic Login Service</description>
+
     <dependencies>
         <dependency>
             <groupId>com.angrysurfer.atomic</groupId>
