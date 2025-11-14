@@ -25,6 +25,7 @@
         <module>user-service</module>
         <module>user-access-service</module>
         <module>upload-service</module>
+        <module>note-service</module>
 <!--         <module>vaadin-client</module> -->
     </modules>
     
