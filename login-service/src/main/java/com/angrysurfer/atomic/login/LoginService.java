@@ -8,25 +8,24 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import com.angrysurfer.atomic.broker.Broker;
+import com.angrysurfer.atomic.broker.api.ServiceRequest;
 import com.angrysurfer.atomic.broker.api.ServiceResponse;
 import com.angrysurfer.atomic.broker.spi.BrokerOperation;
 import com.angrysurfer.atomic.broker.spi.BrokerParam;
-import com.angrysurfer.atomic.user.UserDTO;
 import com.angrysurfer.atomic.user.UserRegistrationDTO;
-import com.angrysurfer.atomic.user.model.UserRegistration;
-import com.angrysurfer.atomic.user.service.UserAccessService;
 
 @Service("loginService")
 public class LoginService {
 
     private static final Logger log = LoggerFactory.getLogger(LoginService.class);
 
-    private final UserAccessService userAccessService;
+    private final Broker broker;
     private final Map<UUID, UserRegistrationDTO> loggedInUsers = new ConcurrentHashMap<>();
 
-    public LoginService(UserAccessService userAccessService) {
-        this.userAccessService = userAccessService;
-        log.info("LoginService initialized");
+    public LoginService(Broker broker) {
+        this.broker = broker;
+        log.info("LoginService initialized with broker integration");
     }
 
     @BrokerOperation("login")
@@ -38,17 +37,33 @@ public class LoginService {
         ServiceResponse<LoginResponse> serviceResponse = new ServiceResponse<>();
 
         try {
-            UserRegistrationDTO user = userAccessService.validateUser(alias, password);
+            // Call the user-access-service through the broker to validate the user
+            java.util.Map<String, Object> params = new java.util.HashMap<>();
+            params.put("alias", alias);
+            params.put("identifier", password);
+            
+            ServiceRequest request = new ServiceRequest(
+                "userAccessService", 
+                "validateUser", 
+                params, 
+                "validate-user-" + System.currentTimeMillis()
+            );
+            
+            @SuppressWarnings("unchecked")
+            ServiceResponse<UserRegistrationDTO> userValidationResponse = 
+                (ServiceResponse<UserRegistrationDTO>) broker.submit(request);
 
-            if (user == null) {
-                LoginResponse response = new LoginResponse("FAILURE", "invalid password");
+            if (!userValidationResponse.isOk() || userValidationResponse.getData() == null) {
+                LoginResponse response = new LoginResponse("FAILURE", "invalid credentials");
                 response.setOk(false);
-                response.addError("identifier", "invalid password");
+                response.addError("credentials", "invalid alias or password");
 
                 serviceResponse.setOk(false);
                 serviceResponse.setData(response);
                 return serviceResponse;
             }
+
+            UserRegistrationDTO user = userValidationResponse.getData();
 
             // Generate UUID token for successful login
             UUID token = UUID.randomUUID();
@@ -67,6 +82,7 @@ public class LoginService {
             return serviceResponse;
 
         } catch (Exception e) {
+            log.error("Error during login:", e);
             serviceResponse.setData(new LoginResponse("FAILURE", e.getMessage()));
             serviceResponse.setOk(false);
             return serviceResponse;

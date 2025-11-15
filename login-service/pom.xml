@@ -19,6 +19,10 @@
     <dependencies>
         <dependency>
             <groupId>com.angrysurfer.atomic</groupId>
+            <artifactId>broker-service</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.angrysurfer.atomic</groupId>
             <artifactId>broker-service-api</artifactId>
         </dependency>
         <dependency>
@@ -28,10 +32,6 @@
         <dependency>
             <groupId>com.angrysurfer.atomic</groupId>
             <artifactId>user-api</artifactId>
-        </dependency>
-                <dependency>
-            <groupId>com.angrysurfer.atomic</groupId>
-            <artifactId>user-access-service</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
