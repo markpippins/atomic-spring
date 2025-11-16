@@ -438,3 +438,11 @@ login-service/target/surefire-reports/com.angrysurfer.atomic.integration.EndToEn
 login-service/target/surefire-reports/TEST-com.angrysurfer.atomic.integration.EndToEndIntegrationTest$SessionManagementTests.xml
 login-service/target/test-classes/com/angrysurfer/atomic/integration/EndToEndIntegrationTest$SessionManagementTests.class
 search-service/target/classes/com/angrysurfer/atomic/search/GoogleSearchService.class
+search-service/target/classes/com/angrysurfer/atomic/search/SearchConfig.class
+search-service/target/classes/com/angrysurfer/atomic/search/SearchResult.class
+search-service/target/classes/com/angrysurfer/atomic/search/SearchResultItem.class
+throttler-api/target/throttler-user-api-1.0.0-SNAPSHOT.jar
+throttler-api/target/classes/com/angrysurfer/atomic/throttler/api/ThrottlerProfile.class
+throttler-api/target/maven-archiver/pom.properties
+throttler-api/target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst
+throttler-api/target/maven-status/maven-compiler-plugin/compile/default-compile/inputFiles.lst
