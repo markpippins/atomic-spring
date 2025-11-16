@@ -7,7 +7,7 @@ import org.springframework.data.mongodb.repository.config.EnableMongoRepositorie
 
 @SpringBootApplication
 @EnableMongoRepositories(basePackages = "com.angrysurfer")
-@ComponentScan(basePackages = {"com.angrysurfer.atomic.broker", "com.angrysurfer.atomic.user", "com.angrysurfer.atomic.fs", "com.angrysurfer.atomic.login", "com.angrysurfer.atomic.note"})
+@ComponentScan(basePackages = {"com.angrysurfer.atomic.broker", "com.angrysurfer.atomic.user", "com.angrysurfer.atomic.fs", "com.angrysurfer.atomic.login", "com.angrysurfer.atomic.note", "com.angrysurfer.atomic.search"})
 public class BrokerGatewayApplication {
 
 	public static void main(String[] args) {

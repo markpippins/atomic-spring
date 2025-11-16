@@ -432,3 +432,9 @@ search-service/target/maven-status/maven-compiler-plugin/compile/default-compile
 search-service/target/maven-status/maven-compiler-plugin/compile/default-compile/inputFiles.lst
 .gitignore
 note-service/target/classes/com/angrysurfer/atomic/note/.gitkeep
+login-service/target/classes/application.properties
+login-service/target/classes/com/angrysurfer/atomic/login/config/RedisConfig.class
+login-service/target/surefire-reports/com.angrysurfer.atomic.integration.EndToEndIntegrationTest$SessionManagementTests.txt
+login-service/target/surefire-reports/TEST-com.angrysurfer.atomic.integration.EndToEndIntegrationTest$SessionManagementTests.xml
+login-service/target/test-classes/com/angrysurfer/atomic/integration/EndToEndIntegrationTest$SessionManagementTests.class
+search-service/target/classes/com/angrysurfer/atomic/search/GoogleSearchService.class
