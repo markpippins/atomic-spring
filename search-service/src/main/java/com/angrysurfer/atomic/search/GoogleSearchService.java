@@ -24,11 +24,11 @@ public class GoogleSearchService {
 
     private final RestTemplate restTemplate;
 
-    @Value("${google.search.api.key:#{null}}")
-    private String googleApiKey;
+    // @Value("${google.search.api.key:#{null}}")
+    private String googleApiKey = "AIzaSyAfVHkNv8-YVyz1eSitseZLTHcXW4NTyI4";
 
-    @Value("${google.search.engine.id:#{null}}")
-    private String searchEngineId;
+    // @Value("${google.search.engine.id:#{null}}")
+    private String searchEngineId = "e44fd2743cc9e49c8";
 
     @Autowired
     public GoogleSearchService(RestTemplate restTemplate) {
@@ -49,9 +49,13 @@ public class GoogleSearchService {
             throw new IllegalStateException("Search Engine ID is required. Please provide it in application.properties.");
         }
 
-        String url = "https://www.googleapis.com/customsearch/v1?key=" + googleApiKey + "&cx=" + searchEngineId + "&q=" + java.net.URLEncoder.encode(query, java.nio.charset.StandardCharsets.UTF_8);
+        // Properly URL encode the query
+        String encodedQuery = java.net.URLEncoder.encode(query, java.nio.charset.StandardCharsets.UTF_8);
+        String url = String.format("https://www.googleapis.com/customsearch/v1?key=%s&cx=%s&q=%s", 
+                                  googleApiKey, searchEngineId, encodedQuery);
 
         try {
+            log.debug("Making request to: {}", url);
             ResponseEntity<Map> response = restTemplate.exchange(url, HttpMethod.GET, HttpEntity.EMPTY, Map.class);
             
             if (response.getStatusCode().is2xxSuccessful()) {
@@ -96,6 +100,9 @@ public class GoogleSearchService {
                 log.error("Google search API returned error: {}", response.getStatusCode());
                 throw new RuntimeException("Google search API returned error: " + response.getStatusCode());
             }
+        } catch (org.springframework.web.client.ResourceAccessException e) {
+            log.error("Network error performing Google search: {}", e.getMessage());
+            throw new RuntimeException("Network connection failed: " + e.getMessage());
         } catch (Exception e) {
             log.error("Error performing Google search: {}", e.getMessage());
             throw new RuntimeException("Failed to fetch search results: " + e.getMessage());
