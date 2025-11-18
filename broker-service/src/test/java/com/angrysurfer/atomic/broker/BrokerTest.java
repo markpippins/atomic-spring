@@ -54,7 +54,7 @@ class BrokerTest {
 
         when(applicationContext.containsBean("testBean")).thenReturn(true);
         when(applicationContext.getBean("testBean")).thenReturn(testBean);
-        when(objectMapper.convertValue("value1", any())).thenReturn("value1");
+        when(objectMapper.convertValue(any(), any(com.fasterxml.jackson.core.type.TypeReference.class))).thenReturn("value1");
 
         // Act
         ServiceResponse<?> response = broker.submit(request);
@@ -167,7 +167,7 @@ class BrokerTest {
         when(applicationContext.containsBean("testBean")).thenReturn(true);
         when(applicationContext.getBean("testBean")).thenReturn(testBean);
         // Simulate conversion error
-        when(objectMapper.convertValue("value", any())).thenThrow(new IllegalArgumentException("Cannot convert"));
+        when(objectMapper.convertValue(any(), any(com.fasterxml.jackson.core.type.TypeReference.class))).thenThrow(new IllegalArgumentException("Cannot convert"));
 
         // Act
         ServiceResponse<?> response = broker.submit(request);
@@ -208,11 +208,7 @@ class BrokerTest {
 
         when(applicationContext.containsBean("validationBean")).thenReturn(true);
         when(applicationContext.getBean("validationBean")).thenReturn(validationBean);
-        when(objectMapper.convertValue("a", any())).thenReturn("a");
-
-        // Also mock the validation
-        Set<ConstraintViolation<Object>> violations = new HashSet<>();
-        violations.add(new TestConstraintViolation("param", "must be at least 3 characters"));
+        when(objectMapper.convertValue(any(), any(com.fasterxml.jackson.core.type.TypeReference.class))).thenReturn("a");
 
         // Act
         ServiceResponse<?> response = broker.submit(request);
@@ -230,7 +226,7 @@ class BrokerTest {
 
         when(applicationContext.containsBean("testBean")).thenReturn(true);
         when(applicationContext.getBean("testBean")).thenReturn(testBean);
-        when(objectMapper.convertValue(any(), any())).thenReturn(null);
+        when(objectMapper.convertValue(any(), any(com.fasterxml.jackson.core.type.TypeReference.class))).thenReturn(null);
 
         // Act
         ServiceResponse<?> response = broker.submit(request);
@@ -250,7 +246,7 @@ class BrokerTest {
         when(applicationContext.containsBean("TestBean")).thenReturn(false);
         when(applicationContext.getBeanDefinitionNames()).thenReturn(new String[]{"testBeanInstance"});
         when(applicationContext.getBean("testBeanInstance")).thenReturn(testBean);
-        when(objectMapper.convertValue("value1", any())).thenReturn("value1");
+        when(objectMapper.convertValue(any(), any(com.fasterxml.jackson.core.type.TypeReference.class))).thenReturn("value1");
 
         // Act
         ServiceResponse<?> response = broker.submit(request);
@@ -286,64 +282,6 @@ class BrokerTest {
         @BrokerOperation("validateMethod")
         public String validateMethod(@jakarta.validation.constraints.Size(min = 3) String invalidValue) {
             return "Valid";
-        }
-    }
-
-    // Helper class for testing validation
-    public static class TestConstraintViolation implements ConstraintViolation<Object> {
-        private final String propertyPath;
-        private final String message;
-
-        public TestConstraintViolation(String propertyPath, String message) {
-            this.propertyPath = propertyPath;
-            this.message = message;
-        }
-
-        @Override
-        public String getPropertyPath() {
-            return propertyPath;
-        }
-
-        @Override
-        public String getMessage() {
-            return message;
-        }
-
-        // Other ConstraintViolation methods would need to be implemented, 
-        // but for testing purposes we only need these
-        @Override
-        public String getRootBeanClass() {
-            return null;
-        }
-
-        @Override
-        public Object getLeafBean() {
-            return null;
-        }
-
-        @Override
-        public Object[] getExecutableParameterValues() {
-            return new Object[0];
-        }
-
-        @Override
-        public Object getExecutableReturnValue() {
-            return null;
-        }
-
-        @Override
-        public Object getInvalidValue() {
-            return null;
-        }
-
-        @Override
-        public String getExecutableParameterClass() {
-            return null;
-        }
-
-        @Override
-        public String getExecutableReturnValueClass() {
-            return null;
         }
     }
 }

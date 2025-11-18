@@ -33,9 +33,9 @@ class BrokerControllerTest {
         // Arrange
         ServiceRequest request = new ServiceRequest("testService", "testOperation", 
             Collections.emptyMap(), "test-request");
-        ServiceResponse<String> mockResponse = ServiceResponse.ok("Test Data", "test-request");
+        ServiceResponse<?> mockResponse = ServiceResponse.ok("Test Data", "test-request");
 
-        when(broker.submit(any(ServiceRequest.class))).thenReturn(mockResponse);
+        doReturn(mockResponse).when(broker).submit(any(ServiceRequest.class));
 
         // Act
         ResponseEntity<?> response = brokerController.submitRequest(request);
@@ -56,10 +56,10 @@ class BrokerControllerTest {
         // Arrange
         ServiceRequest request = new ServiceRequest("testService", "testOperation", 
             Collections.emptyMap(), "test-request");
-        ServiceResponse<String> mockResponse = ServiceResponse.error(
+        ServiceResponse<?> mockResponse = ServiceResponse.error(
             java.util.List.of(java.util.Map.of("error", "Service error")), "test-request");
 
-        when(broker.submit(any(ServiceRequest.class))).thenReturn(mockResponse);
+        doReturn(mockResponse).when(broker).submit(any(ServiceRequest.class));
 
         // Act
         ResponseEntity<?> response = brokerController.submitRequest(request);
@@ -77,9 +77,9 @@ class BrokerControllerTest {
     @Test
     void testTestBrokerEndpoint() {
         // Arrange
-        ServiceResponse<String> mockResponse = ServiceResponse.ok("Test Data", "test-request");
+        ServiceResponse<?> mockResponse = ServiceResponse.ok("Test Data", "test-request");
 
-        when(broker.submit(any(ServiceRequest.class))).thenReturn(mockResponse);
+        doReturn(mockResponse).when(broker).submit(any(ServiceRequest.class));
 
         // Act
         ResponseEntity<?> response = brokerController.testBroker();
@@ -98,10 +98,10 @@ class BrokerControllerTest {
     @Test
     void testTestBrokerEndpointError() {
         // Arrange
-        ServiceResponse<String> mockResponse = ServiceResponse.error(
+        ServiceResponse<?> mockResponse = ServiceResponse.error(
             java.util.List.of(java.util.Map.of("error", "Test error")), "test-request");
 
-        when(broker.submit(any(ServiceRequest.class))).thenReturn(mockResponse);
+        doReturn(mockResponse).when(broker).submit(any(ServiceRequest.class));
 
         // Act
         ResponseEntity<?> response = brokerController.testBroker();
@@ -122,7 +122,9 @@ class BrokerControllerTest {
         ServiceRequest request = new ServiceRequest("userService", "createUser", 
             java.util.Map.of("name", "John", "email", "john@example.com"), "request-123");
         
-        ServiceResponse<String> mockResponse = ServiceResponse.ok("User created", "request-123");
+        ServiceResponse<?> mockResponse = ServiceResponse.ok("User created", "request-123");
+
+        doReturn(mockResponse).when(broker).submit(any(ServiceRequest.class));
 
         // Act
         ResponseEntity<?> response = brokerController.submitRequest(request);
@@ -137,8 +139,8 @@ class BrokerControllerTest {
         ServiceRequest request = null;
         
         // This should still be handled by the broker which will validate it
-        when(broker.submit(any(ServiceRequest.class))).thenReturn(
-            ServiceResponse.error(java.util.List.of(java.util.Map.of("error", "Invalid request")), "error"));
+        doReturn(ServiceResponse.error(java.util.List.of(java.util.Map.of("error", "Invalid request")), "error"))
+            .when(broker).submit(any(ServiceRequest.class));
 
         // Act
         ResponseEntity<?> response = brokerController.submitRequest(request);
@@ -156,8 +158,8 @@ class BrokerControllerTest {
         // Check that the broker field is set
         // Note: We can't directly access private fields, so we test behavior instead
         ServiceRequest request = new ServiceRequest("test", "test", Collections.emptyMap(), "test");
-        ServiceResponse<String> expectedResponse = ServiceResponse.ok("test", "test");
-        when(broker.submit(any(ServiceRequest.class))).thenReturn(expectedResponse);
+        ServiceResponse<?> expectedResponse = ServiceResponse.ok("test", "test");
+        doReturn(expectedResponse).when(broker).submit(any(ServiceRequest.class));
         
         ResponseEntity<?> response = brokerController.submitRequest(request);
         
