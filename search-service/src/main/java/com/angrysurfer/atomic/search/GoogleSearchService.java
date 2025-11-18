@@ -3,6 +3,7 @@ package com.angrysurfer.atomic.search;
 import java.util.List;
 import java.util.Map;
 import java.util.ArrayList;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,6 +24,9 @@ public class GoogleSearchService {
     private static final Logger log = LoggerFactory.getLogger(GoogleSearchService.class);
 
     private final RestTemplate restTemplate;
+    
+    // Cache for search results - maps query to search result
+    private final Map<String, SearchResult> searchCache = new ConcurrentHashMap<>();
 
     // @Value("${google.search.api.key:#{null}}")
     private String googleApiKey = "AIzaSyAfVHkNv8-YVyz1eSitseZLTHcXW4NTyI4";
@@ -33,12 +37,19 @@ public class GoogleSearchService {
     @Autowired
     public GoogleSearchService(RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
-        log.info("GoogleSearchService initialized");
+        log.info("GoogleSearchService initialized with cache");
     }
 
     @BrokerOperation("simpleSearch")
     public SearchResult simpleSearch(@BrokerParam("token") String token, @BrokerParam("query") String query) {
         log.info("Query Received: {}", query);
+
+        // First, check if we have a cached result for this query
+        SearchResult cachedResult = searchCache.get(query);
+        if (cachedResult != null) {
+            log.info("Returning cached result for query: {}", query);
+            return cachedResult;
+        }
 
         // Validate configuration
         if (googleApiKey == null || googleApiKey.isEmpty()) {
@@ -94,6 +105,11 @@ public class GoogleSearchService {
                 SearchResult result = new SearchResult();
                 result.setItems(items);
                 result.setRawResponse(data);
+                
+                // Cache the result before returning
+                searchCache.put(query, result);
+                log.info("Cached result for query: {}", query);
+                log.info("Result: {}", result);
                 
                 return result;
             } else {
