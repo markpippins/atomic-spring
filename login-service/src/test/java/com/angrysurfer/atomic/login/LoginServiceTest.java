@@ -1,85 +1,326 @@
-// package com.angrysurfer.atomic.login;
+package com.angrysurfer.atomic.login;
 
-// import static org.junit.jupiter.api.Assertions.*;
-// import static org.mockito.ArgumentMatchers.*;
-// import static org.mockito.Mockito.*;
+import com.angrysurfer.atomic.broker.Broker;
+import com.angrysurfer.atomic.broker.api.ServiceRequest;
+import com.angrysurfer.atomic.broker.api.ServiceResponse;
+import com.angrysurfer.atomic.user.UserRegistrationDTO;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 
-// import org.junit.jupiter.api.BeforeEach;
-// import org.junit.jupiter.api.Test;
-// import org.junit.jupiter.api.extension.ExtendWith;
-// import org.mockito.Mock;
-// import org.mockito.junit.jupiter.MockitoExtension;
+import java.util.Map;
+import java.util.UUID;
 
-// import com.angrysurfer.atomic.user.UserDTO;
-// import com.angrysurfer.atomic.user.service.UserAccessService;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
 
-// @ExtendWith(MockitoExtension.class)
-// class LoginServiceTest {
+@ExtendWith(MockitoExtension.class)
+class LoginServiceTest {
 
-//     @Mock
-//     private UserAccessService userAccessService;
+    @Mock
+    private Broker broker;
 
-//     private LoginService loginService;
-//     private UserDTO userDTO;
+    @Mock
+    private RedisTemplate<String, Object> redisTemplate;
 
-//     @BeforeEach
-//     void setUp() {
-//         loginService = new LoginService(userAccessService);
+    @Mock
+    private ValueOperations<String, Object> valueOperations;
+
+    private LoginService loginService;
+
+    @BeforeEach
+    void setUp() {
+        when(redisTemplate.opsForValue()).thenReturn(valueOperations);
+        loginService = new LoginService(broker, redisTemplate);
+    }
+
+    @Test
+    void testLoginSuccess() {
+        // Arrange
+        String alias = "testuser";
+        String password = "password123";
         
-//         userDTO = new UserDTO();
-//         userDTO.setId("123");
-//         userDTO.setAlias("testUser");
-//         userDTO.setEmail("test@example.com");
-//         userDTO.setIdentifier("password123");
-//     }
+        UserRegistrationDTO user = new UserRegistrationDTO();
+        user.setId(1L);
+        user.setAlias("testuser");
+        user.setAvatarUrl("http://example.com/avatar.jpg");
+        
+        ServiceResponse<UserRegistrationDTO> userValidationResponse = ServiceResponse.ok(user, "validate-id");
+        when(broker.submit(any(ServiceRequest.class))).thenReturn(userValidationResponse);
+        
+        when(valueOperations.set(anyString(), any(), any())).thenReturn(null);
 
-//     @Test
-//     void testLoginSuccess() {
-//         when(userAccessService.login("testUser", "password123")).thenReturn(userDTO);
+        // Act
+        ServiceResponse<LoginResponse> response = loginService.login(alias, password);
 
-//         var response = loginService.login("testUser", "password123");
+        // Assert
+        assertTrue(response.isOk());
+        assertNotNull(response.getData());
+        assertEquals("SUCCESS", response.getData().getStatus());
+        assertTrue(response.getData().isOk());
+        assertNotNull(response.getData().getToken());
+        
+        // Verify the broker was called with correct parameters
+        ArgumentCaptor<ServiceRequest> requestCaptor = ArgumentCaptor.forClass(ServiceRequest.class);
+        verify(broker).submit(requestCaptor.capture());
+        
+        ServiceRequest capturedRequest = requestCaptor.getValue();
+        assertEquals("userAccessService", capturedRequest.getService());
+        assertEquals("validateUser", capturedRequest.getOperation());
+        assertTrue(capturedRequest.getParams().containsKey("alias"));
+        assertTrue(capturedRequest.getParams().containsKey("identifier"));
+        
+        // Verify Redis operation
+        verify(valueOperations).set(anyString(), eq(user), any());
+    }
 
-//         assertTrue(response.isOk());
-//         assertNotNull(response.getData());
-//         assertTrue(response.getData().isOk());
-//         assertEquals("SUCCESS", response.getData().getToken());
-//         assertEquals(userDTO, response.getData().getUser());
-//     }
+    @Test
+    void testLoginFailureInvalidCredentials() {
+        // Arrange
+        String alias = "testuser";
+        String password = "wrongpassword";
+        
+        ServiceResponse<UserRegistrationDTO> userValidationResponse = ServiceResponse.error(
+            java.util.List.of(java.util.Map.of("error", "invalid credentials")), "validate-id");
+        when(broker.submit(any(ServiceRequest.class))).thenReturn(userValidationResponse);
 
-//     @Test
-//     void testLoginFailureWrongPassword() {
-//         when(userAccessService.login("testUser", "wrongPassword")).thenReturn(null);
+        // Act
+        ServiceResponse<LoginResponse> response = loginService.login(alias, password);
 
-//         var response = loginService.login("testUser", "wrongPassword");
+        // Assert
+        assertFalse(response.isOk());
+        assertNotNull(response.getData());
+        assertEquals("FAILURE", response.getData().getStatus());
+        assertFalse(response.getData().isOk());
+        assertNotNull(response.getErrors());
+        assertTrue(response.getData().getMessage().contains("invalid credentials"));
+    }
 
-//         assertFalse(response.isOk()); // Service call failed because login failed
-//         assertNotNull(response.getData());
-//         assertFalse(response.getData().isOk()); // Login failed
-//         assertEquals("FAILURE", response.getData().getToken());
-//         assertTrue(response.getData().getErrors().containsKey("identifier"));
-//     }
+    @Test
+    void testLoginFailureNullResponseData() {
+        // Arrange
+        String alias = "testuser";
+        String password = "password123";
+        
+        ServiceResponse<UserRegistrationDTO> userValidationResponse = ServiceResponse.ok(null, "validate-id");
+        when(broker.submit(any(ServiceRequest.class))).thenReturn(userValidationResponse);
 
-//     @Test
-//     void testLoginFailureUserNotFound() {
-//         when(userAccessService.login("nonexistent", "anyPassword")).thenReturn(null);
+        // Act
+        ServiceResponse<LoginResponse> response = loginService.login(alias, password);
 
-//         var response = loginService.login("nonexistent", "anyPassword");
+        // Assert
+        assertFalse(response.isOk());
+        assertNotNull(response.getData());
+        assertEquals("FAILURE", response.getData().getStatus());
+        assertFalse(response.getData().isOk());
+        assertTrue(response.getData().getMessage().contains("invalid credentials"));
+    }
 
-//         assertFalse(response.isOk()); // Service call failed because login failed
-//         assertNotNull(response.getData());
-//         assertFalse(response.getData().isOk()); // Login failed
-//         assertEquals("FAILURE", response.getData().getToken());
-//         assertTrue(response.getData().getErrors().containsKey("identifier"));
-//     }
+    @Test
+    void testLoginBrokerException() {
+        // Arrange
+        String alias = "testuser";
+        String password = "password123";
+        
+        when(broker.submit(any(ServiceRequest.class))).thenThrow(new RuntimeException("Broker error"));
 
-//     @Test
-//     void testLoginWithException() {
-//         when(userAccessService.login("testUser", "password123")).thenThrow(new RuntimeException("Database error"));
+        // Act
+        ServiceResponse<LoginResponse> response = loginService.login(alias, password);
 
-//         var response = loginService.login("testUser", "password123");
+        // Assert
+        assertFalse(response.isOk());
+        assertNotNull(response.getData());
+        assertEquals("FAILURE", response.getData().getStatus());
+        assertNull(response.getData().getToken());
+        assertTrue(response.getData().getMessage().contains("Broker error"));
+    }
 
-//         assertFalse(response.isOk()); // Service call failed due to exception
-//         assertNotNull(response.getData());
-//         assertEquals("FAILURE", response.getData().getToken());
-//     }
-// }
+    @Test
+    void testLogoutSuccess() {
+        // Arrange
+        String token = UUID.randomUUID().toString();
+        when(redisTemplate.opsForValue()).thenReturn(valueOperations);
+        when(valueOperations.get("user:" + token)).thenReturn(new UserRegistrationDTO());
+        when(redisTemplate.delete("user:" + token)).thenReturn(true);
+
+        // Act
+        ServiceResponse<Boolean> response = loginService.logout(token);
+
+        // Assert
+        assertTrue(response.isOk());
+        assertNotNull(response.getData());
+        assertTrue(response.getData());
+        
+        verify(redisTemplate).delete("user:" + token);
+    }
+
+    @Test
+    void testLogoutInvalidTokenFormat() {
+        // Arrange
+        String invalidToken = "invalid-uuid-format";
+
+        // Act
+        ServiceResponse<Boolean> response = loginService.logout(invalidToken);
+
+        // Assert
+        assertFalse(response.isOk());
+        assertNotNull(response.getData());
+        assertFalse(response.getData());
+        assertNotNull(response.getErrors());
+        assertTrue(response.getErrors().stream()
+            .anyMatch(error -> error.get("message").toString().contains("Invalid token format")));
+    }
+
+    @Test
+    void testLogoutTokenNotFound() {
+        // Arrange
+        String token = UUID.randomUUID().toString();
+        when(redisTemplate.opsForValue()).thenReturn(valueOperations);
+        when(valueOperations.get("user:" + token)).thenReturn(null);
+        when(redisTemplate.delete("user:" + token)).thenReturn(false);
+
+        // Act
+        ServiceResponse<Boolean> response = loginService.logout(token);
+
+        // Assert
+        assertTrue(response.isOk()); // Operation itself succeeded, but token wasn't found
+        assertNotNull(response.getData());
+        assertFalse(response.getData()); // Token was not found to delete
+    }
+
+    @Test
+    void testIsLoggedInSuccess() {
+        // Arrange
+        String token = UUID.randomUUID().toString();
+        UserRegistrationDTO user = new UserRegistrationDTO();
+        when(redisTemplate.opsForValue()).thenReturn(valueOperations);
+        when(valueOperations.get("user:" + token)).thenReturn(user);
+
+        // Act
+        ServiceResponse<Boolean> response = loginService.isLoggedIn(token);
+
+        // Assert
+        assertTrue(response.isOk());
+        assertNotNull(response.getData());
+        assertTrue(response.getData());
+    }
+
+    @Test
+    void testIsLoggedInFalse() {
+        // Arrange
+        String token = UUID.randomUUID().toString();
+        when(redisTemplate.opsForValue()).thenReturn(valueOperations);
+        when(valueOperations.get("user:" + token)).thenReturn(null);
+
+        // Act
+        ServiceResponse<Boolean> response = loginService.isLoggedIn(token);
+
+        // Assert
+        assertTrue(response.isOk());
+        assertNotNull(response.getData());
+        assertFalse(response.getData());
+    }
+
+    @Test
+    void testIsLoggedInInvalidToken() {
+        // Arrange
+        String invalidToken = "invalid-uuid-format";
+
+        // Act
+        ServiceResponse<Boolean> response = loginService.isLoggedIn(invalidToken);
+
+        // Assert
+        assertFalse(response.isOk());
+        assertNotNull(response.getData());
+        assertFalse(response.getData());
+        assertNotNull(response.getErrors());
+        assertTrue(response.getErrors().stream()
+            .anyMatch(error -> error.get("message").toString().contains("Invalid token format")));
+    }
+
+    @Test
+    void testGetUserRegistrationForTokenSuccess() {
+        // Arrange
+        String token = UUID.randomUUID().toString();
+        UserRegistrationDTO user = new UserRegistrationDTO();
+        user.setAlias("testuser");
+        when(redisTemplate.opsForValue()).thenReturn(valueOperations);
+        when(valueOperations.get("user:" + token)).thenReturn(user);
+
+        // Act
+        ServiceResponse<UserRegistrationDTO> response = loginService.getUserRegistrationForToken(token);
+
+        // Assert
+        assertTrue(response.isOk());
+        assertNotNull(response.getData());
+        assertEquals(user, response.getData());
+    }
+
+    @Test
+    void testGetUserRegistrationForTokenNotFound() {
+        // Arrange
+        String token = UUID.randomUUID().toString();
+        when(redisTemplate.opsForValue()).thenReturn(valueOperations);
+        when(valueOperations.get("user:" + token)).thenReturn(null);
+
+        // Act
+        ServiceResponse<UserRegistrationDTO> response = loginService.getUserRegistrationForToken(token);
+
+        // Assert
+        assertFalse(response.isOk());
+        assertNull(response.getData());
+        assertNotNull(response.getErrors());
+        assertTrue(response.getErrors().stream()
+            .anyMatch(error -> error.get("message").toString().contains("Token not found or expired")));
+    }
+
+    @Test
+    void testGetUserRegistrationForTokenInvalidFormat() {
+        // Arrange
+        String invalidToken = "invalid-uuid-format";
+
+        // Act
+        ServiceResponse<UserRegistrationDTO> response = loginService.getUserRegistrationForToken(invalidToken);
+
+        // Assert
+        assertFalse(response.isOk());
+        assertNull(response.getData());
+        assertNotNull(response.getErrors());
+        assertTrue(response.getErrors().stream()
+            .anyMatch(error -> error.get("message").toString().contains("Invalid token format")));
+    }
+
+    @Test
+    void testGetLoggedInUser() {
+        // Arrange
+        UUID token = UUID.randomUUID();
+        UserRegistrationDTO expectedUser = new UserRegistrationDTO();
+        expectedUser.setAlias("testuser");
+        when(valueOperations.get("user:" + token.toString())).thenReturn(expectedUser);
+
+        // Act
+        UserRegistrationDTO result = loginService.getLoggedInUser(token);
+
+        // Assert
+        assertEquals(expectedUser, result);
+    }
+
+    @Test
+    void testGetLoggedInUserNotFound() {
+        // Arrange
+        UUID token = UUID.randomUUID();
+        when(valueOperations.get("user:" + token.toString())).thenReturn(null);
+
+        // Act
+        UserRegistrationDTO result = loginService.getLoggedInUser(token);
+
+        // Assert
+        assertNull(result);
+    }
+}
