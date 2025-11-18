@@ -191,9 +191,13 @@ class RestFsServiceTest {
         String toAlias = "toUser";
         Map<String, Object> mockResponse = Map.of("copied", "from", "to", "to");
         
-        doReturn(ServiceResponse.ok(new UserRegistrationDTO() {{ setAlias(fromAlias); }}, "test-id"))
+        UserRegistrationDTO fromUserRegistration = new UserRegistrationDTO();
+        fromUserRegistration.setAlias(fromAlias);
+        UserRegistrationDTO toUserRegistration = new UserRegistrationDTO();
+        toUserRegistration.setAlias(toAlias);
+        doReturn((ServiceResponse<UserRegistrationDTO>)ServiceResponse.ok(fromUserRegistration, "test-id"))
             .when(broker).submit(any(ServiceRequest.class));
-        doReturn(ServiceResponse.ok(new UserRegistrationDTO() {{ setAlias(toAlias); }}, "test-id"))
+        doReturn((ServiceResponse<UserRegistrationDTO>)ServiceResponse.ok(toUserRegistration, "test-id"))
             .when(broker).submit(any(ServiceRequest.class));
         doReturn(mockResponse).when(restFsClient).copy(anyString(), anyList(), anyString(), anyList());
 
@@ -272,7 +276,7 @@ class RestFsServiceTest {
         String expectedAlias = "testUser";
         UserRegistrationDTO userRegistration = new UserRegistrationDTO();
         userRegistration.setAlias(expectedAlias);
-        ServiceResponse<UserRegistrationDTO> response = ServiceResponse.ok(userRegistration, "test-id");
+        ServiceResponse<UserRegistrationDTO> response = (ServiceResponse<UserRegistrationDTO>)ServiceResponse.ok(userRegistration, "test-id");
         doReturn(response).when(broker).submit(any(ServiceRequest.class));
 
         // Use reflection or test the private method indirectly
@@ -294,7 +298,7 @@ class RestFsServiceTest {
     void testGetUserAliasFromTokenFailure() {
         // Arrange
         String token = "invalid-token";
-        ServiceResponse<UserRegistrationDTO> response = ServiceResponse.error(List.of(), "test-id");
+        ServiceResponse<UserRegistrationDTO> response = (ServiceResponse<UserRegistrationDTO>)ServiceResponse.error(List.of(), "test-id");
         doReturn(response).when(broker).submit(any(ServiceRequest.class));
 
         // Use reflection to test the private method
@@ -320,7 +324,7 @@ class RestFsServiceTest {
         
         UserRegistrationDTO userRegistration = new UserRegistrationDTO();
         userRegistration.setAlias("testUser");
-        ServiceResponse<UserRegistrationDTO> response = ServiceResponse.ok(userRegistration, "test-id");
+        ServiceResponse<UserRegistrationDTO> response = (ServiceResponse<UserRegistrationDTO>)ServiceResponse.ok(userRegistration, "test-id");
         doReturn(response).when(broker).submit(any(ServiceRequest.class));
         
         Map<String, Object> mockResponse = Map.of("items", Arrays.asList(Map.of("name", "test.txt", "type", "file")));

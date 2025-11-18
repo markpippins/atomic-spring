@@ -457,3 +457,6 @@ broker-service/target/test-classes/com/angrysurfer/atomic/broker/BrokerTest$Vali
 file-service/target/maven-status/maven-compiler-plugin/testCompile/default-testCompile/createdFiles.lst
 file-service/target/maven-status/maven-compiler-plugin/testCompile/default-testCompile/inputFiles.lst
 file-service/target/test-classes/com/angrysurfer/atomic/fs/RestFsServiceTest.class
+search-service/target/maven-status/maven-compiler-plugin/testCompile/default-testCompile/createdFiles.lst
+search-service/target/maven-status/maven-compiler-plugin/testCompile/default-testCompile/inputFiles.lst
+search-service/target/test-classes/com/angrysurfer/atomic/search/GoogleSearchServiceTest.class
