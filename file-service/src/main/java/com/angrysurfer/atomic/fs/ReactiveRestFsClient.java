@@ -94,4 +94,11 @@ public class ReactiveRestFsClient {
         req.setToPath(toPath);
         return post(req, Map.class);
     }
+
+    public Mono<Map> moveItems(String alias, List<String> sourcePath, List<String> destPath, List<Map<String, Object>> items) {
+        FsRequest req = new FsRequest(alias, sourcePath, "moveitems");
+        req.setToPath(destPath);
+        req.setItems(items);
+        return post(req, Map.class);
+    }
 }

@@ -183,4 +183,16 @@ public class RestFsService {
         return restFsClient.hasFolder(alias, path, foldername);
     }
 
+    @BrokerOperation("moveItems")
+    public Map<String, Object> moveItems(@BrokerParam("token") String token, 
+            @BrokerParam("sourcePath") List<String> sourcePath,
+            @BrokerParam("destPath") List<String> destPath,
+            @BrokerParam("items") List<Map<String, Object>> items) {
+        String alias = getUserAliasFromToken(token);
+        if (alias == null) {
+            throw new RuntimeException("Invalid token or user not found");
+        }
+        return restFsClient.moveItems(alias, sourcePath, destPath, items);
+    }
+
 }

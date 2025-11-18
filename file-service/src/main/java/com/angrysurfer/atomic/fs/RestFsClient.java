@@ -95,6 +95,13 @@ public class RestFsClient {
         return post(req, Map.class);
     }
 
+    public Map<String, Object> moveItems(String alias, List<String> sourcePath, List<String> destPath, List<Map<String, Object>> items) {
+        FsRequest req = new FsRequest(alias, sourcePath, "moveitems");
+        req.setToPath(destPath);
+        req.setItems(items);
+        return post(req, Map.class);
+    }
+
     // ===============================
     // Existence Check Operations
     // ===============================
