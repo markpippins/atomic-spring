@@ -23,12 +23,15 @@ class GoogleSearchServiceTest {
 
     @Mock
     private RestTemplate restTemplate;
+    
+    @Mock
+    private SearchResultsCacheRepository searchResultsCacheRepository;
 
     private GoogleSearchService googleSearchService;
 
     @BeforeEach
     void setUp() {
-        googleSearchService = new GoogleSearchService(restTemplate);
+        googleSearchService = new GoogleSearchService(restTemplate, searchResultsCacheRepository);
     }
 
     @Test

@@ -1,6 +1,7 @@
 package com.angrysurfer.atomic.search;
 
 import lombok.Data;
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 
@@ -19,4 +20,5 @@ public class SearchResultItem {
     private List<Map<String, String>> metatags;
     private List<Map<String, String>> cseThumbnail;
     private List<Map<String, String>> cseImage;
+    private Instant timestamp;
 }

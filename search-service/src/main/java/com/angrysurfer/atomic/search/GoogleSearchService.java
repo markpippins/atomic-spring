@@ -3,12 +3,10 @@ package com.angrysurfer.atomic.search;
 import java.util.List;
 import java.util.Map;
 import java.util.ArrayList;
-import java.util.concurrent.ConcurrentHashMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.http.HttpEntity;
@@ -18,6 +16,8 @@ import org.springframework.http.ResponseEntity;
 import com.angrysurfer.atomic.broker.spi.BrokerOperation;
 import com.angrysurfer.atomic.broker.spi.BrokerParam;
 
+import java.time.Instant;
+
 @Service("googleSearchService")
 public class GoogleSearchService {
 
@@ -25,30 +25,35 @@ public class GoogleSearchService {
 
     private final RestTemplate restTemplate;
     
-    // Cache for search results - maps query to search result
-    private final Map<String, SearchResult> searchCache = new ConcurrentHashMap<>();
+    private final SearchResultsCacheRepository cacheRepository;
 
     // @Value("${google.search.api.key:#{null}}")
     private String googleApiKey = "AIzaSyAfVHkNv8-YVyz1eSitseZLTHcXW4NTyI4";
 
     // @Value("${google.search.engine.id:#{null}}")
     private String searchEngineId = "e44fd2743cc9e49c8";
+    
+    // Cache TTL in minutes (default 30 minutes)
+    private static final long CACHE_TTL_MINUTES = 30;
 
-    @Autowired
-    public GoogleSearchService(RestTemplate restTemplate) {
+    public GoogleSearchService(RestTemplate restTemplate, SearchResultsCacheRepository cacheRepository) {
         this.restTemplate = restTemplate;
-        log.info("GoogleSearchService initialized with cache");
+        this.cacheRepository = cacheRepository;
+        log.info("GoogleSearchService initialized with MongoDB cache");
     }
 
     @BrokerOperation("simpleSearch")
     public SearchResult simpleSearch(@BrokerParam("token") String token, @BrokerParam("query") String query) {
         log.info("Query Received: {}", query);
 
-        // First, check if we have a cached result for this query
-        SearchResult cachedResult = searchCache.get(query);
-        if (cachedResult != null) {
-            log.info("Returning cached result for query: {}", query);
-            return cachedResult;
+        // First, check if we have a cached result for this query in MongoDB
+        SearchResultsCacheEntry cachedEntry = findValidCacheEntry(query);
+        if (cachedEntry != null) {
+            log.info("Returning cached result from MongoDB for query: {}", query);
+            SearchResult result = new SearchResult();
+            result.setItems(cachedEntry.getItems());
+            result.setRawResponse(cachedEntry.getItems().get(0).getPagemap()); // Simplified for demo
+            return result;
         }
 
         // Validate configuration
@@ -98,6 +103,9 @@ public class GoogleSearchService {
                             item.setCseImage((List<Map<String, String>>) pagemap.get("cse_image"));
                         }
                         
+                        // Set the timestamp to current time
+                        item.setTimestamp(Instant.now());
+                        
                         items.add(item);
                     }
                 }
@@ -106,10 +114,10 @@ public class GoogleSearchService {
                 result.setItems(items);
                 result.setRawResponse(data);
                 
-                // Cache the result before returning
-                searchCache.put(query, result);
-                log.info("Cached result for query: {}", query);
-                log.info("Result: {}", result);
+                // Cache the result in MongoDB before returning
+                SearchResultsCacheEntry newCacheEntry = new SearchResultsCacheEntry(query, items, CACHE_TTL_MINUTES);
+                cacheRepository.save(newCacheEntry);
+                log.info("Cached result in MongoDB for query: {}", query);
                 
                 return result;
             } else {
@@ -122,6 +130,29 @@ public class GoogleSearchService {
         } catch (Exception e) {
             log.error("Error performing Google search: {}", e.getMessage());
             throw new RuntimeException("Failed to fetch search results: " + e.getMessage());
+        }
+    }
+    
+    /**
+     * Find a valid cache entry (not expired) for the given query
+     */
+    private SearchResultsCacheEntry findValidCacheEntry(String query) {
+        try {
+            var optionalEntry = cacheRepository.findByQuery(query);
+            if (optionalEntry.isPresent()) {
+                SearchResultsCacheEntry entry = optionalEntry.get();
+                if (!entry.isExpired()) {
+                    return entry;
+                } else {
+                    // Entry is expired, remove it
+                    cacheRepository.deleteById(entry.getId());
+                    log.info("Removed expired cache entry for query: {}", query);
+                }
+            }
+            return null;
+        } catch (Exception e) {
+            log.warn("Error accessing cache for query {}: {}", query, e.getMessage());
+            return null; // Return null to proceed with fresh search
         }
     }
 }
