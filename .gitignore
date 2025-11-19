@@ -460,3 +460,7 @@ file-service/target/test-classes/com/angrysurfer/atomic/fs/RestFsServiceTest.cla
 search-service/target/maven-status/maven-compiler-plugin/testCompile/default-testCompile/createdFiles.lst
 search-service/target/maven-status/maven-compiler-plugin/testCompile/default-testCompile/inputFiles.lst
 search-service/target/test-classes/com/angrysurfer/atomic/search/GoogleSearchServiceTest.class
+search-service/target/classes/com/angrysurfer/atomic/search/GeminiSearchService.class
+search-service/target/classes/com/angrysurfer/atomic/search/UnsplashSearchService.class
+search-service/target/classes/com/angrysurfer/atomic/search/YouTubeSearchService.class
+search-service/target/test-classes/com/angrysurfer/atomic/search/YouTubeSearchServiceTest.class
