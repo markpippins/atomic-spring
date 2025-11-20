@@ -464,3 +464,15 @@ search-service/target/classes/com/angrysurfer/atomic/search/GeminiSearchService.
 search-service/target/classes/com/angrysurfer/atomic/search/UnsplashSearchService.class
 search-service/target/classes/com/angrysurfer/atomic/search/YouTubeSearchService.class
 search-service/target/test-classes/com/angrysurfer/atomic/search/YouTubeSearchServiceTest.class
+search-service/target/classes/com/angrysurfer/atomic/search/SearchResultsCacheEntry.class
+search-service/target/classes/com/angrysurfer/atomic/search/SearchResultsCacheRepository.class
+service-registry/target/classes/application.properties
+service-registry/target/classes/com/angrysurfer/atomic/registry/ServiceRegistryApplication.class
+service-registry/target/classes/com/angrysurfer/atomic/registry/controller/RegistryController.class
+service-registry/target/classes/com/angrysurfer/atomic/registry/model/ServiceRegistration.class
+service-registry/target/classes/com/angrysurfer/atomic/registry/model/ServiceRegistration$ServiceStatus.class
+service-registry/target/classes/com/angrysurfer/atomic/registry/service/RegistryService.class
+search-service/target/classes/com/angrysurfer/atomic/search/SearchResultsCacheEntry.class
+search-service/target/classes/com/angrysurfer/atomic/search/SearchResultsCacheRepository.class
+search-service/target/classes/com/angrysurfer/atomic/search/SearchResultsCacheEntry.class
+search-service/target/classes/com/angrysurfer/atomic/search/SearchResultsCacheRepository.class

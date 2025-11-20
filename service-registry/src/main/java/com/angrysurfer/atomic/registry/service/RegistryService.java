@@ -5,16 +5,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import com.angrysurfer.atomic.broker.spi.BrokerOperation;
+import com.angrysurfer.atomic.broker.spi.BrokerParam;
 import com.angrysurfer.atomic.registry.model.ServiceRegistration;
 import com.angrysurfer.atomic.registry.model.ServiceRegistration.ServiceStatus;
 
-@Service
+@Service("serviceRegistry")
 public class RegistryService {
     
     private static final Logger log = LoggerFactory.getLogger(RegistryService.class);
@@ -25,7 +26,8 @@ public class RegistryService {
     // Map: operation -> serviceName (for quick lookup)
     private final Map<String, String> operationIndex = new ConcurrentHashMap<>();
     
-    public void register(ServiceRegistration registration) {
+    @BrokerOperation("register")
+    public Map<String, String> register(@BrokerParam("registration") ServiceRegistration registration) {
         registration.setLastHeartbeat(Instant.now());
         registration.setStatus(ServiceStatus.HEALTHY);
         
@@ -39,25 +41,34 @@ public class RegistryService {
         
         log.info("Registered service: {} with operations: {}", 
                 registration.getServiceName(), registration.getOperations());
+        
+        return Map.of(
+            "message", "Service registered successfully",
+            "serviceName", registration.getServiceName()
+        );
     }
     
-    public Optional<ServiceRegistration> findByServiceName(String serviceName) {
-        return Optional.ofNullable(registry.get(serviceName));
+    @BrokerOperation("findByServiceName")
+    public ServiceRegistration findByServiceName(@BrokerParam("serviceName") String serviceName) {
+        return registry.get(serviceName);
     }
     
-    public Optional<ServiceRegistration> findByOperation(String operation) {
+    @BrokerOperation("findByOperation")
+    public ServiceRegistration findByOperation(@BrokerParam("operation") String operation) {
         String serviceName = operationIndex.get(operation);
         if (serviceName != null) {
-            return Optional.ofNullable(registry.get(serviceName));
+            return registry.get(serviceName);
         }
-        return Optional.empty();
+        return null;
     }
     
+    @BrokerOperation("getAllServices")
     public List<ServiceRegistration> getAllServices() {
         return List.copyOf(registry.values());
     }
     
-    public void deregister(String serviceName) {
+    @BrokerOperation("deregister")
+    public Map<String, String> deregister(@BrokerParam("serviceName") String serviceName) {
         ServiceRegistration registration = registry.remove(serviceName);
         if (registration != null) {
             // Remove from operation index
@@ -65,15 +76,29 @@ public class RegistryService {
                 operationIndex.remove(operation);
             }
             log.info("Deregistered service: {}", serviceName);
+            return Map.of("message", "Service deregistered successfully");
         }
+        return Map.of("message", "Service not found");
     }
     
-    public void updateHeartbeat(String serviceName) {
+    @BrokerOperation("heartbeat")
+    public Map<String, String> heartbeat(@BrokerParam("serviceName") String serviceName) {
         ServiceRegistration registration = registry.get(serviceName);
         if (registration != null) {
             registration.setLastHeartbeat(Instant.now());
             registration.setStatus(ServiceStatus.HEALTHY);
+            return Map.of("message", "Heartbeat received");
         }
+        return Map.of("message", "Service not found");
+    }
+    
+    // Internal method for broker-gateway to query registry
+    public Optional<ServiceRegistration> lookupByOperation(String operation) {
+        String serviceName = operationIndex.get(operation);
+        if (serviceName != null) {
+            return Optional.ofNullable(registry.get(serviceName));
+        }
+        return Optional.empty();
     }
     
     public void markUnhealthy(String serviceName) {
