@@ -449,3 +449,15 @@ search-service/target/test-classes/com/angrysurfer/atomic/search/YouTubeSearchSe
 service-registry/target/classes/com/angrysurfer/atomic/registry/model/ServiceRegistration.class
 service-registry/target/classes/com/angrysurfer/atomic/registry/model/ServiceRegistration$ServiceStatus.class
 service-registry/target/classes/com/angrysurfer/atomic/registry/service/RegistryService.class
+broker-service/target/maven-status/maven-compiler-plugin/testCompile/default-testCompile/createdFiles.lst
+broker-service/target/maven-status/maven-compiler-plugin/testCompile/default-testCompile/inputFiles.lst
+.gitignore
+search-service/target/maven-status/maven-compiler-plugin/testCompile/default-testCompile/createdFiles.lst
+search-service/target/maven-status/maven-compiler-plugin/testCompile/default-testCompile/inputFiles.lst
+file-service/target/maven-status/maven-compiler-plugin/testCompile/default-testCompile/createdFiles.lst
+file-service/target/maven-status/maven-compiler-plugin/testCompile/default-testCompile/inputFiles.lst
+throttler-api/target/classes/com/angrysurfer/atomic/throttler/api/ThrottlerProfile.class
+throttler-api/target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst
+throttler-api/target/maven-status/maven-compiler-plugin/compile/default-compile/inputFiles.lst
+throttler-api/target/throttler-user-api-1.0.0-SNAPSHOT.jar
+throttler-api/target/maven-archiver/pom.properties

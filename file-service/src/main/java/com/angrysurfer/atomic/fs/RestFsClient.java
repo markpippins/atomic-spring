@@ -81,6 +81,12 @@ public class RestFsClient {
         return post(req, Map.class);
     }
 
+    public Map<String, Object> renameItem(String alias, List<String> path, String newName) {
+        FsRequest req = new FsRequest(alias, path, "renameitem");
+        req.setNewName(newName);
+        return post(req, Map.class);
+    }
+
     public Map<String, Object> copy(String fromAlias, List<String> fromPath, String toAlias, List<String> toPath) {
         FsRequest req = new FsRequest(fromAlias, fromPath, "copy");
         req.setToAlias(toAlias);
