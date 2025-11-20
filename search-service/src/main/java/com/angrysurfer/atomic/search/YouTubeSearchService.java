@@ -28,7 +28,7 @@ public class YouTubeSearchService {
     private final SearchResultsCacheRepository cacheRepository;
 
     // YouTube API key - in a real implementation, this should be configured via properties
-    private String youtubeApiKey = "AIzaSyAfVHkNv8-YVyz1eSitseZLTHcXW4NTyI4"; // Placeholder
+    private String youtubeApiKey = "AIzaSyAfVHkNv8-YVyz1eSitseZLTHcXW4NTyI4";
 
     private static final long CACHE_TTL_MINUTES = 30; // Cache TTL in minutes
 
@@ -83,41 +83,44 @@ public class YouTubeSearchService {
                         Map<String, Object> snippet = (Map<String, Object>) rawItem.get("snippet");
                         if (snippet != null) {
                             item.setTitle((String) snippet.get("title"));
-                            item.setHtmlTitle((String) snippet.get("title")); // YouTube doesn't differentiate much
+                            item.setHtmlTitle((String) snippet.get("title")); // Same as title for YouTube
                             item.setChannelTitle((String) snippet.get("channelTitle"));
-                            item.setPublishDate((String) snippet.get("publishedAt"));
+                            item.setPublishedAt((String) snippet.get("publishedAt"));
+                            
+                            // Extract description
+                            String description = (String) snippet.get("description");
+                            if (description != null && !description.isEmpty()) {
+                                item.setSnippet(description);
+                                item.setHtmlSnippet(description);
+                            }
+                            
+                            // Extract thumbnails
+                            Map<String, Object> thumbnails = (Map<String, Object>) snippet.get("thumbnails");
+                            if (thumbnails != null) {
+                                Map<String, Object> defaultThumbnail = (Map<String, Object>) thumbnails.get("default");
+                                if (defaultThumbnail != null) {
+                                    item.setThumbnailUrl((String) defaultThumbnail.get("url"));
+                                }
+                                
+                                Map<String, Object> mediumThumbnail = (Map<String, Object>) thumbnails.get("medium");
+                                if (mediumThumbnail != null) {
+                                    item.setMediumThumbnailUrl((String) mediumThumbnail.get("url"));
+                                }
+                                
+                                Map<String, Object> highThumbnail = (Map<String, Object>) thumbnails.get("high");
+                                if (highThumbnail != null) {
+                                    item.setHighThumbnailUrl((String) highThumbnail.get("url"));
+                                }
+                            }
                         }
                         
-                        // Extract video ID
+                        // Extract video ID and create link
                         Map<String, Object> id = (Map<String, Object>) rawItem.get("id");
-                        if (id != null) {
-                            Object videoIdObj = id.get("videoId");
-                            if (videoIdObj != null) {
-                                String videoId = (String) videoIdObj;
-                                String videoUrl = "https://www.youtube.com/watch?v=" + videoId;
-                                item.setLink(videoUrl);
-                                item.setVideoId(videoId);
-                            }
-                        }
-                        
-                        // Extract thumbnails
-                        Object thumbnailsObj = snippet.get("thumbnails");
-                        if (thumbnailsObj instanceof Map) {
-                            Map<String, Object> thumbnails = (Map<String, Object>) thumbnailsObj;
-                            Map<String, Object> defaultThumbnail = (Map<String, Object>) thumbnails.get("default");
-                            if (defaultThumbnail != null) {
-                                item.setThumbnailUrl((String) defaultThumbnail.get("url"));
-                            }
-                            
-                            Map<String, Object> mediumThumbnail = (Map<String, Object>) thumbnails.get("medium");
-                            if (mediumThumbnail != null) {
-                                item.setMediumThumbnailUrl((String) mediumThumbnail.get("url"));
-                            }
-                            
-                            Map<String, Object> highThumbnail = (Map<String, Object>) thumbnails.get("high");
-                            if (highThumbnail != null) {
-                                item.setHighThumbnailUrl((String) highThumbnail.get("url"));
-                            }
+                        if (id != null && id.containsKey("videoId")) {
+                            String videoId = (String) id.get("videoId");
+                            String videoUrl = "https://www.youtube.com/watch?v=" + videoId;
+                            item.setLink(videoUrl);
+                            item.setVideoId(videoId);
                         }
                         
                         // Set the timestamp to current time

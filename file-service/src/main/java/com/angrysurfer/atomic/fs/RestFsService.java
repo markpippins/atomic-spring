@@ -149,6 +149,16 @@ public class RestFsService {
         return restFsClient.rename(alias, path, newName);
     }
 
+    @BrokerOperation("renameItem")
+    public Map<String, Object> renameItem(@BrokerParam("token") String token, @BrokerParam("path") List<String> path,
+            @BrokerParam("newName") String newName) {
+        String alias = getUserAliasFromToken(token);
+        if (alias == null) {
+            throw new RuntimeException("Invalid token or user not found");
+        }
+        return restFsClient.renameItem(alias, path, newName);
+    }
+
     @BrokerOperation("copy")
     public Map<String, Object> copy(@BrokerParam("fromToken") String fromToken, @BrokerParam("fromPath") List<String> fromPath, 
             @BrokerParam("toToken") String toToken, @BrokerParam("toPath") List<String> toPath) {
