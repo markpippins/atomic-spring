@@ -140,7 +140,7 @@ class BrokerControllerTest {
         
         // This should still be handled by the broker which will validate it
         doReturn(ServiceResponse.error(java.util.List.of(java.util.Map.of("error", "Invalid request")), "error"))
-            .when(broker).submit(any(ServiceRequest.class));
+            .when(broker).submit(isNull(ServiceRequest.class));
 
         // Act
         ResponseEntity<?> response = brokerController.submitRequest(request);
