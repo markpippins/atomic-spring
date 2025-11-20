@@ -403,6 +403,7 @@ user-access-service/target/surefire-reports/com.angrysurfer.atomic.user.service.
 user-access-service/target/surefire-reports/TEST-com.angrysurfer.atomic.user.repository.UserRegistrationRepositoryTest.xml
 user-access-service/target/surefire-reports/TEST-com.angrysurfer.atomic.user.service.UserRegistrationServiceTest.xml
 export-service/.project
+broker-gateway/target/classes/com/angrysurfer/atomic/broker/gateway/CorsConfig$1.class
 broker-gateway/target/classes/com/angrysurfer/atomic/broker/gateway/HealthController.class
 broker-gateway/target/classes/com/angrysurfer/atomic/broker/gateway/CorsConfig$1.class
 .gitignore

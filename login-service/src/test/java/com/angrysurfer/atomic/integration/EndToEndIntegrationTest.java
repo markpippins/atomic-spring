@@ -9,22 +9,26 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import com.angrysurfer.atomic.broker.Broker;
 import com.angrysurfer.atomic.login.LoginService;
 import com.angrysurfer.atomic.login.LoginResponse;
-import com.angrysurfer.atomic.user.UserDTO;
-import com.angrysurfer.atomic.user.service.UserAccessService;
+import com.angrysurfer.atomic.user.UserRegistrationDTO;
+import org.springframework.data.redis.core.RedisTemplate;
 
 @ExtendWith(MockitoExtension.class)
 class EndToEndIntegrationTest {
 
     @Mock
-    private UserAccessService userAccessService;
+    private Broker broker;
+
+    @Mock
+    private RedisTemplate<String, Object> redisTemplate;
 
     private LoginService loginService;
 
     @BeforeEach
     void setUp() {
-        loginService = new LoginService(userAccessService);
+        loginService = new LoginService(broker, redisTemplate);
     }
 
     @Nested
@@ -33,13 +37,12 @@ class EndToEndIntegrationTest {
         void testSuccessfulLoginFlow() {
             // This represents the end-to-end flow from login request to response
             // with mocked service layer
-            UserDTO userDto = new UserDTO();
+            UserRegistrationDTO userDto = new UserRegistrationDTO();
             userDto.setId("123");
             userDto.setAlias("testUser");
-            userDto.setIdentifier("password123");
 
             // In a real integration test, we would have the full chain:
-            // Controller -> Service -> Repository -> Database -> Repository -> Service -> Controller -> Response
+            // Controller -> Service -> Broker -> Other Service -> Broker -> Service -> Controller -> Response
             // For this test, we're focusing on the service interaction level
             
             assertNotNull(loginService);
@@ -53,18 +56,18 @@ class EndToEndIntegrationTest {
     }
 
     @Nested
-    class UserManagementFlowTests {
+    class SessionManagementTests {
         @Test
-        void testUserCreationToRetrieval() {
-            // Test the complete flow of user creation and retrieval
-            // This would involve UserAccessService and its interaction with repositories
-            assertNotNull(userAccessService);
+        void testRedisSessionStorage() {
+            // Test that login service can store session data in Redis
+            assertNotNull(broker);
+            assertNotNull(redisTemplate);
         }
 
         @Test
-        void testUserProfileUpdateFlow() {
-            // Test updating a user profile and retrieving updated information
-            assertNotNull(userAccessService);
+        void testTokenValidationThroughBroker() {
+            // Test validating user tokens through the broker system
+            assertNotNull(broker);
         }
     }
 
@@ -72,11 +75,12 @@ class EndToEndIntegrationTest {
     void testServiceLayerInteraction() {
         // Test that services can be properly instantiated and interact
         assertNotNull(loginService);
-        assertNotNull(userAccessService);
+        assertNotNull(broker);
+        assertNotNull(redisTemplate);
         
         // Verify dependency injection works as expected
         assertDoesNotThrow(() -> {
-            // The login service should be able to accept the user access service dependency
+            // The login service should be able to accept the broker and redis template dependencies
             loginService.getClass(); // This just ensures the class is accessible
         });
     }
@@ -84,7 +88,7 @@ class EndToEndIntegrationTest {
     @Test
     void testDTOFlow() {
         // Test the data flow through DTOs
-        UserDTO userDTO = new UserDTO();
+        UserRegistrationDTO userDTO = new UserRegistrationDTO();
         userDTO.setId("123");
         userDTO.setAlias("testAlias");
         

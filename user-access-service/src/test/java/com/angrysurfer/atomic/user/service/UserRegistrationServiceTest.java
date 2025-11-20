@@ -38,7 +38,7 @@ class UserRegistrationServiceTest {
     void testLoginSuccess() {
         when(userRepository.findByAlias("testUser")).thenReturn(Optional.of(validUser));
 
-        UserRegistrationDTO result = userAccessService.login("testUser", "password123");
+        UserRegistrationDTO result = userAccessService.validateUser("testUser", "password123");
 
         assertNotNull(result);
         assertEquals("123", result.getId());
@@ -49,7 +49,7 @@ class UserRegistrationServiceTest {
     void testLoginFailureWrongPassword() {
         when(userRepository.findByAlias("testUser")).thenReturn(Optional.of(validUser));
 
-        UserRegistrationDTO result = userAccessService.login("testUser", "wrongPassword");
+        UserRegistrationDTO result = userAccessService.validateUser("testUser", "wrongPassword");
 
         assertNull(result);
     }
@@ -58,7 +58,7 @@ class UserRegistrationServiceTest {
     void testLoginFailureUserNotFound() {
         when(userRepository.findByAlias("nonexistent")).thenReturn(Optional.empty());
 
-        UserRegistrationDTO result = userAccessService.login("nonexistent", "password123");
+        UserRegistrationDTO result = userAccessService.validateUser("nonexistent", "password123");
 
         assertNull(result);
     }

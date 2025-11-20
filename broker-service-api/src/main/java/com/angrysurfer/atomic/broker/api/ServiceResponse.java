@@ -129,4 +129,12 @@ public class ServiceResponse<T> implements Serializable {
     public void setEncrypt(boolean encrypt) {
         this.encrypt = encrypt;
     }
+
+    public void addError(String field, String message) {
+        if (this.errors == null) {
+            this.errors = new java.util.ArrayList<>();
+        }
+        this.errors.add(Map.of("field", field, "message", message));
+        this.ok = false;
+    }
 }

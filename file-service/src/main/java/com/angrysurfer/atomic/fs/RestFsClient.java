@@ -18,7 +18,7 @@ import com.angrysurfer.atomic.fs.api.FsRequest;
 public class RestFsClient {
 
     private final RestTemplate restTemplate;
-
+    
     @Value("${restfs.api.url}")
     private String apiUrl;
 
@@ -92,6 +92,13 @@ public class RestFsClient {
         FsRequest req = new FsRequest(fromAlias, fromPath, "move");
         req.setToAlias(toAlias);
         req.setToPath(toPath);
+        return post(req, Map.class);
+    }
+
+    public Map<String, Object> moveItems(String alias, List<String> sourcePath, List<String> destPath, List<Map<String, Object>> items) {
+        FsRequest req = new FsRequest(alias, sourcePath, "moveitems");
+        req.setToPath(destPath);
+        req.setItems(items);
         return post(req, Map.class);
     }
 

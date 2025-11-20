@@ -25,6 +25,8 @@
         <module>user-service</module>
         <module>user-access-service</module>
         <module>upload-service</module>
+        <module>note-service</module>
+        <module>search-service</module>
 <!--         <module>vaadin-client</module> -->
     </modules>
     
@@ -162,7 +164,7 @@
             <dependency>
                 <groupId>com.angrysurfer.atomic</groupId>
                 <artifactId>login-service</artifactId>
-                <version>${project.version}-SNAPSHOT</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.angrysurfer.atomic</groupId>
@@ -186,7 +188,12 @@
             </dependency>
             <dependency>
                 <groupId>com.angrysurfer.atomic</groupId>
-                <artifactId>shrapnel</artifactId>
+                <artifactId>shrapnel-data</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.angrysurfer.atomic</groupId>
+                <artifactId>search-service</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <!-- Lombok with version management -->
