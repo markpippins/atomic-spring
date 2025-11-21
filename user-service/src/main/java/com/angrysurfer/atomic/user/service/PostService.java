@@ -21,10 +21,13 @@ import com.angrysurfer.atomic.user.model.Edit;
 import com.angrysurfer.atomic.user.model.Post;
 import com.angrysurfer.atomic.user.model.Reaction;
 import com.angrysurfer.atomic.user.model.User;
+import com.angrysurfer.atomic.user.repository.CommentRepository;
 import com.angrysurfer.atomic.user.repository.EditRepository;
 import com.angrysurfer.atomic.user.repository.PostRepository;
 import com.angrysurfer.atomic.user.repository.ReactionRepository;
 import com.angrysurfer.atomic.user.repository.UserRepository;
+import com.angrysurfer.atomic.user.model.Comment;
+import org.springframework.data.domain.PageRequest;
 
 @Service
 public class PostService {
@@ -41,12 +44,16 @@ public class PostService {
     private final UserRepository userRepository;
 
     private final ReactionRepository reactionRepository;
+    private final CommentRepository commentRepository;
 
-    public PostService(PostRepository postRepository, EditRepository editRepository, UserRepository userRepository, ReactionRepository reactionRepository) {
+    public PostService(PostRepository postRepository, EditRepository editRepository, UserRepository userRepository,
+            ReactionRepository reactionRepository, CommentRepository commentRepository) {
         this.postRepository = postRepository;
         this.editRepository = editRepository;
         this.userRepository = userRepository;
         this.reactionRepository = reactionRepository;
+        this.commentRepository = commentRepository;
+
         log.info("PostService initialized");
     }
 
@@ -59,9 +66,8 @@ public class PostService {
         } catch (Exception e) {
             log.error("Error deleting post: {}", e.getMessage());
             return (ServiceResponse<String>) ServiceResponse.error(
-                java.util.List.of(java.util.Map.of("message", "Failed to delete post: " + e.getMessage())),
-                "delete-" + System.currentTimeMillis()
-            );
+                    java.util.List.of(java.util.Map.of("message", "Failed to delete post: " + e.getMessage())),
+                    "delete-" + System.currentTimeMillis());
         }
     }
 
@@ -74,15 +80,60 @@ public class PostService {
                 return ServiceResponse.ok(result.get().toDTO(), "findById-" + System.currentTimeMillis());
             }
             return (ServiceResponse<PostDTO>) ServiceResponse.error(
-                java.util.List.of(java.util.Map.of("message", "Post " + postId + " not found")),
-                "findById-" + System.currentTimeMillis()
-            );
+                    java.util.List.of(java.util.Map.of("message", "Post " + postId + " not found")),
+                    "findById-" + System.currentTimeMillis());
         } catch (Exception e) {
             log.error("Error finding post by id: {}", e.getMessage());
             return (ServiceResponse<PostDTO>) ServiceResponse.error(
-                java.util.List.of(java.util.Map.of("message", "Failed to find post: " + e.getMessage())),
-                "findById-" + System.currentTimeMillis()
-            );
+                    java.util.List.of(java.util.Map.of("message", "Failed to find post: " + e.getMessage())),
+                    "findById-" + System.currentTimeMillis());
+        }
+    }
+
+    @BrokerOperation("findByUserPaginated")
+    public Page<PostDTO> findByUser(@BrokerParam("userId") String userId, @BrokerParam("page") int page,
+            @BrokerParam("size") int size) {
+        log.info("Find posts by user {} page {} size {}", userId, page, size);
+        return postRepository.findByPostedById(userId, PageRequest.of(page, size)).map(Post::toDTO);
+    }
+
+    @BrokerOperation("deleteComment")
+    public ServiceResponse<String> deleteComment(@BrokerParam("postId") String postId,
+            @BrokerParam("commentId") String commentId) {
+        log.info("Delete comment {} from post {}", commentId, postId);
+        try {
+            Optional<Post> postOpt = postRepository.findById(postId);
+            Optional<Comment> commentOpt = commentRepository.findById(commentId);
+
+            if (postOpt.isEmpty()) {
+                return (ServiceResponse<String>) ServiceResponse.error(
+                        java.util.List.of(java.util.Map.of("message", "Post " + postId + " not found")),
+                        "deleteComment-" + System.currentTimeMillis());
+            }
+            if (commentOpt.isEmpty()) {
+                return (ServiceResponse<String>) ServiceResponse.error(
+                        java.util.List.of(java.util.Map.of("message", "Comment " + commentId + " not found")),
+                        "deleteComment-" + System.currentTimeMillis());
+            }
+
+            Post post = postOpt.get();
+            Comment comment = commentOpt.get();
+
+            if (post.getReplies().remove(comment)) {
+                postRepository.save(post);
+                commentRepository.delete(comment);
+                return ServiceResponse.ok("Comment deleted successfully",
+                        "deleteComment-" + System.currentTimeMillis());
+            } else {
+                return (ServiceResponse<String>) ServiceResponse.error(
+                        java.util.List.of(java.util.Map.of("message", "Comment not found in post replies")),
+                        "deleteComment-" + System.currentTimeMillis());
+            }
+        } catch (Exception e) {
+            log.error("Error deleting comment: {}", e.getMessage());
+            return (ServiceResponse<String>) ServiceResponse.error(
+                    java.util.List.of(java.util.Map.of("message", "Failed to delete comment: " + e.getMessage())),
+                    "deleteComment-" + System.currentTimeMillis());
         }
     }
 
@@ -96,15 +147,14 @@ public class PostService {
         log.info("Find all posts");
         try {
             Set<PostDTO> posts = postRepository.findAll().stream()
-                .map(p -> p.toDTO())
-                .collect(Collectors.toSet());
+                    .map(p -> p.toDTO())
+                    .collect(Collectors.toSet());
             return ServiceResponse.ok(posts, "findAll-" + System.currentTimeMillis());
         } catch (Exception e) {
             log.error("Error finding all posts: {}", e.getMessage());
             return (ServiceResponse<Set<PostDTO>>) ServiceResponse.error(
-                java.util.List.of(java.util.Map.of("message", "Failed to find posts: " + e.getMessage())),
-                "findAll-" + System.currentTimeMillis()
-            );
+                    java.util.List.of(java.util.Map.of("message", "Failed to find posts: " + e.getMessage())),
+                    "findAll-" + System.currentTimeMillis());
         }
     }
 
@@ -140,9 +190,8 @@ public class PostService {
 
             if (postedBy.isEmpty()) {
                 return (ServiceResponse<PostDTO>) ServiceResponse.error(
-                    java.util.List.of(java.util.Map.of("message", "User not found: " + post.getPostedBy())),
-                    "save-" + System.currentTimeMillis()
-                );
+                        java.util.List.of(java.util.Map.of("message", "User not found: " + post.getPostedBy())),
+                        "save-" + System.currentTimeMillis());
             }
 
             // handle forum post
@@ -165,29 +214,27 @@ public class PostService {
             }
 
             return (ServiceResponse<PostDTO>) ServiceResponse.error(
-                java.util.List.of(java.util.Map.of("message", "Invalid post data or user not found")),
-                "save-" + System.currentTimeMillis()
-            );
+                    java.util.List.of(java.util.Map.of("message", "Invalid post data or user not found")),
+                    "save-" + System.currentTimeMillis());
         } catch (Exception e) {
             log.error("Error saving post: {}", e.getMessage());
             return (ServiceResponse<PostDTO>) ServiceResponse.error(
-                java.util.List.of(java.util.Map.of("message", "Failed to save post: " + e.getMessage())),
-                "save-" + System.currentTimeMillis()
-            );
+                    java.util.List.of(java.util.Map.of("message", "Failed to save post: " + e.getMessage())),
+                    "save-" + System.currentTimeMillis());
         }
     }
 
     @BrokerOperation("addPostToForum")
-    public ServiceResponse<PostDTO> addPostToForum(@BrokerParam("forumId") Long forumId, @BrokerParam("post") PostDTO post) {
+    public ServiceResponse<PostDTO> addPostToForum(@BrokerParam("forumId") Long forumId,
+            @BrokerParam("post") PostDTO post) {
         log.info("Add post {} to forum {}", post.getText(), forumId);
         try {
             Optional<User> postedBy = userRepository.findByAlias(post.getPostedBy());
 
             if (postedBy.isEmpty()) {
                 return (ServiceResponse<PostDTO>) ServiceResponse.error(
-                    java.util.List.of(java.util.Map.of("message", "User not found: " + post.getPostedBy())),
-                    "addPostToForum-" + System.currentTimeMillis()
-                );
+                        java.util.List.of(java.util.Map.of("message", "User not found: " + post.getPostedBy())),
+                        "addPostToForum-" + System.currentTimeMillis());
             }
 
             PostDTO result = save(postedBy.get(), forumId, post.getText());
@@ -195,9 +242,8 @@ public class PostService {
         } catch (Exception e) {
             log.error("Error adding post to forum: {}", e.getMessage());
             return (ServiceResponse<PostDTO>) ServiceResponse.error(
-                java.util.List.of(java.util.Map.of("message", "Failed to add post to forum: " + e.getMessage())),
-                "addPostToForum-" + System.currentTimeMillis()
-            );
+                    java.util.List.of(java.util.Map.of("message", "Failed to add post to forum: " + e.getMessage())),
+                    "addPostToForum-" + System.currentTimeMillis());
         }
     }
 
@@ -230,15 +276,13 @@ public class PostService {
                 return ServiceResponse.ok(post.toStatDTO(), "incrementRating-" + System.currentTimeMillis());
             }
             return (ServiceResponse<PostStatDTO>) ServiceResponse.error(
-                java.util.List.of(java.util.Map.of("message", "Post " + postId + " not found")),
-                "incrementRating-" + System.currentTimeMillis()
-            );
+                    java.util.List.of(java.util.Map.of("message", "Post " + postId + " not found")),
+                    "incrementRating-" + System.currentTimeMillis());
         } catch (Exception e) {
             log.error("Error incrementing rating: {}", e.getMessage());
             return (ServiceResponse<PostStatDTO>) ServiceResponse.error(
-                java.util.List.of(java.util.Map.of("message", "Failed to increment rating: " + e.getMessage())),
-                "incrementRating-" + System.currentTimeMillis()
-            );
+                    java.util.List.of(java.util.Map.of("message", "Failed to increment rating: " + e.getMessage())),
+                    "incrementRating-" + System.currentTimeMillis());
         }
     }
 
@@ -255,20 +299,19 @@ public class PostService {
                 return ServiceResponse.ok(post.toStatDTO(), "decrementRating-" + System.currentTimeMillis());
             }
             return (ServiceResponse<PostStatDTO>) ServiceResponse.error(
-                java.util.List.of(java.util.Map.of("message", "Post " + postId + " not found")),
-                "decrementRating-" + System.currentTimeMillis()
-            );
+                    java.util.List.of(java.util.Map.of("message", "Post " + postId + " not found")),
+                    "decrementRating-" + System.currentTimeMillis());
         } catch (Exception e) {
             log.error("Error decrementing rating: {}", e.getMessage());
             return (ServiceResponse<PostStatDTO>) ServiceResponse.error(
-                java.util.List.of(java.util.Map.of("message", "Failed to decrement rating: " + e.getMessage())),
-                "decrementRating-" + System.currentTimeMillis()
-            );
+                    java.util.List.of(java.util.Map.of("message", "Failed to decrement rating: " + e.getMessage())),
+                    "decrementRating-" + System.currentTimeMillis());
         }
     }
 
     @BrokerOperation("addReaction")
-    public ServiceResponse<ReactionDTO> addReaction(@BrokerParam("postId") String postId, @BrokerParam("reactionDTO") ReactionDTO reactionDTO) {
+    public ServiceResponse<ReactionDTO> addReaction(@BrokerParam("postId") String postId,
+            @BrokerParam("reactionDTO") ReactionDTO reactionDTO) {
         log.info("Add reaction to post id {}", postId);
         try {
             Reaction.ReactionType type = Reaction.ReactionType.valueOf(reactionDTO.getType().toUpperCase());
@@ -277,16 +320,14 @@ public class PostService {
 
             if (userOpt.isEmpty()) {
                 return (ServiceResponse<ReactionDTO>) ServiceResponse.error(
-                    java.util.List.of(java.util.Map.of("message", "User not found: " + reactionDTO.getAlias())),
-                    "addReaction-" + System.currentTimeMillis()
-                );
+                        java.util.List.of(java.util.Map.of("message", "User not found: " + reactionDTO.getAlias())),
+                        "addReaction-" + System.currentTimeMillis());
             }
 
             if (postOpt.isEmpty()) {
                 return (ServiceResponse<ReactionDTO>) ServiceResponse.error(
-                    java.util.List.of(java.util.Map.of("message", "Post " + postId + " not found")),
-                    "addReaction-" + System.currentTimeMillis()
-                );
+                        java.util.List.of(java.util.Map.of("message", "Post " + postId + " not found")),
+                        "addReaction-" + System.currentTimeMillis());
             }
 
             Post post = postOpt.get();
@@ -300,14 +341,14 @@ public class PostService {
         } catch (Exception e) {
             log.error("Error adding reaction: {}", e.getMessage());
             return (ServiceResponse<ReactionDTO>) ServiceResponse.error(
-                java.util.List.of(java.util.Map.of("message", "Failed to add reaction: " + e.getMessage())),
-                "addReaction-" + System.currentTimeMillis()
-            );
+                    java.util.List.of(java.util.Map.of("message", "Failed to add reaction: " + e.getMessage())),
+                    "addReaction-" + System.currentTimeMillis());
         }
     }
 
     @BrokerOperation("removeReaction")
-    public ServiceResponse<String> removeReaction(@BrokerParam("postId") String postId, @BrokerParam("reactionDTO") ReactionDTO reactionDTO) {
+    public ServiceResponse<String> removeReaction(@BrokerParam("postId") String postId,
+            @BrokerParam("reactionDTO") ReactionDTO reactionDTO) {
         log.info("Remove reaction from post id {}", postId);
         try {
             Optional<Reaction> reactionOpt = this.reactionRepository.findById(reactionDTO.getId());
@@ -315,16 +356,15 @@ public class PostService {
 
             if (postOpt.isEmpty()) {
                 return (ServiceResponse<String>) ServiceResponse.error(
-                    java.util.List.of(java.util.Map.of("message", "Post " + postId + " not found")),
-                    "removeReaction-" + System.currentTimeMillis()
-                );
+                        java.util.List.of(java.util.Map.of("message", "Post " + postId + " not found")),
+                        "removeReaction-" + System.currentTimeMillis());
             }
 
             if (reactionOpt.isEmpty()) {
                 return (ServiceResponse<String>) ServiceResponse.error(
-                    java.util.List.of(java.util.Map.of("message", "Reaction " + reactionDTO.getId() + " not found")),
-                    "removeReaction-" + System.currentTimeMillis()
-                );
+                        java.util.List
+                                .of(java.util.Map.of("message", "Reaction " + reactionDTO.getId() + " not found")),
+                        "removeReaction-" + System.currentTimeMillis());
             }
 
             Post post = postOpt.get();
@@ -338,9 +378,8 @@ public class PostService {
         } catch (Exception e) {
             log.error("Error removing reaction: {}", e.getMessage());
             return (ServiceResponse<String>) ServiceResponse.error(
-                java.util.List.of(java.util.Map.of("message", "Failed to remove reaction: " + e.getMessage())),
-                "removeReaction-" + System.currentTimeMillis()
-            );
+                    java.util.List.of(java.util.Map.of("message", "Failed to remove reaction: " + e.getMessage())),
+                    "removeReaction-" + System.currentTimeMillis());
         }
     }
 
@@ -354,15 +393,13 @@ public class PostService {
                 return ServiceResponse.ok(replies, "getRepliesForPost-" + System.currentTimeMillis());
             }
             return (ServiceResponse<java.util.Set<CommentDTO>>) ServiceResponse.error(
-                java.util.List.of(java.util.Map.of("message", "Post " + postId + " not found")),
-                "getRepliesForPost-" + System.currentTimeMillis()
-            );
+                    java.util.List.of(java.util.Map.of("message", "Post " + postId + " not found")),
+                    "getRepliesForPost-" + System.currentTimeMillis());
         } catch (Exception e) {
             log.error("Error getting replies for post: {}", e.getMessage());
             return (ServiceResponse<java.util.Set<CommentDTO>>) ServiceResponse.error(
-                java.util.List.of(java.util.Map.of("message", "Failed to get replies: " + e.getMessage())),
-                "getRepliesForPost-" + System.currentTimeMillis()
-            );
+                    java.util.List.of(java.util.Map.of("message", "Failed to get replies: " + e.getMessage())),
+                    "getRepliesForPost-" + System.currentTimeMillis());
         }
     }
 

@@ -593,3 +593,10 @@ service-registry/target/service-registry-1.0.0-SNAPSHOT.jar
 service-registry/target/maven-archiver/pom.properties
 service-registry/target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst
 service-registry/target/maven-status/maven-compiler-plugin/compile/default-compile/inputFiles.lst
+broker-service/target/classes/com/angrysurfer/atomic/broker/BrokerApplication.class
+broker-service/target/classes/com/angrysurfer/atomic/broker/config/BrokerConfig.class
+broker-service/target/classes/com/angrysurfer/atomic/broker/BrokerApplication.class
+broker-service/target/classes/com/angrysurfer/atomic/broker/config/BrokerConfig.class
+broker-service/target/classes/com/angrysurfer/atomic/broker/BrokerApplication.class
+broker-service/target/classes/com/angrysurfer/atomic/broker/config/BrokerConfig.class
+broker-service/target/classes/com/angrysurfer/atomic/broker/config/BrokerConfig.class

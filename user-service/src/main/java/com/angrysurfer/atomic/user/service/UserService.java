@@ -21,6 +21,9 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+
 @Service("userService")
 public class UserService {
 
@@ -42,8 +45,7 @@ public class UserService {
      */
     public record CreateUserReq(
             @Email String email,
-            @NotBlank String alias
-    ) {
+            @NotBlank String alias) {
 
         // Record body is intentionally empty as all functionality
         // is provided by the record's automatic implementation
@@ -59,23 +61,24 @@ public class UserService {
         log.info("UserService initialized");
     }
 
-//    @BrokerOperation("login")
-//    public UserDTO login(@BrokerParam("alias") String alias, @BrokerParam("identifier") String password) {
+    // @BrokerOperation("login")
+    // public UserDTO login(@BrokerParam("alias") String alias,
+    // @BrokerParam("identifier") String password) {
 
-//        log.info("Login user {}", alias);
-//        User user = userRepository.findByAlias(alias).orElse(null);
+    // log.info("Login user {}", alias);
+    // User user = userRepository.findByAlias(alias).orElse(null);
 
-//        if (user == null || !user.getIdentifier().equals(password)) {
-//            return null;
-//        }
+    // if (user == null || !user.getIdentifier().equals(password)) {
+    // return null;
+    // }
 
-//        return user.toDTO();
-//    }
+    // return user.toDTO();
+    // }
 
     @BrokerOperation("createUser")
     public UserDTO createUser(@BrokerParam("email") String email,
-                              @BrokerParam("alias") String alias,
-                              @BrokerParam("identifier") String password) {
+            @BrokerParam("alias") String alias,
+            @BrokerParam("identifier") String password) {
 
         log.info("Create user {}", email);
 
@@ -118,7 +121,8 @@ public class UserService {
 
         Optional<User> user = userRepository.findByAlias(alias);
         if (user.isPresent()) {
-            // In MongoDB, the profile might be directly embedded or we might need to handle it differently
+            // In MongoDB, the profile might be directly embedded or we might need to handle
+            // it differently
             result = user.get().toDTO();
 
             return result;
@@ -151,7 +155,8 @@ public class UserService {
         return userRepository.save(user).toDTO();
     }
 
-    public UserDTO save(@BrokerParam("alias") String alias, @BrokerParam("email") String email, @BrokerParam("password") String initialPassword) {
+    public UserDTO save(@BrokerParam("alias") String alias, @BrokerParam("email") String email,
+            @BrokerParam("password") String initialPassword) {
         log.info("Save user {}", alias);
         return userRepository.save(new User(alias, email, null)).toDTO();
     }
@@ -206,17 +211,31 @@ public class UserService {
         return findAll();
     }
 
+    @BrokerOperation("findAllPaginated")
+    public Page<UserDTO> findAll(@BrokerParam("page") int page, @BrokerParam("size") int size) {
+        log.info("Find all users paginated page {} size {}", page, size);
+        return userRepository.findAll(PageRequest.of(page, size)).map(User::toDTO);
+    }
+
+    @BrokerOperation("search")
+    public List<UserDTO> search(@BrokerParam("query") String query) {
+        log.info("Search users query {}", query);
+        return userRepository.findByAliasContainingIgnoreCase(query).stream()
+                .map(User::toDTO)
+                .collect(Collectors.toList());
+    }
+
     // @BrokerOperation("getChoices")
     // public List<Choice> getChoices() {
-    //     return List.of(new Choice("Choice 1", "1"), new Choice("Choice 2", "2"));
+    // return List.of(new Choice("Choice 1", "1"), new Choice("Choice 2", "2"));
     // }
 
     // /**
-    //  * Record representing a choice with label and value.
-    //  */
+    // * Record representing a choice with label and value.
+    // */
     // public record Choice(String label, String value) {
 
-    //     // Record body is intentionally empty as all functionality
-    //     // is provided by the record's automatic implementation
+    // // Record body is intentionally empty as all functionality
+    // // is provided by the record's automatic implementation
     // }
 }

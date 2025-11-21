@@ -10,4 +10,6 @@ import com.angrysurfer.atomic.user.model.Post;
 @Repository
 public interface PostRepository extends MongoRepository<Post, String> {
     Page<Post> findByForumId(Long forumId, Pageable pageable);
+
+    Page<Post> findByPostedById(String userId, Pageable pageable);
 }
