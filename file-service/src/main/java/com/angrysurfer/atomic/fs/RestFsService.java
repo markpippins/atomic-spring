@@ -62,17 +62,28 @@ public class RestFsService {
     private String getUserAliasFromToken(String token) {
         try {
             ServiceRequest request = new ServiceRequest(
-                "loginService", 
-                "getUserRegistrationForToken", 
-                Map.of("token", token), 
+                "loginService",
+                "getUserRegistrationForToken",
+                Map.of("token", token),
                 "get-user-alias-" + System.currentTimeMillis()
             );
 
-            @SuppressWarnings("unchecked")
-            ServiceResponse<UserRegistrationDTO> response = (ServiceResponse<UserRegistrationDTO>) broker.submit(request);
+            ServiceResponse<?> response = (ServiceResponse<?>) broker.submit(request);
 
             if (response.isOk() && response.getData() != null) {
-                return response.getData().getAlias();
+                // The response data might be a Map instead of UserRegistrationDTO due to serialization
+                Object data = response.getData();
+                if (data instanceof UserRegistrationDTO) {
+                    return ((UserRegistrationDTO) data).getAlias();
+                } else if (data instanceof Map) {
+                    // Extract alias from the map representation
+                    @SuppressWarnings("unchecked")
+                    Map<String, Object> dataMap = (Map<String, Object>) data;
+                    return (String) dataMap.get("alias");
+                } else {
+                    log.warn("Unexpected data type returned from user registration service: {}", data.getClass());
+                    return null;
+                }
             } else {
                 log.warn("Failed to get user registration for token: {}", token);
                 return null;
@@ -85,6 +96,9 @@ public class RestFsService {
 
     @BrokerOperation("listFiles")
     public FsListResponse listFiles(@BrokerParam("token") String token, @BrokerParam("path") List<String> path) {
+        if (token == null) {
+            throw new RuntimeException("Token is required to get user path");
+        }
         String alias = getUserAliasFromToken(token);
         if (alias == null) {
             throw new RuntimeException("Invalid token or user not found");
@@ -94,6 +108,9 @@ public class RestFsService {
 
     @BrokerOperation("changeDirectory")
     public Map<String, Object> changeDirectory(@BrokerParam("token") String token, @BrokerParam("path") List<String> path) {
+        if (token == null) {
+            throw new RuntimeException("Token is required to get user path");
+        }
         String alias = getUserAliasFromToken(token);
         if (alias == null) {
             throw new RuntimeException("Invalid token or user not found");
@@ -103,6 +120,9 @@ public class RestFsService {
 
     @BrokerOperation("createDirectory")
     public Map<String, Object> createDirectory(@BrokerParam("token") String token, @BrokerParam("path") List<String> path) {
+        if (token == null) {
+            throw new RuntimeException("Token is required to get user path");
+        }
         String alias = getUserAliasFromToken(token);
         if (alias == null) {
             throw new RuntimeException("Invalid token or user not found");
@@ -112,6 +132,9 @@ public class RestFsService {
 
     @BrokerOperation("removeDirectory")
     public Map<String, Object> removeDirectory(@BrokerParam("token") String token, @BrokerParam("path") List<String> path) {
+        if (token == null) {
+            throw new RuntimeException("Token is required to get user path");
+        }
         String alias = getUserAliasFromToken(token);
         if (alias == null) {
             throw new RuntimeException("Invalid token or user not found");
@@ -122,6 +145,9 @@ public class RestFsService {
     @BrokerOperation("createFile")
     public Map<String, Object> createFile(@BrokerParam("token") String token, @BrokerParam("path") List<String> path,
             @BrokerParam("filename") String filename) {
+        if (token == null) {
+            throw new RuntimeException("Token is required to get user path");
+        }
         String alias = getUserAliasFromToken(token);
         if (alias == null) {
             throw new RuntimeException("Invalid token or user not found");
@@ -132,6 +158,9 @@ public class RestFsService {
     @BrokerOperation("deleteFile")
     public Map<String, Object> deleteFile(@BrokerParam("token") String token, @BrokerParam("path") List<String> path,
             @BrokerParam("filename") String filename) {
+        if (token == null) {
+            throw new RuntimeException("Token is required to get user path");
+        }
         String alias = getUserAliasFromToken(token);
         if (alias == null) {
             throw new RuntimeException("Invalid token or user not found");
@@ -142,6 +171,9 @@ public class RestFsService {
     @BrokerOperation("rename")
     public Map<String, Object> rename(@BrokerParam("token") String token, @BrokerParam("path") List<String> path,
             @BrokerParam("newName") String newName) {
+        if (token == null) {
+            throw new RuntimeException("Token is required to get user path");
+        }
         String alias = getUserAliasFromToken(token);
         if (alias == null) {
             throw new RuntimeException("Invalid token or user not found");
@@ -152,6 +184,9 @@ public class RestFsService {
     @BrokerOperation("renameItem")
     public Map<String, Object> renameItem(@BrokerParam("token") String token, @BrokerParam("path") List<String> path,
             @BrokerParam("newName") String newName) {
+        if (token == null) {
+            throw new RuntimeException("Token is required to get user path");
+        }
         String alias = getUserAliasFromToken(token);
         if (alias == null) {
             throw new RuntimeException("Invalid token or user not found");
@@ -160,8 +195,14 @@ public class RestFsService {
     }
 
     @BrokerOperation("copy")
-    public Map<String, Object> copy(@BrokerParam("fromToken") String fromToken, @BrokerParam("fromPath") List<String> fromPath, 
+    public Map<String, Object> copy(@BrokerParam("fromToken") String fromToken, @BrokerParam("fromPath") List<String> fromPath,
             @BrokerParam("toToken") String toToken, @BrokerParam("toPath") List<String> toPath) {
+        if (fromToken == null) {
+            throw new RuntimeException("Token is required to get user path");
+        }
+        if (toToken == null) {
+            throw new RuntimeException("Token is required to get user path");
+        }
         String fromAlias = getUserAliasFromToken(fromToken);
         String toAlias = getUserAliasFromToken(toToken);
         if (fromAlias == null) {
@@ -176,6 +217,9 @@ public class RestFsService {
     @BrokerOperation("hasFile")
     public Map<String, Object> hasFile(@BrokerParam("token") String token, @BrokerParam("path") List<String> path,
             @BrokerParam("filename") String filename) {
+        if (token == null) {
+            throw new RuntimeException("Token is required to get user path");
+        }
         String alias = getUserAliasFromToken(token);
         if (alias == null) {
             throw new RuntimeException("Invalid token or user not found");
@@ -186,6 +230,9 @@ public class RestFsService {
     @BrokerOperation("hasFolder")
     public Map<String, Object> hasFolder(@BrokerParam("token") String token, @BrokerParam("path") List<String> path,
             @BrokerParam("foldername") String foldername) {
+        if (token == null) {
+            throw new RuntimeException("Token is required to get user path");
+        }
         String alias = getUserAliasFromToken(token);
         if (alias == null) {
             throw new RuntimeException("Invalid token or user not found");
@@ -194,10 +241,13 @@ public class RestFsService {
     }
 
     @BrokerOperation("moveItems")
-    public Map<String, Object> moveItems(@BrokerParam("token") String token, 
+    public Map<String, Object> moveItems(@BrokerParam("token") String token,
             @BrokerParam("sourcePath") List<String> sourcePath,
             @BrokerParam("destPath") List<String> destPath,
             @BrokerParam("items") List<Map<String, Object>> items) {
+        if (token == null) {
+            throw new RuntimeException("Token is required to get user path");
+        }
         String alias = getUserAliasFromToken(token);
         if (alias == null) {
             throw new RuntimeException("Invalid token or user not found");

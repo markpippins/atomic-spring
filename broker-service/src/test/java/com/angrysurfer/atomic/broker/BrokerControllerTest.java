@@ -2,6 +2,7 @@ package com.angrysurfer.atomic.broker;
 
 import com.angrysurfer.atomic.broker.api.ServiceRequest;
 import com.angrysurfer.atomic.broker.api.ServiceResponse;
+import com.angrysurfer.atomic.admin.logging.service.AdminLoggingService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -21,11 +22,14 @@ class BrokerControllerTest {
     @Mock
     private Broker broker;
 
+    @Mock
+    private AdminLoggingService adminLoggingService;
+
     private BrokerController brokerController;
 
     @BeforeEach
     void setUp() {
-        brokerController = new BrokerController(broker);
+        brokerController = new BrokerController(broker, adminLoggingService);
     }
 
     @Test

@@ -3,6 +3,7 @@ package com.angrysurfer.atomic.fs;
 import com.angrysurfer.atomic.broker.Broker;
 import com.angrysurfer.atomic.broker.api.ServiceRequest;
 import com.angrysurfer.atomic.broker.api.ServiceResponse;
+import com.angrysurfer.atomic.fs.api.FsListResponse;
 import com.angrysurfer.atomic.user.UserRegistrationDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -41,8 +42,12 @@ class RestFsServiceTest {
         // Arrange
         String token = "test-token";
         List<String> path = Arrays.asList("home", "user");
-        Map<String, Object> mockResponse = Map.of("items", Arrays.asList(Map.of("name", "file1.txt", "type", "file")));
-        ServiceResponse<?> serviceResponse = ServiceResponse.ok(mockResponse, "test-id");
+        Map<String, Object> userRegistration = Map.of("alias", "testUser");
+        FsListResponse mockResponse = new FsListResponse();
+        mockResponse.setPath(path);
+        mockResponse.setItems(Arrays.asList());
+
+        ServiceResponse<?> serviceResponse = ServiceResponse.ok(userRegistration, "test-id");
         doReturn(serviceResponse).when(broker).submit(any(ServiceRequest.class));
         doReturn(mockResponse).when(restFsClient).listFiles(anyString(), anyList());
 
@@ -59,13 +64,14 @@ class RestFsServiceTest {
         // Arrange
         String token = "invalid-token";
         List<String> path = Arrays.asList("home", "user");
-        ServiceResponse<?> serviceResponse = ServiceResponse.error(List.of(), "test-id");
+        // ServiceResponse with error for invalid token
+        ServiceResponse<?> serviceResponse = ServiceResponse.error(List.of(Map.of("error", "User not found")), "test-id");
         doReturn(serviceResponse).when(broker).submit(any(ServiceRequest.class));
 
         // Act & Assert
-        RuntimeException exception = assertThrows(RuntimeException.class, 
+        RuntimeException exception = assertThrows(RuntimeException.class,
             () -> restFsService.listFiles(token, path));
-        
+
         assertTrue(exception.getMessage().contains("Invalid token or user not found"));
     }
 
@@ -74,8 +80,9 @@ class RestFsServiceTest {
         // Arrange
         String token = "test-token";
         List<String> path = Arrays.asList("home", "user");
+        Map<String, Object> userRegistration = Map.of("alias", "testUser");
         Map<String, Object> mockResponse = Map.of("path", "home/user");
-        ServiceResponse<?> serviceResponse = ServiceResponse.ok(mockResponse, "test-id");
+        ServiceResponse<?> serviceResponse = ServiceResponse.ok(userRegistration, "test-id");
         doReturn(serviceResponse).when(broker).submit(any(ServiceRequest.class));
         doReturn(mockResponse).when(restFsClient).changeDirectory(anyString(), anyList());
 
@@ -92,8 +99,9 @@ class RestFsServiceTest {
         // Arrange
         String token = "test-token";
         List<String> path = Arrays.asList("home", "new-dir");
+        Map<String, Object> userRegistration = Map.of("alias", "testUser");
         Map<String, Object> mockResponse = Map.of("created", "home/new-dir");
-        ServiceResponse<?> serviceResponse = ServiceResponse.ok(mockResponse, "test-id");
+        ServiceResponse<?> serviceResponse = ServiceResponse.ok(userRegistration, "test-id");
         doReturn(serviceResponse).when(broker).submit(any(ServiceRequest.class));
         doReturn(mockResponse).when(restFsClient).createDirectory(anyString(), anyList());
 
@@ -110,8 +118,9 @@ class RestFsServiceTest {
         // Arrange
         String token = "test-token";
         List<String> path = Arrays.asList("home", "old-dir");
+        Map<String, Object> userRegistration = Map.of("alias", "testUser");
         Map<String, Object> mockResponse = Map.of("deleted", "home/old-dir");
-        ServiceResponse<?> serviceResponse = ServiceResponse.ok(mockResponse, "test-id");
+        ServiceResponse<?> serviceResponse = ServiceResponse.ok(userRegistration, "test-id");
         doReturn(serviceResponse).when(broker).submit(any(ServiceRequest.class));
         doReturn(mockResponse).when(restFsClient).removeDirectory(anyString(), anyList());
 
@@ -129,8 +138,9 @@ class RestFsServiceTest {
         String token = "test-token";
         List<String> path = Arrays.asList("home", "user");
         String filename = "newfile.txt";
+        Map<String, Object> userRegistration = Map.of("alias", "testUser");
         Map<String, Object> mockResponse = Map.of("created_file", "home/user/newfile.txt");
-        ServiceResponse<?> serviceResponse = ServiceResponse.ok(mockResponse, "test-id");
+        ServiceResponse<?> serviceResponse = ServiceResponse.ok(userRegistration, "test-id");
         doReturn(serviceResponse).when(broker).submit(any(ServiceRequest.class));
         doReturn(mockResponse).when(restFsClient).createFile(anyString(), anyList(), anyString());
 
@@ -148,8 +158,9 @@ class RestFsServiceTest {
         String token = "test-token";
         List<String> path = Arrays.asList("home", "user");
         String filename = "oldfile.txt";
+        Map<String, Object> userRegistration = Map.of("alias", "testUser");
         Map<String, Object> mockResponse = Map.of("deleted_file", "home/user/oldfile.txt");
-        ServiceResponse<?> serviceResponse = ServiceResponse.ok(mockResponse, "test-id");
+        ServiceResponse<?> serviceResponse = ServiceResponse.ok(userRegistration, "test-id");
         doReturn(serviceResponse).when(broker).submit(any(ServiceRequest.class));
         doReturn(mockResponse).when(restFsClient).deleteFile(anyString(), anyList(), anyString());
 
@@ -167,8 +178,9 @@ class RestFsServiceTest {
         String token = "test-token";
         List<String> path = Arrays.asList("home", "user", "oldname.txt");
         String newName = "newname.txt";
+        Map<String, Object> userRegistration = Map.of("alias", "testUser");
         Map<String, Object> mockResponse = Map.of("renamed", "old", "to", "new");
-        ServiceResponse<?> serviceResponse = ServiceResponse.ok(mockResponse, "test-id");
+        ServiceResponse<?> serviceResponse = ServiceResponse.ok(userRegistration, "test-id");
         doReturn(serviceResponse).when(broker).submit(any(ServiceRequest.class));
         doReturn(mockResponse).when(restFsClient).rename(anyString(), anyList(), anyString());
 
@@ -190,15 +202,19 @@ class RestFsServiceTest {
         String fromAlias = "fromUser";
         String toAlias = "toUser";
         Map<String, Object> mockResponse = Map.of("copied", "from", "to", "to");
-        
-        UserRegistrationDTO fromUserRegistration = new UserRegistrationDTO();
-        fromUserRegistration.setAlias(fromAlias);
-        UserRegistrationDTO toUserRegistration = new UserRegistrationDTO();
-        toUserRegistration.setAlias(toAlias);
-        doReturn((ServiceResponse<UserRegistrationDTO>)ServiceResponse.ok(fromUserRegistration, "test-id"))
-            .when(broker).submit(any(ServiceRequest.class));
-        doReturn((ServiceResponse<UserRegistrationDTO>)ServiceResponse.ok(toUserRegistration, "test-id"))
-            .when(broker).submit(any(ServiceRequest.class));
+
+        // Create user registration data as Maps (since the broker returns Maps)
+        Map<String, Object> fromUserRegistration = Map.of("alias", fromAlias);
+        Map<String, Object> toUserRegistration = Map.of("alias", toAlias);
+
+        ServiceResponse<?> fromResponse = ServiceResponse.ok(fromUserRegistration, "from-request-id");
+        ServiceResponse<?> toResponse = ServiceResponse.ok(toUserRegistration, "to-request-id");
+
+        // Mock the broker to return different responses for different service requests
+        // Since we can't easily distinguish the ServiceRequests in this case,
+        // we'll use an Answer to handle the calls differently
+        doReturn(fromResponse, toResponse).when(broker).submit(any(ServiceRequest.class));
+
         doReturn(mockResponse).when(restFsClient).copy(anyString(), anyList(), anyString(), anyList());
 
         // Act
@@ -215,8 +231,9 @@ class RestFsServiceTest {
         String token = "test-token";
         List<String> path = Arrays.asList("home", "user");
         String filename = "test.txt";
+        Map<String, Object> userRegistration = Map.of("alias", "testUser");
         Map<String, Object> mockResponse = Map.of("exists", true, "type", "file");
-        ServiceResponse<?> serviceResponse = ServiceResponse.ok(mockResponse, "test-id");
+        ServiceResponse<?> serviceResponse = ServiceResponse.ok(userRegistration, "test-id");
         doReturn(serviceResponse).when(broker).submit(any(ServiceRequest.class));
         doReturn(mockResponse).when(restFsClient).hasFile(anyString(), anyList(), anyString());
 
@@ -234,8 +251,9 @@ class RestFsServiceTest {
         String token = "test-token";
         List<String> path = Arrays.asList("home", "user");
         String folderName = "testFolder";
+        Map<String, Object> userRegistration = Map.of("alias", "testUser");
         Map<String, Object> mockResponse = Map.of("exists", true, "type", "directory");
-        ServiceResponse<?> serviceResponse = ServiceResponse.ok(mockResponse, "test-id");
+        ServiceResponse<?> serviceResponse = ServiceResponse.ok(userRegistration, "test-id");
         doReturn(serviceResponse).when(broker).submit(any(ServiceRequest.class));
         doReturn(mockResponse).when(restFsClient).hasFolder(anyString(), anyList(), anyString());
 
@@ -256,8 +274,9 @@ class RestFsServiceTest {
         List<Map<String, Object>> items = Arrays.asList(
             Map.of("name", "def.json", "type", "file")
         );
+        Map<String, Object> userRegistration = Map.of("alias", "testUser");
         Map<String, Object> mockResponse = Map.of("moved", "items");
-        ServiceResponse<?> serviceResponse = ServiceResponse.ok(mockResponse, "test-id");
+        ServiceResponse<?> serviceResponse = ServiceResponse.ok(userRegistration, "test-id");
         doReturn(serviceResponse).when(broker).submit(any(ServiceRequest.class));
         doReturn(mockResponse).when(restFsClient).moveItems(anyString(), anyList(), anyList(), anyList());
 
@@ -274,9 +293,8 @@ class RestFsServiceTest {
         // Arrange
         String token = "valid-token";
         String expectedAlias = "testUser";
-        UserRegistrationDTO userRegistration = new UserRegistrationDTO();
-        userRegistration.setAlias(expectedAlias);
-        ServiceResponse<UserRegistrationDTO> response = (ServiceResponse<UserRegistrationDTO>)ServiceResponse.ok(userRegistration, "test-id");
+        Map<String, Object> userRegistration = Map.of("alias", expectedAlias);
+        ServiceResponse<?> response = ServiceResponse.ok(userRegistration, "test-id");
         doReturn(response).when(broker).submit(any(ServiceRequest.class));
 
         // Use reflection or test the private method indirectly
@@ -298,7 +316,7 @@ class RestFsServiceTest {
     void testGetUserAliasFromTokenFailure() {
         // Arrange
         String token = "invalid-token";
-        ServiceResponse<UserRegistrationDTO> response = (ServiceResponse<UserRegistrationDTO>)ServiceResponse.error(List.of(), "test-id");
+        ServiceResponse<?> response = ServiceResponse.error(List.of(Map.of("error", "User not found")), "test-id");
         doReturn(response).when(broker).submit(any(ServiceRequest.class));
 
         // Use reflection to test the private method
@@ -321,13 +339,14 @@ class RestFsServiceTest {
         // Since it's private, we test its effect through other methods that use it
         String token = "valid-token";
         List<String> path = Arrays.asList("home", "user");
-        
-        UserRegistrationDTO userRegistration = new UserRegistrationDTO();
-        userRegistration.setAlias("testUser");
-        ServiceResponse<UserRegistrationDTO> response = (ServiceResponse<UserRegistrationDTO>)ServiceResponse.ok(userRegistration, "test-id");
+
+        Map<String, Object> userRegistration = Map.of("alias", "testUser");
+        ServiceResponse<?> response = ServiceResponse.ok(userRegistration, "test-id");
         doReturn(response).when(broker).submit(any(ServiceRequest.class));
-        
-        Map<String, Object> mockResponse = Map.of("items", Arrays.asList(Map.of("name", "test.txt", "type", "file")));
+
+        FsListResponse mockResponse = new FsListResponse();
+        mockResponse.setPath(path);
+        mockResponse.setItems(Arrays.asList());
         doReturn(mockResponse).when(restFsClient).listFiles(anyString(), anyList());
 
         // Act
@@ -351,12 +370,13 @@ class RestFsServiceTest {
     void testNullPath() {
         // Arrange
         String token = "test-token";
-        Map<String, Object> mockResponse = Map.of("items", Arrays.asList(Map.of("name", "test.txt", "type", "file")));
-        UserRegistrationDTO userRegistration = new UserRegistrationDTO();
-        userRegistration.setAlias("testUser");
-        ServiceResponse<UserRegistrationDTO> response = ServiceResponse.ok(userRegistration, "test-id");
+        FsListResponse mockResponse = new FsListResponse();
+        mockResponse.setPath(Arrays.asList());
+        mockResponse.setItems(Arrays.asList());
+        Map<String, Object> userRegistration = Map.of("alias", "testUser");
+        ServiceResponse<?> response = ServiceResponse.ok(userRegistration, "test-id");
         doReturn(response).when(broker).submit(any(ServiceRequest.class));
-        doReturn(mockResponse).when(restFsClient).listFiles(anyString(), anyList());
+        doReturn(mockResponse).when(restFsClient).listFiles(anyString(), isNull());
 
         // Act
         var result = restFsService.listFiles(token, null);
