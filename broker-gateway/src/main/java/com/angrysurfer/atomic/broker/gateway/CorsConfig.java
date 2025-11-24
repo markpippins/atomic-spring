@@ -14,15 +14,16 @@ public class CorsConfig {
 
     @Bean
     public WebMvcConfigurer corsConfigurer() {
-        log.info("Initializing CORS Config - allowing all origins, methods, and headers");
+        log.info("Initializing CORS Config - allowing all origins for external access");
         return new WebMvcConfigurer() {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**")
-                        .allowedOriginPatterns("*")
-                        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH", "HEAD")
+                        .allowedOriginPatterns("*")  // Allow all origins including external machines
+                        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH", "HEAD", "TRACE")
                         .allowedHeaders("*")
-                        .allowCredentials(true)
+                        .allowCredentials(false)  // Must be false when using wildcard origins
+                        .exposedHeaders("Authorization", "Content-Type", "X-Requested-With", "Link", "X-Total-Count")
                         .maxAge(3600);
             }
         };

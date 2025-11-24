@@ -1,5 +1,6 @@
-package com.angrysurfer.atomic.registry.model;
+package com.angrysurfer.atomic.broker.api;
 
+import java.io.Serializable;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
@@ -9,8 +10,10 @@ import jakarta.validation.constraints.NotEmpty;
 import lombok.Data;
 
 @Data
-public class ServiceRegistration {
+public class ServiceRegistration implements Serializable {
     
+    private static final long serialVersionUID = 1L;
+
     @NotBlank(message = "Service name is required")
     private String serviceName;
     

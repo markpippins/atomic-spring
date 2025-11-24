@@ -21,6 +21,7 @@ import com.angrysurfer.atomic.hostserver.repository.HostRepository;
 @RestController
 @RequestMapping("/api/servers")
 @CrossOrigin(origins = "*")
+@SuppressWarnings("null")
 public class HostController {
     
     @Autowired
@@ -55,9 +56,14 @@ public class HostController {
         return hostRepository.findByStatus(status);
     }
     
-    @GetMapping("/type/{type}")
-    public List<Host> getServersByType(@PathVariable Host.ServerType type) {
-        return hostRepository.findByType(type);
+    @Autowired
+    private com.angrysurfer.atomic.hostserver.repository.ServerTypeRepository serverTypeRepository;
+
+    @GetMapping("/type/{typeId}")
+    public List<Host> getServersByType(@PathVariable Long typeId) {
+        return serverTypeRepository.findById(typeId)
+                .map(type -> hostRepository.findByType(type))
+                .orElse(List.of());
     }
     
     @PostMapping

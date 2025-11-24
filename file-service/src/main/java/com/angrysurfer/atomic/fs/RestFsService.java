@@ -169,8 +169,8 @@ public class RestFsService {
     }
 
     @BrokerOperation("rename")
-    public Map<String, Object> rename(@BrokerParam("token") String token, @BrokerParam("path") List<String> path,
-            @BrokerParam("newName") String newName) {
+    public Map<String, Object> rename(@BrokerParam("token") String token, @BrokerParam("fromPath") List<String> fromPath,
+            @BrokerParam("toPath") List<String> toPath) {
         if (token == null) {
             throw new RuntimeException("Token is required to get user path");
         }
@@ -178,7 +178,12 @@ public class RestFsService {
         if (alias == null) {
             throw new RuntimeException("Invalid token or user not found");
         }
-        return restFsClient.rename(alias, path, newName);
+        // Extract newName from the last element of toPath
+        if (toPath == null || toPath.isEmpty()) {
+            throw new RuntimeException("Destination path is required for rename operation");
+        }
+        String newName = toPath.get(toPath.size() - 1);
+        return restFsClient.rename(alias, fromPath, newName);
     }
 
     @BrokerOperation("renameItem")

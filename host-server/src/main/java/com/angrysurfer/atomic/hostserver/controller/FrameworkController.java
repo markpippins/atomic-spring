@@ -12,6 +12,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/frameworks")
 @CrossOrigin(origins = "*")
+@SuppressWarnings("null")
 public class FrameworkController {
     
     @Autowired
@@ -36,14 +37,24 @@ public class FrameworkController {
             .orElse(ResponseEntity.notFound().build());
     }
     
-    @GetMapping("/category/{category}")
-    public List<Framework> getFrameworksByCategory(@PathVariable Framework.FrameworkCategory category) {
-        return frameworkRepository.findByCategory(category);
+    @Autowired
+    private com.angrysurfer.atomic.hostserver.repository.FrameworkCategoryRepository frameworkCategoryRepository;
+
+    @Autowired
+    private com.angrysurfer.atomic.hostserver.repository.FrameworkLanguageRepository frameworkLanguageRepository;
+
+    @GetMapping("/category/{categoryId}")
+    public List<Framework> getFrameworksByCategory(@PathVariable Long categoryId) {
+        return frameworkCategoryRepository.findById(categoryId)
+                .map(category -> frameworkRepository.findByCategory(category))
+                .orElse(List.of());
     }
     
-    @GetMapping("/language/{language}")
-    public List<Framework> getFrameworksByLanguage(@PathVariable String language) {
-        return frameworkRepository.findByLanguage(language);
+    @GetMapping("/language/{languageId}")
+    public List<Framework> getFrameworksByLanguage(@PathVariable Long languageId) {
+        return frameworkLanguageRepository.findById(languageId)
+                .map(language -> frameworkRepository.findByLanguage(language))
+                .orElse(List.of());
     }
     
     @GetMapping("/broker-compatible")

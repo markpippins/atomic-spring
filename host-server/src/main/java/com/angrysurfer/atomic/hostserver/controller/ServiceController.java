@@ -21,6 +21,7 @@ import com.angrysurfer.atomic.hostserver.repository.ServiceRepository;
 @RestController
 @RequestMapping("/api/services")
 @CrossOrigin(origins = "*")
+@SuppressWarnings("null")
 public class ServiceController {
     
     @Autowired
@@ -50,9 +51,14 @@ public class ServiceController {
         return serviceRepository.findByFrameworkId(frameworkId);
     }
     
-    @GetMapping("/type/{type}")
-    public List<Service> getServicesByType(@PathVariable Service.ServiceType type) {
-        return serviceRepository.findByType(type);
+    @Autowired
+    private com.angrysurfer.atomic.hostserver.repository.ServiceTypeRepository serviceTypeRepository;
+
+    @GetMapping("/type/{typeId}")
+    public List<Service> getServicesByType(@PathVariable Long typeId) {
+        return serviceTypeRepository.findById(typeId)
+                .map(type -> serviceRepository.findByType(type))
+                .orElse(List.of());
     }
     
     @GetMapping("/status/{status}")
@@ -127,5 +133,13 @@ public class ServiceController {
                 return ResponseEntity.noContent().<Void>build();
             })
             .orElse(ResponseEntity.notFound().build());
+    }
+    @Autowired
+    private com.angrysurfer.atomic.hostserver.service.ServiceSyncService serviceSyncService;
+
+    @PostMapping("/sync")
+    public ResponseEntity<Void> syncServices() {
+        serviceSyncService.syncServices();
+        return ResponseEntity.ok().build();
     }
 }

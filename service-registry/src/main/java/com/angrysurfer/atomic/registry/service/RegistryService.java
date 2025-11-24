@@ -12,8 +12,8 @@ import org.springframework.stereotype.Service;
 
 import com.angrysurfer.atomic.broker.spi.BrokerOperation;
 import com.angrysurfer.atomic.broker.spi.BrokerParam;
-import com.angrysurfer.atomic.registry.model.ServiceRegistration;
-import com.angrysurfer.atomic.registry.model.ServiceRegistration.ServiceStatus;
+import com.angrysurfer.atomic.broker.api.ServiceRegistration;
+import com.angrysurfer.atomic.broker.api.ServiceRegistration.ServiceStatus;
 
 @Service("serviceRegistry")
 public class RegistryService {

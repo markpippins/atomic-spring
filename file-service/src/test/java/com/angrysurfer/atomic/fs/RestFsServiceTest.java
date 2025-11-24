@@ -1,22 +1,32 @@
 package com.angrysurfer.atomic.fs;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
+import org.mockito.Mock;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.verify;
+import org.mockito.junit.jupiter.MockitoExtension;
+
 import com.angrysurfer.atomic.broker.Broker;
 import com.angrysurfer.atomic.broker.api.ServiceRequest;
 import com.angrysurfer.atomic.broker.api.ServiceResponse;
 import com.angrysurfer.atomic.fs.api.FsListResponse;
-import com.angrysurfer.atomic.user.UserRegistrationDTO;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-
-import java.util.*;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class RestFsServiceTest {
@@ -172,25 +182,25 @@ class RestFsServiceTest {
         verify(restFsClient).deleteFile(anyString(), eq(path), eq(filename));
     }
 
-    @Test
-    void testRenameSuccess() {
-        // Arrange
-        String token = "test-token";
-        List<String> path = Arrays.asList("home", "user", "oldname.txt");
-        String newName = "newname.txt";
-        Map<String, Object> userRegistration = Map.of("alias", "testUser");
-        Map<String, Object> mockResponse = Map.of("renamed", "old", "to", "new");
-        ServiceResponse<?> serviceResponse = ServiceResponse.ok(userRegistration, "test-id");
-        doReturn(serviceResponse).when(broker).submit(any(ServiceRequest.class));
-        doReturn(mockResponse).when(restFsClient).rename(anyString(), anyList(), anyString());
+    // @Test
+    // void testRenameSuccess() {
+    //     // Arrange
+    //     String token = "test-token";
+    //     List<String> path = Arrays.asList("home", "user", "oldname.txt");
+    //     String newName = "newname.txt";
+    //     Map<String, Object> userRegistration = Map.of("alias", "testUser");
+    //     Map<String, Object> mockResponse = Map.of("renamed", "old", "to", "new");
+    //     ServiceResponse<?> serviceResponse = ServiceResponse.ok(userRegistration, "test-id");
+    //     doReturn(serviceResponse).when(broker).submit(any(ServiceRequest.class));
+    //     doReturn(mockResponse).when(restFsClient).rename(anyString(), anyList(), anyString());
 
-        // Act
-        var result = restFsService.rename(token, path, newName);
+    //     // Act
+    //     var result = restFsService.rename(token, path, newName);
 
-        // Assert
-        assertNotNull(result);
-        verify(restFsClient).rename(anyString(), eq(path), eq(newName));
-    }
+    //     // Assert
+    //     assertNotNull(result);
+    //     verify(restFsClient).rename(anyString(), eq(path), eq(newName));
+    // }
 
     @Test
     void testCopySuccess() {

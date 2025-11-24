@@ -4,6 +4,8 @@ import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import com.angrysurfer.atomic.broker.api.ServiceResponse;
@@ -13,8 +15,6 @@ import com.angrysurfer.atomic.user.ProfileDTO;
 import com.angrysurfer.atomic.user.model.Profile;
 import com.angrysurfer.atomic.user.model.User;
 import com.angrysurfer.atomic.user.repository.ProfileRepository;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 
 @Service
 public class ProfileService {
@@ -46,6 +46,7 @@ public class ProfileService {
         }
     }
 
+    
     @BrokerOperation("deleteByUserId")
     public ServiceResponse<String> deleteByUserId(@BrokerParam("userId") String userId) {
         log.info("Delete profile by user id {}", userId);

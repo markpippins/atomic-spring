@@ -13,6 +13,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/deployments")
 @CrossOrigin(origins = "*")
+@SuppressWarnings("null")
 public class DeploymentController {
     
     @Autowired

@@ -28,6 +28,7 @@
         <module>search-service</module>
         <module>admin-logging</module>
         <module>service-registry</module>
+        <module>host-server</module>
         <!-- <module>vaadin-client</module> -->
     </modules>
 

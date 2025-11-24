@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
+import java.util.Optional;
+
 @Component
 public class DataInitializer implements CommandLineRunner {
     
@@ -23,85 +25,113 @@ public class DataInitializer implements CommandLineRunner {
     
     @Autowired
     private ServiceConfigurationRepository configurationRepository;
+
+    @Autowired
+    private ServiceTypeRepository serviceTypeRepository;
+
+    @Autowired
+    private ServerTypeRepository serverTypeRepository;
+
+    @Autowired
+    private FrameworkCategoryRepository frameworkCategoryRepository;
+
+    @Autowired
+    private FrameworkLanguageRepository frameworkLanguageRepository;
     
     @Override
     public void run(String... args) {
+        initializeLookupTables();
         initializeFrameworks();
         initializeServers();
         initializeServices();
         initializeDeployments();
         initializeConfigurations();
     }
+
+    private void initializeLookupTables() {
+        // Service Types
+        createServiceType("REST_API", "RESTful API Service");
+        createServiceType("GRAPHQL_API", "GraphQL API Service");
+        createServiceType("GRPC_SERVICE", "gRPC Service");
+        createServiceType("MESSAGE_QUEUE", "Message Queue / Broker");
+        createServiceType("DATABASE", "Database Service");
+        createServiceType("CACHE", "Cache Service");
+        createServiceType("GATEWAY", "API Gateway");
+        createServiceType("PROXY", "Reverse Proxy");
+        createServiceType("WEB_APP", "Web Application");
+        createServiceType("BACKGROUND_JOB", "Background Job / Worker");
+
+        // Server Types
+        createServerType("PHYSICAL", "Physical Server");
+        createServerType("VIRTUAL", "Virtual Machine");
+        createServerType("CONTAINER", "Docker Container");
+        createServerType("CLOUD", "Cloud Instance");
+
+        // Framework Categories
+        createFrameworkCategory("JAVA_SPRING", "Java Spring Framework");
+        createFrameworkCategory("JAVA_QUARKUS", "Java Quarkus Framework");
+        createFrameworkCategory("JAVA_MICRONAUT", "Java Micronaut Framework");
+        createFrameworkCategory("NODE_EXPRESS", "Node.js Express");
+        createFrameworkCategory("NODE_NESTJS", "Node.js NestJS");
+        createFrameworkCategory("NODE_ADONISJS", "Node.js AdonisJS");
+        createFrameworkCategory("NODE_MOLECULER", "Node.js Moleculer");
+        createFrameworkCategory("PYTHON_DJANGO", "Python Django");
+        createFrameworkCategory("PYTHON_FLASK", "Python Flask");
+        createFrameworkCategory("PYTHON_FASTAPI", "Python FastAPI");
+        createFrameworkCategory("DOTNET_ASPNET", ".NET ASP.NET Core");
+        createFrameworkCategory("GO_GIN", "Go Gin");
+        createFrameworkCategory("RUST_ACTIX", "Rust Actix");
+        createFrameworkCategory("OTHER", "Other Framework");
+
+        // Framework Languages
+        createFrameworkLanguage("Java", "Java Programming Language");
+        createFrameworkLanguage("TypeScript", "TypeScript Programming Language");
+        createFrameworkLanguage("JavaScript", "JavaScript Programming Language");
+        createFrameworkLanguage("Python", "Python Programming Language");
+        createFrameworkLanguage("C#", "C# Programming Language");
+        createFrameworkLanguage("Go", "Go Programming Language");
+        createFrameworkLanguage("Rust", "Rust Programming Language");
+    }
     
     private void initializeFrameworks() {
+        FrameworkCategory javaSpring = frameworkCategoryRepository.findByName("JAVA_SPRING").orElseThrow();
+        FrameworkCategory javaQuarkus = frameworkCategoryRepository.findByName("JAVA_QUARKUS").orElseThrow();
+        FrameworkCategory javaMicronaut = frameworkCategoryRepository.findByName("JAVA_MICRONAUT").orElseThrow();
+        FrameworkCategory nodeNestjs = frameworkCategoryRepository.findByName("NODE_NESTJS").orElseThrow();
+        FrameworkCategory nodeAdonisjs = frameworkCategoryRepository.findByName("NODE_ADONISJS").orElseThrow();
+        FrameworkCategory nodeMoleculer = frameworkCategoryRepository.findByName("NODE_MOLECULER").orElseThrow();
+
+        FrameworkLanguage java = frameworkLanguageRepository.findByName("Java").orElseThrow();
+        FrameworkLanguage typeScript = frameworkLanguageRepository.findByName("TypeScript").orElseThrow();
+
         // Java Frameworks
-        Framework springBoot = new Framework();
-        springBoot.setName("Spring Boot");
-        springBoot.setDescription("Java framework for building production-ready applications");
-        springBoot.setCategory(Framework.FrameworkCategory.JAVA_SPRING);
-        springBoot.setLanguage("Java");
-        springBoot.setLatestVersion("3.5.0");
-        springBoot.setDocumentationUrl("https://spring.io/projects/spring-boot");
-        springBoot.setSupportsBrokerPattern(true);
-        frameworkRepository.save(springBoot);
+        createFramework("Spring Boot", "Java framework for building production-ready applications", 
+            javaSpring, java, "3.5.0", "https://spring.io/projects/spring-boot", true);
         
-        Framework quarkus = new Framework();
-        quarkus.setName("Quarkus");
-        quarkus.setDescription("Kubernetes-native Java framework");
-        quarkus.setCategory(Framework.FrameworkCategory.JAVA_QUARKUS);
-        quarkus.setLanguage("Java");
-        quarkus.setLatestVersion("3.15.1");
-        quarkus.setDocumentationUrl("https://quarkus.io");
-        quarkus.setSupportsBrokerPattern(true);
-        frameworkRepository.save(quarkus);
+        createFramework("Quarkus", "Kubernetes-native Java framework", 
+            javaQuarkus, java, "3.15.1", "https://quarkus.io", true);
         
-        Framework micronaut = new Framework();
-        micronaut.setName("Micronaut");
-        micronaut.setDescription("Modern JVM-based framework for microservices");
-        micronaut.setCategory(Framework.FrameworkCategory.JAVA_MICRONAUT);
-        micronaut.setLanguage("Java");
-        micronaut.setLatestVersion("4.0.0");
-        micronaut.setDocumentationUrl("https://micronaut.io");
-        micronaut.setSupportsBrokerPattern(false);
-        frameworkRepository.save(micronaut);
+        createFramework("Micronaut", "Modern JVM-based framework for microservices", 
+            javaMicronaut, java, "4.0.0", "https://micronaut.io", false);
         
         // Node.js Frameworks
-        Framework nestjs = new Framework();
-        nestjs.setName("NestJS");
-        nestjs.setDescription("Progressive Node.js framework for building server-side applications");
-        nestjs.setCategory(Framework.FrameworkCategory.NODE_NESTJS);
-        nestjs.setLanguage("TypeScript");
-        nestjs.setLatestVersion("10.0.0");
-        nestjs.setDocumentationUrl("https://nestjs.com");
-        nestjs.setSupportsBrokerPattern(false);
-        frameworkRepository.save(nestjs);
+        createFramework("NestJS", "Progressive Node.js framework for building server-side applications", 
+            nodeNestjs, typeScript, "10.0.0", "https://nestjs.com", false);
         
-        Framework adonisjs = new Framework();
-        adonisjs.setName("AdonisJS");
-        adonisjs.setDescription("Node.js MVC framework");
-        adonisjs.setCategory(Framework.FrameworkCategory.NODE_ADONISJS);
-        adonisjs.setLanguage("TypeScript");
-        adonisjs.setLatestVersion("6.0.0");
-        adonisjs.setDocumentationUrl("https://adonisjs.com");
-        adonisjs.setSupportsBrokerPattern(false);
-        frameworkRepository.save(adonisjs);
+        createFramework("AdonisJS", "Node.js MVC framework", 
+            nodeAdonisjs, typeScript, "6.0.0", "https://adonisjs.com", false);
         
-        Framework moleculer = new Framework();
-        moleculer.setName("Moleculer");
-        moleculer.setDescription("Progressive microservices framework for Node.js");
-        moleculer.setCategory(Framework.FrameworkCategory.NODE_MOLECULER);
-        moleculer.setLanguage("TypeScript");
-        moleculer.setLatestVersion("0.14.0");
-        moleculer.setDocumentationUrl("https://moleculer.services");
-        moleculer.setSupportsBrokerPattern(true);
-        frameworkRepository.save(moleculer);
+        createFramework("Moleculer", "Progressive microservices framework for Node.js", 
+            nodeMoleculer, typeScript, "0.14.0", "https://moleculer.services", true);
     }
     
     private void initializeServers() {
+        ServerType virtual = serverTypeRepository.findByName("VIRTUAL").orElseThrow();
+
         Host localhost = new Host();
         localhost.setHostname("localhost");
         localhost.setIpAddress("127.0.0.1");
-        localhost.setType(Host.ServerType.VIRTUAL);
+        localhost.setType(virtual);
         localhost.setEnvironment(Host.ServerEnvironment.DEVELOPMENT);
         localhost.setOperatingSystem("Windows 11");
         localhost.setCpuCores(8);
@@ -116,30 +146,33 @@ public class DataInitializer implements CommandLineRunner {
         Framework springBoot = frameworkRepository.findByName("Spring Boot").orElse(null);
         Framework quarkus = frameworkRepository.findByName("Quarkus").orElse(null);
         Framework moleculer = frameworkRepository.findByName("Moleculer").orElse(null);
+
+        ServiceType gateway = serviceTypeRepository.findByName("GATEWAY").orElseThrow();
+        ServiceType restApi = serviceTypeRepository.findByName("REST_API").orElseThrow();
         
         // Spring Boot Services
         Service brokerGateway = createService("broker-gateway", "Main API gateway with service orchestration", 
-            springBoot, Service.ServiceType.GATEWAY, 8080, "/api/broker");
+            springBoot, gateway, 8080, "/api/broker");
         
         Service userService = createService("user-service", "Primary user management with MongoDB", 
-            springBoot, Service.ServiceType.REST_API, 8083, "/api/users");
+            springBoot, restApi, 8083, "/api/users");
         
         Service loginService = createService("login-service", "Authentication and session management", 
-            springBoot, Service.ServiceType.REST_API, 8082, "/api/login");
+            springBoot, restApi, 8082, "/api/login");
         
         Service fileService = createService("file-service", "File handling services", 
-            springBoot, Service.ServiceType.REST_API, 4040, "/api/files");
+            springBoot, restApi, 4040, "/api/files");
         
         Service noteService = createService("note-service", "User notes management", 
-            springBoot, Service.ServiceType.REST_API, 8084, "/api/notes");
+            springBoot, restApi, 8084, "/api/notes");
         
         // Quarkus Services
         Service brokerGatewayQuarkus = createService("broker-gateway-quarkus", "Quarkus implementation of broker gateway", 
-            quarkus, Service.ServiceType.GATEWAY, 8190, "/api/broker");
+            quarkus, gateway, 8190, "/api/broker");
         
         // Moleculer Services
         Service moleculerSearch = createService("moleculer-search", "Search service with multiple providers", 
-            moleculer, Service.ServiceType.REST_API, 4050, "/api/search");
+            moleculer, restApi, 4050, "/api/search");
         
         // Add dependencies
         loginService.getDependencies().add(userService);
@@ -154,7 +187,7 @@ public class DataInitializer implements CommandLineRunner {
     }
     
     private Service createService(String name, String description, Framework framework, 
-                                  Service.ServiceType type, Integer port, String apiPath) {
+                                  ServiceType type, Integer port, String apiPath) {
         Service service = new Service();
         service.setName(name);
         service.setDescription(description);
@@ -166,6 +199,55 @@ public class DataInitializer implements CommandLineRunner {
         service.setStatus(Service.ServiceStatus.ACTIVE);
         service.setVersion("1.0.0");
         return serviceRepository.save(service);
+    }
+
+    private void createFramework(String name, String description, FrameworkCategory category, 
+                                 FrameworkLanguage language, String version, String url, boolean supportsBroker) {
+        Framework framework = new Framework();
+        framework.setName(name);
+        framework.setDescription(description);
+        framework.setCategory(category);
+        framework.setLanguage(language);
+        framework.setLatestVersion(version);
+        framework.setDocumentationUrl(url);
+        framework.setSupportsBrokerPattern(supportsBroker);
+        frameworkRepository.save(framework);
+    }
+
+    private void createServiceType(String name, String description) {
+        if (serviceTypeRepository.findByName(name).isEmpty()) {
+            ServiceType type = new ServiceType();
+            type.setName(name);
+            type.setDescription(description);
+            serviceTypeRepository.save(type);
+        }
+    }
+
+    private void createServerType(String name, String description) {
+        if (serverTypeRepository.findByName(name).isEmpty()) {
+            ServerType type = new ServerType();
+            type.setName(name);
+            type.setDescription(description);
+            serverTypeRepository.save(type);
+        }
+    }
+
+    private void createFrameworkCategory(String name, String description) {
+        if (frameworkCategoryRepository.findByName(name).isEmpty()) {
+            FrameworkCategory category = new FrameworkCategory();
+            category.setName(name);
+            category.setDescription(description);
+            frameworkCategoryRepository.save(category);
+        }
+    }
+
+    private void createFrameworkLanguage(String name, String description) {
+        if (frameworkLanguageRepository.findByName(name).isEmpty()) {
+            FrameworkLanguage language = new FrameworkLanguage();
+            language.setName(name);
+            language.setDescription(description);
+            frameworkLanguageRepository.save(language);
+        }
     }
     
     private void initializeDeployments() {
