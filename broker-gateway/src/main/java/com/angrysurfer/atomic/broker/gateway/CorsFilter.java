@@ -16,8 +16,10 @@ import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
-// Comment out the CORS filter to prevent conflicts with Spring's CORS configuration
-/*
+import org.springframework.stereotype.Component;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
+
 @Component
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class CorsFilter implements Filter {
@@ -37,16 +39,57 @@ public class CorsFilter implements Filter {
 
         log.info("CORS Filter - Method: {}, URI: {}, Origin: {}", method, requestUri, origin);
 
-        // Only add Vary header to indicate that response varies by Origin
-        // Let Spring handle CORS properly to avoid conflicts
+        // For development - allow specific origins with credentials
+        if (origin != null && !origin.isEmpty()) {
+            // Check if origin is a trusted development origin
+            if (isTrustedOrigin(origin)) {
+                response.setHeader("Access-Control-Allow-Origin", origin);
+                response.setHeader("Access-Control-Allow-Credentials", "true");
+            } else {
+                // For untrusted origins, use wildcard but without credentials
+                response.setHeader("Access-Control-Allow-Origin", "*");
+            }
+        } else {
+            response.setHeader("Access-Control-Allow-Origin", "*");
+        }
+
+        response.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, PATCH, HEAD, TRACE");
+        response.setHeader("Access-Control-Allow-Headers",
+                "Origin, X-Requested-With, Content-Type, Accept, Authorization, X-CSRF-TOKEN");
+        response.setHeader("Access-Control-Expose-Headers",
+                "Authorization, Content-Type, X-Requested-With, Link, X-Total-Count");
         response.setHeader("Vary", "Origin");
 
         if ("OPTIONS".equalsIgnoreCase(method)) {
             log.info("CORS Filter - Handling preflight OPTIONS request from origin: {}", origin);
-            // Let Spring handle the OPTIONS preflight request
+            response.setStatus(HttpServletResponse.SC_OK);
+        } else {
+            chain.doFilter(req, res);
         }
+    }
 
-        chain.doFilter(req, res);
+    @org.springframework.beans.factory.annotation.Value("${allowed.origins}")
+    private String[] allowedOrigins;
+
+    private boolean isTrustedOrigin(String origin) {
+        if (allowedOrigins == null || allowedOrigins.length == 0) {
+            return false;
+        }
+        for (String allowed : allowedOrigins) {
+            allowed = allowed.trim();
+            if (allowed.equals("*")) {
+                return true;
+            }
+            // Handle wildcards
+            if (allowed.contains("*")) {
+                String regex = "^" + allowed.replace(".", "\\.").replace("*", ".*") + "$";
+                if (origin.matches(regex)) {
+                    return true;
+                }
+            } else if (origin.equals(allowed)) {
+                return true;
+            }
+        }
+        return false;
     }
 }
-*/
