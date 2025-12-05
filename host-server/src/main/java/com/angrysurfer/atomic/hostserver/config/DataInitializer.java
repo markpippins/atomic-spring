@@ -43,9 +43,9 @@ public class DataInitializer implements CommandLineRunner {
         initializeLookupTables();
         initializeFrameworks();
         initializeServers();
-        initializeServices();
-        initializeDeployments();
-        initializeConfigurations();
+        // initializeServices();
+        // initializeDeployments();
+        // initializeConfigurations();
     }
 
     private void initializeLookupTables() {
