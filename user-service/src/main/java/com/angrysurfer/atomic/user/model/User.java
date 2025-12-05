@@ -24,6 +24,8 @@ public class User implements Serializable {
 
     private String identifier;
 
+    private boolean admin = false;
+
     private String alias;
 
     private String email;
@@ -48,6 +50,7 @@ public class User implements Serializable {
         dto.setAlias(getAlias());
         dto.setEmail(getEmail());
         dto.setIdentifier(getIdentifier());
+        dto.setAdmin(isAdmin());
         dto.setAvatarUrl(getAvatarUrl());
         dto.setFollowers(getFollowers().stream().map(f -> f.getAlias()).collect(Collectors.toSet()));
         dto.setFollowing(getFollowing().stream().map(f -> f.getAlias()).collect(Collectors.toSet()));
@@ -142,6 +145,14 @@ public class User implements Serializable {
 
     public void setIdentifier(String identifier) {
         this.identifier = identifier;
+    }
+
+    public boolean isAdmin() {
+        return admin;
+    }
+
+    public void setAdmin(boolean admin) {
+        this.admin = admin;
     }
 
 }

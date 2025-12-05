@@ -76,6 +76,7 @@ public class LoginService {
             response.setToken(token.toString());
             response.setUserId(user.getId());
             response.setAvatarUrl(user.getAvatarUrl());
+            response.setAdmin(user.isAdmin());
             response.setOk(true);
             
             // Store user in Redis with TTL (e.g., 24 hours)

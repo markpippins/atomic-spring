@@ -18,6 +18,8 @@ public class LoginResponse {
 
     private boolean ok = false;
 
+    private boolean admin = false;
+
     private Map<String, String> errors = new HashMap<>();
 
     private LoginResponse() {

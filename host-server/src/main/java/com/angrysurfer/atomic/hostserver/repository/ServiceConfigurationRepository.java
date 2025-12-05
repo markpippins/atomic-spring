@@ -12,4 +12,6 @@ public interface ServiceConfigurationRepository extends JpaRepository<ServiceCon
     List<ServiceConfiguration> findByServiceId(Long serviceId);
     List<ServiceConfiguration> findByServiceIdAndEnvironment(Long serviceId, ServiceConfiguration.ConfigEnvironment environment);
     Optional<ServiceConfiguration> findByServiceIdAndConfigKeyAndEnvironment(Long serviceId, String configKey, ServiceConfiguration.ConfigEnvironment environment);
+    Optional<ServiceConfiguration> findByServiceAndConfigKey(com.angrysurfer.atomic.hostserver.entity.Service service, String configKey);
+    List<ServiceConfiguration> findByConfigKey(String configKey);
 }

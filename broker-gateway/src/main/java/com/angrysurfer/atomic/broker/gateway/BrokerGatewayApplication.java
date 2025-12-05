@@ -9,13 +9,40 @@ import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 @SpringBootApplication
-@EnableMongoRepositories(basePackages = {"com.angrysurfer", "com.angrysurfer.atomic.admin.logging"})
-@EnableJpaRepositories(basePackages = "com.angrysurfer.atomic.admin.logging")
-@EntityScan(basePackages = "com.angrysurfer.atomic.admin.logging")
+@EnableMongoRepositories(basePackages = {
+    "com.angrysurfer.atomic.broker", 
+    "com.angrysurfer.atomic.user", 
+    "com.angrysurfer.atomic.fs",
+    "com.angrysurfer.atomic.login", 
+    "com.angrysurfer.atomic.note", 
+    "com.angrysurfer.atomic.search",
+    "com.angrysurfer.atomic.registry",
+    "com.angrysurfer.atomic.admin.logging"
+})
+@EnableJpaRepositories(basePackages = {
+    "com.angrysurfer.atomic.broker", 
+    "com.angrysurfer.atomic.user", 
+    "com.angrysurfer.atomic.fs",
+    "com.angrysurfer.atomic.login", 
+    "com.angrysurfer.atomic.note", 
+    "com.angrysurfer.atomic.search",
+    "com.angrysurfer.atomic.registry",
+    "com.angrysurfer.atomic.admin.logging"
+})
+@EntityScan(basePackages = {
+    "com.angrysurfer.atomic.broker", 
+    "com.angrysurfer.atomic.user", 
+    "com.angrysurfer.atomic.fs",
+    "com.angrysurfer.atomic.login", 
+    "com.angrysurfer.atomic.note", 
+    "com.angrysurfer.atomic.search",
+    "com.angrysurfer.atomic.registry",
+    "com.angrysurfer.atomic.admin.logging"
+})
 @ComponentScan(basePackages = {
     "com.angrysurfer.atomic.broker", 
     "com.angrysurfer.atomic.user", 
-    "com.angrysurfer.atomic.fs", 
+    "com.angrysurfer.atomic.fs",
     "com.angrysurfer.atomic.login", 
     "com.angrysurfer.atomic.note", 
     "com.angrysurfer.atomic.search",

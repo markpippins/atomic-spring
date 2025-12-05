@@ -12,6 +12,9 @@
     <artifactId>broker-gateway</artifactId>
     <packaging>jar</packaging>
 
+    <name>Broker Gateway</name>
+    <description>Nucleus Server</description>
+
     <dependencies>
         <dependency>
             <groupId>org.springdoc</groupId>

@@ -26,6 +26,8 @@ public class UserRegistration implements Serializable {
 
     private String identifier;
 
+    private boolean admin = false;
+
     @NotBlank(message = "Alias is required")
     private String alias;
 
@@ -40,6 +42,7 @@ public class UserRegistration implements Serializable {
         dto.setAlias(getAlias());
         dto.setEmail(getEmail());
         dto.setIdentifier(getIdentifier());
+        dto.setAdmin(isAdmin());
         dto.setAvatarUrl(getAvatarUrl());
         return dto;
     }
@@ -107,6 +110,14 @@ public class UserRegistration implements Serializable {
 
     public void setIdentifier(String identifier) {
         this.identifier = identifier;
+    }
+
+    public boolean isAdmin() {
+        return admin;
+    }
+
+    public void setAdmin(boolean admin) {
+        this.admin = admin;
     }
 
 }

@@ -1,4 +1,4 @@
-package com.angrysurfer.atomic.admin.logging.repository;
+xpackage com.angrysurfer.atomic.admin.logging.repository;
 
 import com.angrysurfer.atomic.admin.logging.AdminLogEntry;
 import org.springframework.data.jpa.repository.JpaRepository;

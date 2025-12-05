@@ -44,4 +44,6 @@ public class UserDTO implements Serializable {
     private Set<String> teams = new HashSet<>();
 
     private Set<String> tags = new HashSet<>();
+
+    private boolean admin;
 }

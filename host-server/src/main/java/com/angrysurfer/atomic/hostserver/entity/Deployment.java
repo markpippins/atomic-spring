@@ -83,6 +83,22 @@ public class Deployment {
     @Column
     private LocalDateTime updatedAt;
 
+    /**
+     * Backend connections - services that this deployment uses as backends
+     * Example: file-service deployment uses file-system-server deployments
+     */
+    @OneToMany(mappedBy = "serviceDeployment", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnoreProperties({"serviceDeployment", "backendDeployment"})
+    private java.util.Set<ServiceBackend> backends = new java.util.HashSet<>();
+
+    /**
+     * Consumer connections - services that use this deployment as a backend
+     * Example: file-system-server deployment is used by file-service deployments
+     */
+    @OneToMany(mappedBy = "backendDeployment", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnoreProperties({"serviceDeployment", "backendDeployment"})
+    private java.util.Set<ServiceBackend> consumers = new java.util.HashSet<>();
+
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();

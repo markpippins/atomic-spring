@@ -6,6 +6,16 @@ A comprehensive server/service/configuration management system for the Atomic Pl
 
 The Host Server is designed to handle the growing cognitive load of managing multiple services across different frameworks (Spring Boot, Quarkus, Micronaut, NestJS, AdonisJS, Moleculer, etc.) using the broker pattern.
 
+## New Feature: Service Backend Connections
+
+Track relationships between service instances (deployments). Essential for modeling:
+- file-service → file-system-server connections
+- Primary/backup configurations
+- Multi-backend setups
+
+**Quick Start**: See [BACKEND_QUICK_START.md](BACKEND_QUICK_START.md)  
+**Full API Docs**: See [BACKEND_CONNECTIONS_API.md](BACKEND_CONNECTIONS_API.md)
+
 ## Architecture
 
 ### Data Model
