@@ -74,25 +74,35 @@ public class ServiceSyncService {
     }
 
     private void processRegistrations(List<ServiceRegistration> registrations) {
+        log.debug("Processing {} service registrations", registrations.size());
+        
         // Fetch default service type
         com.angrysurfer.atomic.hostserver.entity.ServiceType restApiType = 
                 serviceTypeRepository.findByName("REST_API").orElse(null);
 
+        int createdCount = 0;
+        int updatedCount = 0;
+
         for (ServiceRegistration reg : registrations) {
             try {
+                log.debug("Processing service registration: name={}, endpoint={}, status={}", 
+                        reg.getServiceName(), reg.getEndpoint(), reg.getStatus());
+                
                 Optional<com.angrysurfer.atomic.hostserver.entity.Service> existingOpt = 
                         serviceRepository.findByName(reg.getServiceName());
 
                 com.angrysurfer.atomic.hostserver.entity.Service service;
                 if (existingOpt.isPresent()) {
                     service = existingOpt.get();
-                    log.debug("Updating existing service: {}", service.getName());
+                    log.debug("Updating existing service: {} (id={})", service.getName(), service.getId());
+                    updatedCount++;
                 } else {
                     service = new com.angrysurfer.atomic.hostserver.entity.Service();
                     service.setName(reg.getServiceName());
                     service.setType(restApiType); // Default
                     service.setDefaultPort(8080); // Default, maybe extract from endpoint if possible
-                    log.debug("Creating new service: {}", service.getName());
+                    log.debug("Creating new service: {}", reg.getServiceName());
+                    createdCount++;
                 }
 
                 // Map fields
@@ -107,10 +117,12 @@ public class ServiceSyncService {
                 }
 
                 serviceRepository.save(service);
+                log.debug("Saved service: {} with status={}", service.getName(), service.getStatus());
             } catch (Exception e) {
                 log.error("Failed to process registration for service: {}", reg.getServiceName(), e);
             }
         }
-        log.info("Service sync completed. Processed {} services.", registrations.size());
+        log.info("Service sync completed. Processed {} services (created={}, updated={}).", 
+                registrations.size(), createdCount, updatedCount);
     }
 }

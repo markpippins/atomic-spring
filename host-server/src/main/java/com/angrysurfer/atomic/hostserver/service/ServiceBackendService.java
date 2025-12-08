@@ -31,26 +31,33 @@ public class ServiceBackendService {
      * Get all backends for a deployment
      */
     public List<ServiceBackendDto> getBackendsForDeployment(Long deploymentId) {
+        log.info("Getting backends for deployment: {}", deploymentId);
         List<ServiceBackend> backends = serviceBackendRepository.findByServiceDeploymentId(deploymentId);
-        return backends.stream()
+        List<ServiceBackendDto> result = backends.stream()
                 .map(this::toDto)
                 .collect(Collectors.toList());
+        log.debug("Found {} backends for deployment {}", result.size(), deploymentId);
+        return result;
     }
     
     /**
      * Get all consumers (services using this deployment as a backend)
      */
     public List<ServiceBackendDto> getConsumersForDeployment(Long deploymentId) {
+        log.info("Getting consumers for deployment: {}", deploymentId);
         List<ServiceBackend> consumers = serviceBackendRepository.findByBackendDeploymentId(deploymentId);
-        return consumers.stream()
+        List<ServiceBackendDto> result = consumers.stream()
                 .map(this::toDto)
                 .collect(Collectors.toList());
+        log.debug("Found {} consumers for deployment {}", result.size(), deploymentId);
+        return result;
     }
     
     /**
      * Get deployment with all its backend connections
      */
     public DeploymentWithBackendsDto getDeploymentWithBackends(Long deploymentId) {
+        log.info("Getting deployment with backends: {}", deploymentId);
         Deployment deployment = deploymentRepository.findById(deploymentId)
                 .orElseThrow(() -> new RuntimeException("Deployment not found: " + deploymentId));
         
@@ -66,6 +73,7 @@ public class ServiceBackendService {
         dto.setBackends(getBackendsForDeployment(deploymentId));
         dto.setConsumers(getConsumersForDeployment(deploymentId));
         
+        log.debug("Completed getting deployment with backends: {}", deploymentId);
         return dto;
     }
     
@@ -111,6 +119,7 @@ public class ServiceBackendService {
      */
     @Transactional
     public ServiceBackend updateBackend(Long backendId, ServiceBackendDto dto) {
+        log.info("Updating backend: {}", backendId);
         ServiceBackend backend = serviceBackendRepository.findById(backendId)
                 .orElseThrow(() -> new RuntimeException("Backend not found: " + backendId));
         
@@ -133,7 +142,9 @@ public class ServiceBackendService {
             backend.setDescription(dto.getDescription());
         }
         
-        return serviceBackendRepository.save(backend);
+        ServiceBackend saved = serviceBackendRepository.save(backend);
+        log.info("Updated backend: {}", backendId);
+        return saved;
     }
     
     /**

@@ -3,6 +3,8 @@ package com.angrysurfer.atomic.hostserver.controller;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -35,6 +37,8 @@ import com.angrysurfer.atomic.hostserver.service.ServiceBackendService;
 @CrossOrigin(origins = "*")
 public class ServiceBackendController {
     
+    private static final Logger log = LoggerFactory.getLogger(ServiceBackendController.class);
+    
     @Autowired
     private ServiceBackendService serviceBackendService;
     
@@ -46,7 +50,9 @@ public class ServiceBackendController {
      */
     @GetMapping("/deployment/{deploymentId}")
     public ResponseEntity<List<ServiceBackendDto>> getBackendsForDeployment(@PathVariable Long deploymentId) {
+        log.info("Fetching backends for deployment id: {}", deploymentId);
         List<ServiceBackendDto> backends = serviceBackendService.getBackendsForDeployment(deploymentId);
+        log.debug("Found {} backends for deployment {}", backends.size(), deploymentId);
         return ResponseEntity.ok(backends);
     }
     
@@ -58,7 +64,9 @@ public class ServiceBackendController {
      */
     @GetMapping("/consumers/{deploymentId}")
     public ResponseEntity<List<ServiceBackendDto>> getConsumersForDeployment(@PathVariable Long deploymentId) {
+        log.info("Fetching consumers for deployment id: {}", deploymentId);
         List<ServiceBackendDto> consumers = serviceBackendService.getConsumersForDeployment(deploymentId);
+        log.debug("Found {} consumers for deployment {}", consumers.size(), deploymentId);
         return ResponseEntity.ok(consumers);
     }
     
@@ -70,7 +78,9 @@ public class ServiceBackendController {
      */
     @GetMapping("/deployment/{deploymentId}/details")
     public ResponseEntity<DeploymentWithBackendsDto> getDeploymentWithBackends(@PathVariable Long deploymentId) {
+        log.info("Fetching deployment details with backends for deployment id: {}", deploymentId);
         DeploymentWithBackendsDto dto = serviceBackendService.getDeploymentWithBackends(deploymentId);
+        log.debug("Retrieved deployment details for deployment {}", deploymentId);
         return ResponseEntity.ok(dto);
     }
     
@@ -87,6 +97,7 @@ public class ServiceBackendController {
      */
     @PostMapping
     public ResponseEntity<ServiceBackend> addBackend(@RequestBody Map<String, Object> request) {
+        log.info("Adding backend connection from request: {}", request);
         Long serviceDeploymentId = Long.valueOf(request.get("serviceDeploymentId").toString());
         Long backendDeploymentId = Long.valueOf(request.get("backendDeploymentId").toString());
         ServiceBackend.BackendRole role = ServiceBackend.BackendRole.valueOf(
@@ -99,6 +110,8 @@ public class ServiceBackendController {
             serviceDeploymentId, backendDeploymentId, role, priority
         );
         
+        log.debug("Created backend connection with id: {}, service: {}, backend: {}, role: {}", 
+            backend.getId(), serviceDeploymentId, backendDeploymentId, role);
         return new ResponseEntity<>(backend, HttpStatus.CREATED);
     }
     
@@ -116,7 +129,9 @@ public class ServiceBackendController {
     public ResponseEntity<ServiceBackend> updateBackend(
             @PathVariable Long backendId, 
             @RequestBody ServiceBackendDto dto) {
+        log.info("Updating backend id: {} with data: {}", backendId, dto);
         ServiceBackend updated = serviceBackendService.updateBackend(backendId, dto);
+        log.debug("Successfully updated backend id: {}", backendId);
         return ResponseEntity.ok(updated);
     }
     
@@ -127,7 +142,9 @@ public class ServiceBackendController {
      */
     @DeleteMapping("/{backendId}")
     public ResponseEntity<Void> removeBackend(@PathVariable Long backendId) {
+        log.info("Removing backend id: {}", backendId);
         serviceBackendService.removeBackend(backendId);
+        log.debug("Successfully removed backend id: {}", backendId);
         return ResponseEntity.noContent().build();
     }
 }
