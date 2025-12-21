@@ -15,4 +15,11 @@ public class ExternalServiceRegistration {
     private String framework;
     private String version;
     private Integer port;
+    private List<HostedServiceInfo> hostedServices;
+
+    @Data
+    public static class HostedServiceInfo {
+        private String serviceName;
+        private List<String> operations;
+    }
 }

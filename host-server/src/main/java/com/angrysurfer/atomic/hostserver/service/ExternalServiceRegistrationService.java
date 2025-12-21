@@ -95,6 +95,13 @@ public class ExternalServiceRegistrationService {
             log.debug("No metadata to store for service: {}", service.getName());
         }
 
+        if (registration.getHostedServices() != null && !registration.getHostedServices().isEmpty()) {
+            log.debug("Storing {} hosted services for service: {}", registration.getHostedServices().size(), service.getName());
+            storeHostedServices(service, registration.getHostedServices());
+        } else {
+            log.debug("No hosted services to store for service: {}", service.getName());
+        }
+
         log.info("Successfully registered service: {} with ID: {}", service.getName(), service.getId());
 
         return service;
@@ -139,6 +146,41 @@ public class ExternalServiceRegistrationService {
             ServiceConfiguration savedConfig = serviceConfigurationRepository.save(config);
             log.debug("Stored metadata configuration with ID: {} for key: {}", savedConfig.getId(), entry.getKey());
         }
+    }
+
+    private void storeHostedServices(com.angrysurfer.atomic.hostserver.entity.Service service,
+                                     java.util.List<ExternalServiceRegistration.HostedServiceInfo> hostedServices) {
+        log.debug("Storing hosted services for service: {}", service.getName());
+        
+        StringBuilder hostedServicesJson = new StringBuilder("[");
+        for (int i = 0; i < hostedServices.size(); i++) {
+            ExternalServiceRegistration.HostedServiceInfo info = hostedServices.get(i);
+            if (i > 0) hostedServicesJson.append(",");
+            hostedServicesJson.append("{\"serviceName\":\"").append(info.getServiceName()).append("\",");
+            hostedServicesJson.append("\"operations\":[");
+            if (info.getOperations() != null) {
+                for (int j = 0; j < info.getOperations().size(); j++) {
+                    if (j > 0) hostedServicesJson.append(",");
+                    hostedServicesJson.append("\"").append(info.getOperations().get(j)).append("\"");
+                }
+            }
+            hostedServicesJson.append("]}");
+        }
+        hostedServicesJson.append("]");
+
+        ServiceConfiguration config = serviceConfigurationRepository
+                .findByServiceAndConfigKey(service, "hostedServices")
+                .orElse(new ServiceConfiguration());
+
+        config.setService(service);
+        config.setConfigKey("hostedServices");
+        config.setConfigValue(hostedServicesJson.toString());
+        config.setEnvironment(ServiceConfiguration.ConfigEnvironment.ALL);
+        config.setType(ServiceConfiguration.ConfigType.STRING);
+        config.setDescription("Hosted services within this gateway");
+
+        ServiceConfiguration savedConfig = serviceConfigurationRepository.save(config);
+        log.debug("Stored hosted services configuration with ID: {} for service: {}", savedConfig.getId(), service.getName());
     }
     
     @Transactional
