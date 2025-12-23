@@ -20,19 +20,19 @@ public class HealthController {
             // like database connectivity, external service availability, etc.
             
             healthStatus.put("status", "UP");
-            healthStatus.put("service", "broker-gateway");
+            healthStatus.put("service", "spring-broker-gateway");
             healthStatus.put("timestamp", Instant.now().toString());
-            
+
             Map<String, Object> details = new HashMap<>();
             details.put("application", "BrokerGatewayApplication");
             details.put("version", "1.0.0");
             healthStatus.put("details", details);
-            
+
             return ResponseEntity.ok(healthStatus);
-            
+
         } catch (Exception e) {
             healthStatus.put("status", "DOWN");
-            healthStatus.put("service", "broker-gateway");
+            healthStatus.put("service", "spring-broker-gateway");
             healthStatus.put("timestamp", Instant.now().toString());
             healthStatus.put("error", e.getMessage());
             
