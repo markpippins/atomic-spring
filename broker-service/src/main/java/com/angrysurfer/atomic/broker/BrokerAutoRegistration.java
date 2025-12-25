@@ -8,6 +8,8 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.event.EventListener;
@@ -15,6 +17,7 @@ import org.springframework.stereotype.Component;
 
 import com.angrysurfer.atomic.broker.api.ServiceRegistration;
 import com.angrysurfer.atomic.broker.api.ServiceRequest;
+import com.angrysurfer.atomic.broker.api.ServiceResponse;
 import com.angrysurfer.atomic.broker.spi.BrokerOperation;
 
 @Component
@@ -24,10 +27,16 @@ public class BrokerAutoRegistration {
 
     private final ApplicationContext context;
     private final Broker broker;
+    private RemoteBrokerClient remoteBrokerClient;
 
     public BrokerAutoRegistration(ApplicationContext context, Broker broker) {
         this.context = context;
         this.broker = broker;
+    }
+
+    @Autowired(required = false)
+    public void setRemoteBrokerClient(RemoteBrokerClient remoteBrokerClient) {
+        this.remoteBrokerClient = remoteBrokerClient;
     }
 
     @EventListener(ApplicationReadyEvent.class)
@@ -79,15 +88,34 @@ public class BrokerAutoRegistration {
             registration.setStatus(ServiceRegistration.ServiceStatus.HEALTHY);
 
             try {
-                // Use the Broker to send the registration request
-                // This assumes "serviceRegistry" bean has "register" operation
-                Map<String, Object> params = new HashMap<>();
-                params.put("registration", registration);
+                // Use either local broker or remote broker based on configuration
+                // If remote broker is configured, use it for registration
+                if (remoteBrokerClient != null && remoteBrokerClient.isRemoteConfigured()) {
+                    log.debug("Using remote broker for service registration: {}", serviceName);
+                    Map<String, Object> params = new HashMap<>();
+                    params.put("registration", registration);
 
-                ServiceRequest request = new ServiceRequest("serviceRegistry", "register", params, "auto-reg-" + serviceName);
-                broker.submit(request);
-                
-                log.info("Auto-registered service: {}", serviceName);
+                    ServiceRequest request = new ServiceRequest("serviceRegistry", "register", params, "auto-reg-" + serviceName);
+                    ServiceResponse<?> response = remoteBrokerClient.submit(request);
+
+                    if (response.isOk()) {
+                        log.info("Successfully auto-registered service with remote broker: {}", serviceName);
+                    } else {
+                        log.warn("Failed to auto-registered service with remote broker: {} - Error: {}",
+                                serviceName, response.getErrors());
+                    }
+                } else {
+                    log.debug("Using local broker for service registration: {}", serviceName);
+                    // Use the local Broker to send the registration request
+                    // This assumes "serviceRegistry" bean has "register" operation
+                    Map<String, Object> params = new HashMap<>();
+                    params.put("registration", registration);
+
+                    ServiceRequest request = new ServiceRequest("serviceRegistry", "register", params, "auto-reg-" + serviceName);
+                    broker.submit(request);
+
+                    log.info("Auto-registered service with local broker: {}", serviceName);
+                }
             } catch (Exception e) {
                 log.error("Failed to auto-register service: {}", serviceName, e);
             }

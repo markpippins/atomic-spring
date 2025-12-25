@@ -3,6 +3,7 @@ package com.angrysurfer.atomic.hostserver.config;
 import com.angrysurfer.atomic.hostserver.entity.*;
 import com.angrysurfer.atomic.hostserver.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
@@ -10,19 +11,19 @@ import java.util.Optional;
 
 @Component
 public class DataInitializer implements CommandLineRunner {
-    
+
     @Autowired
     private FrameworkRepository frameworkRepository;
-    
+
     @Autowired
     private ServiceRepository serviceRepository;
-    
+
     @Autowired
     private HostRepository hostRepository;
-    
+
     @Autowired
     private DeploymentRepository deploymentRepository;
-    
+
     @Autowired
     private ServiceConfigurationRepository configurationRepository;
 
@@ -37,15 +38,51 @@ public class DataInitializer implements CommandLineRunner {
 
     @Autowired
     private FrameworkLanguageRepository frameworkLanguageRepository;
+
+    @Value("${datainit.services.broker-gateway.name:spring-broker-gateway}")
+    private String brokerGatewayServiceName;
+
+    @Value("${datainit.services.user-service.name:user-service}")
+    private String userServiceName;
+
+    @Value("${datainit.services.login-service.name:login-service}")
+    private String loginServiceName;
+
+    @Value("${datainit.services.file-service.name:file-service}")
+    private String fileServiceName;
+
+    @Value("${datainit.services.note-service.name:note-service}")
+    private String noteServiceName;
+
+    @Value("${datainit.services.quarkus-broker-gateway.name:quarkus-broker-gateway}")
+    private String quarkusBrokerGatewayServiceName;
+
+    @Value("${datainit.services.moleculer-search.name:moleculer-search}")
+    private String moleculerSearchServiceName;
+
+    @Value("${datainit.host.hostname:localhost}")
+    private String hostname;
+
+    @Value("${datainit.deployments.spring-broker-gateway.port:8080}")
+    private Integer brokerGatewayPort;
+
+    @Value("${datainit.deployments.user-service.port:8083}")
+    private Integer userServicePort;
+
+    @Value("${datainit.configurations.broker-gateway.mongodb-uri:mongodb://localhost:27017/broker}")
+    private String brokerGatewayMongoDbUri;
+
+    @Value("${datainit.configurations.broker-gateway.server-port:8080}")
+    private String brokerGatewayServerPort;
     
     @Override
     public void run(String... args) {
         initializeLookupTables();
         initializeFrameworks();
         initializeServers();
-        // initializeServices();
-        // initializeDeployments();
-        // initializeConfigurations();
+        initializeServices();
+        initializeDeployments();
+        initializeConfigurations();
     }
 
     private void initializeLookupTables() {
@@ -129,13 +166,13 @@ public class DataInitializer implements CommandLineRunner {
         ServerType virtual = serverTypeRepository.findByName("VIRTUAL").orElseThrow();
 
         Host localhost = new Host();
-        localhost.setHostname("localhost");
+        localhost.setHostname("iridium");
         localhost.setIpAddress("127.0.0.1");
         localhost.setType(virtual);
         localhost.setEnvironment(Host.ServerEnvironment.DEVELOPMENT);
-        localhost.setOperatingSystem("Windows 11");
-        localhost.setCpuCores(8);
-        localhost.setMemoryMb(16384L);
+        localhost.setOperatingSystem("LINUX");
+        localhost.setCpuCores(4);
+        localhost.setMemoryMb(8096L);
         localhost.setDiskGb(512L);
         localhost.setStatus(Host.ServerStatus.ACTIVE);
         localhost.setDescription("Local development machine");
@@ -149,38 +186,38 @@ public class DataInitializer implements CommandLineRunner {
 
         ServiceType gateway = serviceTypeRepository.findByName("GATEWAY").orElseThrow();
         ServiceType restApi = serviceTypeRepository.findByName("REST_API").orElseThrow();
-        
+
         // Spring Boot Services
-        Service brokerGateway = createService("broker-gateway", "Main API gateway with service orchestration", 
+        Service brokerGateway = createService(brokerGatewayServiceName, "Main API gateway with service orchestration",
             springBoot, gateway, 8080, "/api/broker");
-        
-        Service userService = createService("user-service", "Primary user management with MongoDB", 
+
+        Service userService = createService(userServiceName, "Primary user management with MongoDB",
             springBoot, restApi, 8083, "/api/users");
-        
-        Service loginService = createService("login-service", "Authentication and session management", 
+
+        Service loginService = createService(loginServiceName, "Authentication and session management",
             springBoot, restApi, 8082, "/api/login");
-        
-        Service fileService = createService("file-service", "File handling services", 
+
+        Service fileService = createService(fileServiceName, "File handling services",
             springBoot, restApi, 4040, "/api/files");
-        
-        Service noteService = createService("note-service", "User notes management", 
+
+        Service noteService = createService(noteServiceName, "User notes management",
             springBoot, restApi, 8084, "/api/notes");
-        
+
         // Quarkus Services
-        Service brokerGatewayQuarkus = createService("broker-gateway-quarkus", "Quarkus implementation of broker gateway", 
+        Service brokerGatewayQuarkus = createService(quarkusBrokerGatewayServiceName, "Quarkus implementation of broker gateway",
             quarkus, gateway, 8190, "/api/broker");
-        
+
         // Moleculer Services
-        Service moleculerSearch = createService("moleculer-search", "Search service with multiple providers", 
+        Service moleculerSearch = createService(moleculerSearchServiceName, "Search service with multiple providers",
             moleculer, restApi, 4050, "/api/search");
-        
+
         // Add dependencies
         loginService.getDependencies().add(userService);
         noteService.getDependencies().add(loginService);
         brokerGateway.getDependencies().add(userService);
         brokerGateway.getDependencies().add(loginService);
         brokerGateway.getDependencies().add(fileService);
-        
+
         serviceRepository.save(loginService);
         serviceRepository.save(noteService);
         serviceRepository.save(brokerGateway);
@@ -251,55 +288,55 @@ public class DataInitializer implements CommandLineRunner {
     }
     
     private void initializeDeployments() {
-        Host localhost = hostRepository.findByHostname("localhost").orElse(null);
-        Service brokerGateway = serviceRepository.findByName("broker-gateway").orElse(null);
-        Service userService = serviceRepository.findByName("user-service").orElse(null);
-        
-        if (localhost != null && brokerGateway != null) {
+        Host host = hostRepository.findByHostname(hostname).orElse(null);
+        Service brokerGateway = serviceRepository.findByName(brokerGatewayServiceName).orElse(null);
+        Service userService = serviceRepository.findByName(userServiceName).orElse(null);
+
+        if (host != null && brokerGateway != null) {
             Deployment deployment = new Deployment();
             deployment.setService(brokerGateway);
-            deployment.setServer(localhost);
-            deployment.setPort(8080);
+            deployment.setServer(host);
+            deployment.setPort(brokerGatewayPort);
             deployment.setVersion("1.0.0");
             deployment.setStatus(Deployment.DeploymentStatus.RUNNING);
             deployment.setEnvironment(Deployment.DeploymentEnvironment.DEVELOPMENT);
-            deployment.setHealthCheckUrl("http://localhost:8080/actuator/health");
+            deployment.setHealthCheckUrl("http://localhost:" + brokerGatewayPort + "/actuator/health");
             deployment.setHealthStatus(Deployment.HealthStatus.HEALTHY);
             deploymentRepository.save(deployment);
         }
-        
-        if (localhost != null && userService != null) {
+
+        if (host != null && userService != null) {
             Deployment deployment = new Deployment();
             deployment.setService(userService);
-            deployment.setServer(localhost);
-            deployment.setPort(8083);
+            deployment.setServer(host);
+            deployment.setPort(userServicePort);
             deployment.setVersion("1.0.0");
             deployment.setStatus(Deployment.DeploymentStatus.RUNNING);
             deployment.setEnvironment(Deployment.DeploymentEnvironment.DEVELOPMENT);
-            deployment.setHealthCheckUrl("http://localhost:8083/actuator/health");
+            deployment.setHealthCheckUrl("http://localhost:" + userServicePort + "/actuator/health");
             deployment.setHealthStatus(Deployment.HealthStatus.HEALTHY);
             deploymentRepository.save(deployment);
         }
     }
     
     private void initializeConfigurations() {
-        Service brokerGateway = serviceRepository.findByName("broker-gateway").orElse(null);
-        
+        Service brokerGateway = serviceRepository.findByName(brokerGatewayServiceName).orElse(null);
+
         if (brokerGateway != null) {
             ServiceConfiguration config1 = new ServiceConfiguration();
             config1.setService(brokerGateway);
             config1.setConfigKey("spring.data.mongodb.uri");
-            config1.setConfigValue("mongodb://localhost:27017/broker");
+            config1.setConfigValue(brokerGatewayMongoDbUri);
             config1.setEnvironment(ServiceConfiguration.ConfigEnvironment.DEVELOPMENT);
             config1.setType(ServiceConfiguration.ConfigType.DATABASE_URL);
             config1.setIsSecret(false);
             config1.setDescription("MongoDB connection string for development");
             configurationRepository.save(config1);
-            
+
             ServiceConfiguration config2 = new ServiceConfiguration();
             config2.setService(brokerGateway);
             config2.setConfigKey("server.port");
-            config2.setConfigValue("8080");
+            config2.setConfigValue(brokerGatewayServerPort);
             config2.setEnvironment(ServiceConfiguration.ConfigEnvironment.ALL);
             config2.setType(ServiceConfiguration.ConfigType.NUMBER);
             config2.setIsSecret(false);

@@ -37,7 +37,7 @@ public class HostServerRegistrationService {
     @Value("${server.port:8080}")
     private int port;
 
-    @Value("${spring.application.name:broker-gateway}")
+    @Value("${spring.application.name:spring-broker-gateway}")
     private String serviceName;
 
     @Value("${service.host:localhost}")
@@ -106,7 +106,7 @@ public class HostServerRegistrationService {
         registration.put("port", port);
 
         Map<String, Object> metadata = new HashMap<>();
-        metadata.put("type", "broker-gateway");
+        metadata.put("type", "spring-broker-gateway");
         metadata.put("language", "Java");
         metadata.put("runtime", "Spring Boot");
         registration.put("metadata", metadata);
