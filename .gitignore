@@ -679,3 +679,5 @@ admin-logging/.settings/org.eclipse.core.resources.prefs
 admin-logging/.settings/org.eclipse.jdt.apt.core.prefs
 admin-logging/.settings/org.eclipse.jdt.core.prefs
 admin-logging/.settings/org.eclipse.m2e.core.prefs
+broker-gateway/target/classes/com/angrysurfer/atomic/broker/gateway/HostServerRegistrationService.class
+host-server/target/classes/com/angrysurfer/atomic/hostserver/dto/ExternalServiceRegistration$HostedServiceInfo.class

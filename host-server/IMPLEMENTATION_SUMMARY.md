@@ -8,7 +8,7 @@ A comprehensive **Server/Service/Configuration Management System** for the Atomi
 
 The Atomic Platform has accumulated:
 - Multiple Spring Boot services (broker-gateway, user-service, login-service, etc.)
-- Quarkus services (broker-gateway-quarkus)
+- Quarkus services (quarkus-broker-gateway)
 - Node.js services (Moleculer, Express)
 - Plans to add: Micronaut, NestJS, AdonisJS, and more
 
@@ -124,7 +124,7 @@ The system initializes with real data from the Atomic Platform:
 - login-service (Spring Boot, port 8082)
 - file-service (Spring Boot, port 4040)
 - note-service (Spring Boot, port 8084)
-- broker-gateway-quarkus (Quarkus, port 8190)
+- quarkus-broker-gateway (Quarkus, port 8190)
 - moleculer-search (Moleculer, port 4050)
 
 ### Dependencies

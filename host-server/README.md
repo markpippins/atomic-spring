@@ -217,7 +217,7 @@ The service initializes with sample data including:
 - login-service (Spring Boot, port 8082)
 - file-service (Spring Boot, port 4040)
 - note-service (Spring Boot, port 8084)
-- broker-gateway-quarkus (Quarkus, port 8190)
+- quarkus-broker-gateway (Quarkus, port 8190)
 - moleculer-search (Moleculer, port 4050)
 
 ### Servers
