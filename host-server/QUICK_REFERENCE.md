@@ -193,7 +193,7 @@ $deps | ForEach-Object { Write-Host $_.name }
 - 3: login-service
 - 4: file-service
 - 5: note-service
-- 6: broker-gateway-quarkus
+- 6: quarkus-broker-gateway
 - 7: moleculer-search
 
 ### Servers
