@@ -2,11 +2,18 @@ package com.angrysurfer.atomic.hostserver.config;
 
 import com.angrysurfer.atomic.hostserver.entity.*;
 import com.angrysurfer.atomic.hostserver.repository.*;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Component
@@ -38,6 +45,8 @@ public class DataInitializer implements CommandLineRunner {
 
     @Autowired
     private FrameworkLanguageRepository frameworkLanguageRepository;
+
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Value("${datainit.services.broker-gateway.name:spring-broker-gateway}")
     private String brokerGatewayServiceName;
@@ -85,142 +94,142 @@ public class DataInitializer implements CommandLineRunner {
         initializeConfigurations();
     }
 
+    private <T> T loadJsonConfig(String resourcePath, TypeReference<T> typeRef) throws IOException {
+        ClassPathResource resource = new ClassPathResource(resourcePath);
+        try (InputStream inputStream = resource.getInputStream()) {
+            return objectMapper.readValue(inputStream, typeRef);
+        }
+    }
+
     private void initializeLookupTables() {
-        // Service Types
-        createServiceType("REST_API", "RESTful API Service");
-        createServiceType("GRAPHQL_API", "GraphQL API Service");
-        createServiceType("GRPC_SERVICE", "gRPC Service");
-        createServiceType("MESSAGE_QUEUE", "Message Queue / Broker");
-        createServiceType("DATABASE", "Database Service");
-        createServiceType("CACHE", "Cache Service");
-        createServiceType("GATEWAY", "API Gateway");
-        createServiceType("PROXY", "Reverse Proxy");
-        createServiceType("WEB_APP", "Web Application");
-        createServiceType("BACKGROUND_JOB", "Background Job / Worker");
+        try {
+            // Load and process Service Types from JSON
+            List<Map<String, String>> serviceTypes = loadJsonConfig("config/service-types.json", new TypeReference<List<Map<String, String>>>() {});
+            for (Map<String, String> serviceTypeData : serviceTypes) {
+                createServiceType(serviceTypeData.get("name"), serviceTypeData.get("description"));
+            }
 
-        // Server Types
-        createServerType("PHYSICAL", "Physical Server");
-        createServerType("VIRTUAL", "Virtual Machine");
-        createServerType("CONTAINER", "Docker Container");
-        createServerType("CLOUD", "Cloud Instance");
+            // Load and process Server Types from JSON
+            List<Map<String, String>> serverTypes = loadJsonConfig("config/server-types.json", new TypeReference<List<Map<String, String>>>() {});
+            for (Map<String, String> serverTypeData : serverTypes) {
+                createServerType(serverTypeData.get("name"), serverTypeData.get("description"));
+            }
 
-        // Framework Categories
-        createFrameworkCategory("JAVA_SPRING", "Java Spring Framework");
-        createFrameworkCategory("JAVA_QUARKUS", "Java Quarkus Framework");
-        createFrameworkCategory("JAVA_MICRONAUT", "Java Micronaut Framework");
-        createFrameworkCategory("NODE_EXPRESS", "Node.js Express");
-        createFrameworkCategory("NODE_NESTJS", "Node.js NestJS");
-        createFrameworkCategory("NODE_ADONISJS", "Node.js AdonisJS");
-        createFrameworkCategory("NODE_MOLECULER", "Node.js Moleculer");
-        createFrameworkCategory("PYTHON_DJANGO", "Python Django");
-        createFrameworkCategory("PYTHON_FLASK", "Python Flask");
-        createFrameworkCategory("PYTHON_FASTAPI", "Python FastAPI");
-        createFrameworkCategory("DOTNET_ASPNET", ".NET ASP.NET Core");
-        createFrameworkCategory("GO_GIN", "Go Gin");
-        createFrameworkCategory("RUST_ACTIX", "Rust Actix");
-        createFrameworkCategory("OTHER", "Other Framework");
+            // Load and process Framework Categories from JSON
+            List<Map<String, String>> frameworkCategories = loadJsonConfig("config/framework-categories.json", new TypeReference<List<Map<String, String>>>() {});
+            for (Map<String, String> frameworkCategoryData : frameworkCategories) {
+                createFrameworkCategory(frameworkCategoryData.get("name"), frameworkCategoryData.get("description"));
+            }
 
-        // Framework Languages
-        createFrameworkLanguage("Java", "Java Programming Language");
-        createFrameworkLanguage("TypeScript", "TypeScript Programming Language");
-        createFrameworkLanguage("JavaScript", "JavaScript Programming Language");
-        createFrameworkLanguage("Python", "Python Programming Language");
-        createFrameworkLanguage("C#", "C# Programming Language");
-        createFrameworkLanguage("Go", "Go Programming Language");
-        createFrameworkLanguage("Rust", "Rust Programming Language");
+            // Load and process Framework Languages from JSON
+            List<Map<String, String>> frameworkLanguages = loadJsonConfig("config/framework-languages.json", new TypeReference<List<Map<String, String>>>() {});
+            for (Map<String, String> frameworkLanguageData : frameworkLanguages) {
+                createFrameworkLanguage(frameworkLanguageData.get("name"), frameworkLanguageData.get("description"));
+            }
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to load lookup table configurations", e);
+        }
     }
     
     private void initializeFrameworks() {
-        FrameworkCategory javaSpring = frameworkCategoryRepository.findByName("JAVA_SPRING").orElseThrow();
-        FrameworkCategory javaQuarkus = frameworkCategoryRepository.findByName("JAVA_QUARKUS").orElseThrow();
-        FrameworkCategory javaMicronaut = frameworkCategoryRepository.findByName("JAVA_MICRONAUT").orElseThrow();
-        FrameworkCategory nodeNestjs = frameworkCategoryRepository.findByName("NODE_NESTJS").orElseThrow();
-        FrameworkCategory nodeAdonisjs = frameworkCategoryRepository.findByName("NODE_ADONISJS").orElseThrow();
-        FrameworkCategory nodeMoleculer = frameworkCategoryRepository.findByName("NODE_MOLECULER").orElseThrow();
+        try {
+            List<Map<String, Object>> frameworks = loadJsonConfig("config/frameworks.json", new TypeReference<List<Map<String, Object>>>() {});
 
-        FrameworkLanguage java = frameworkLanguageRepository.findByName("Java").orElseThrow();
-        FrameworkLanguage typeScript = frameworkLanguageRepository.findByName("TypeScript").orElseThrow();
+            for (Map<String, Object> frameworkData : frameworks) {
+                String name = (String) frameworkData.get("name");
+                String description = (String) frameworkData.get("description");
+                String categoryName = (String) frameworkData.get("category");
+                String languageName = (String) frameworkData.get("language");
+                String version = (String) frameworkData.get("version");
+                String url = (String) frameworkData.get("url");
+                Boolean supportsBroker = (Boolean) frameworkData.get("supportsBroker");
 
-        // Java Frameworks
-        createFramework("Spring Boot", "Java framework for building production-ready applications", 
-            javaSpring, java, "3.5.0", "https://spring.io/projects/spring-boot", true);
-        
-        createFramework("Quarkus", "Kubernetes-native Java framework", 
-            javaQuarkus, java, "3.15.1", "https://quarkus.io", true);
-        
-        createFramework("Micronaut", "Modern JVM-based framework for microservices", 
-            javaMicronaut, java, "4.0.0", "https://micronaut.io", false);
-        
-        // Node.js Frameworks
-        createFramework("NestJS", "Progressive Node.js framework for building server-side applications", 
-            nodeNestjs, typeScript, "10.0.0", "https://nestjs.com", false);
-        
-        createFramework("AdonisJS", "Node.js MVC framework", 
-            nodeAdonisjs, typeScript, "6.0.0", "https://adonisjs.com", false);
-        
-        createFramework("Moleculer", "Progressive microservices framework for Node.js", 
-            nodeMoleculer, typeScript, "0.14.0", "https://moleculer.services", true);
+                FrameworkCategory category = frameworkCategoryRepository.findByName(categoryName).orElseThrow();
+                FrameworkLanguage language = frameworkLanguageRepository.findByName(languageName).orElseThrow();
+
+                createFramework(name, description, category, language, version, url, supportsBroker);
+            }
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to load framework configurations", e);
+        }
     }
     
     private void initializeServers() {
-        ServerType virtual = serverTypeRepository.findByName("VIRTUAL").orElseThrow();
+        try {
+            Map<String, Object> serverData = loadJsonConfig("config/servers.json", new TypeReference<Map<String, Object>>() {});
 
-        Host localhost = new Host();
-        localhost.setHostname("iridium");
-        localhost.setIpAddress("127.0.0.1");
-        localhost.setType(virtual);
-        localhost.setEnvironment(Host.ServerEnvironment.DEVELOPMENT);
-        localhost.setOperatingSystem("LINUX");
-        localhost.setCpuCores(4);
-        localhost.setMemoryMb(8096L);
-        localhost.setDiskGb(512L);
-        localhost.setStatus(Host.ServerStatus.ACTIVE);
-        localhost.setDescription("Local development machine");
-        hostRepository.save(localhost);
+            String hostname = (String) serverData.get("hostname");
+            String ipAddress = (String) serverData.get("ipAddress");
+            String typeName = (String) serverData.get("type");
+            String environmentStr = (String) serverData.get("environment");
+            String operatingSystemStr = (String) serverData.get("operatingSystem");
+            Integer cpuCores = (Integer) serverData.get("cpuCores");
+            Long memoryMb = ((Integer) serverData.get("memoryMb")).longValue();
+            Long diskGb = ((Integer) serverData.get("diskGb")).longValue();
+            String statusStr = (String) serverData.get("status");
+            String description = (String) serverData.get("description");
+
+            ServerType serverType = serverTypeRepository.findByName(typeName).orElseThrow();
+
+            Host host = new Host();
+            host.setHostname(hostname);
+            host.setIpAddress(ipAddress);
+            host.setType(serverType);
+            host.setEnvironment(Host.ServerEnvironment.valueOf(environmentStr));
+            host.setOperatingSystem(operatingSystemStr);
+            host.setCpuCores(cpuCores);
+            host.setMemoryMb(memoryMb);
+            host.setDiskGb(diskGb);
+            host.setStatus(Host.ServerStatus.valueOf(statusStr));
+            host.setDescription(description);
+            hostRepository.save(host);
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to load server configurations", e);
+        }
     }
     
     private void initializeServices() {
-        Framework springBoot = frameworkRepository.findByName("Spring Boot").orElse(null);
-        Framework quarkus = frameworkRepository.findByName("Quarkus").orElse(null);
-        Framework moleculer = frameworkRepository.findByName("Moleculer").orElse(null);
+        try {
+            List<Map<String, Object>> services = loadJsonConfig("config/services.json", new TypeReference<List<Map<String, Object>>>() {});
 
-        ServiceType gateway = serviceTypeRepository.findByName("GATEWAY").orElseThrow();
-        ServiceType restApi = serviceTypeRepository.findByName("REST_API").orElseThrow();
+            // Create a map of services to be able to reference them by name
+            Map<String, Service> serviceMap = new java.util.HashMap<>();
 
-        // Spring Boot Services
-        Service brokerGateway = createService(brokerGatewayServiceName, "Main API gateway with service orchestration",
-            springBoot, gateway, 8080, "/api/broker");
+            for (Map<String, Object> serviceData : services) {
+                String name = (String) serviceData.get("name");
+                String description = (String) serviceData.get("description");
+                String frameworkName = (String) serviceData.get("framework");
+                String typeName = (String) serviceData.get("type");
+                Integer defaultPort = (Integer) serviceData.get("defaultPort");
+                String apiBasePath = (String) serviceData.get("apiBasePath");
+                List<String> dependencies = (List<String>) serviceData.get("dependencies");
 
-        Service userService = createService(userServiceName, "Primary user management with MongoDB",
-            springBoot, restApi, 8083, "/api/users");
+                Framework framework = frameworkRepository.findByName(frameworkName).orElse(null);
+                ServiceType type = serviceTypeRepository.findByName(typeName).orElseThrow();
 
-        Service loginService = createService(loginServiceName, "Authentication and session management",
-            springBoot, restApi, 8082, "/api/login");
+                Service service = createService(name, description, framework, type, defaultPort, apiBasePath);
+                serviceMap.put(name, service);
+            }
 
-        Service fileService = createService(fileServiceName, "File handling services",
-            springBoot, restApi, 4040, "/api/files");
+            // Now set up dependencies after all services are created
+            for (Map<String, Object> serviceData : services) {
+                String name = (String) serviceData.get("name");
+                List<String> dependencies = (List<String>) serviceData.get("dependencies");
 
-        Service noteService = createService(noteServiceName, "User notes management",
-            springBoot, restApi, 8084, "/api/notes");
+                Service currentService = serviceMap.get(name);
+                for (String dependencyName : dependencies) {
+                    Service dependencyService = serviceMap.get(dependencyName);
+                    if (dependencyService != null) {
+                        currentService.getDependencies().add(dependencyService);
+                    }
+                }
 
-        // Quarkus Services
-        Service brokerGatewayQuarkus = createService(quarkusBrokerGatewayServiceName, "Quarkus implementation of broker gateway",
-            quarkus, gateway, 8190, "/api/broker");
-
-        // Moleculer Services
-        Service moleculerSearch = createService(moleculerSearchServiceName, "Search service with multiple providers",
-            moleculer, restApi, 4050, "/api/search");
-
-        // Add dependencies
-        loginService.getDependencies().add(userService);
-        noteService.getDependencies().add(loginService);
-        brokerGateway.getDependencies().add(userService);
-        brokerGateway.getDependencies().add(loginService);
-        brokerGateway.getDependencies().add(fileService);
-
-        serviceRepository.save(loginService);
-        serviceRepository.save(noteService);
-        serviceRepository.save(brokerGateway);
+                // Save the service with its dependencies
+                serviceRepository.save(currentService);
+            }
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to load service configurations", e);
+        }
     }
     
     private Service createService(String name, String description, Framework framework, 
@@ -288,60 +297,69 @@ public class DataInitializer implements CommandLineRunner {
     }
     
     private void initializeDeployments() {
-        Host host = hostRepository.findByHostname(hostname).orElse(null);
-        Service brokerGateway = serviceRepository.findByName(brokerGatewayServiceName).orElse(null);
-        Service userService = serviceRepository.findByName(userServiceName).orElse(null);
+        try {
+            List<Map<String, Object>> deployments = loadJsonConfig("config/deployments.json", new TypeReference<List<Map<String, Object>>>() {});
 
-        if (host != null && brokerGateway != null) {
-            Deployment deployment = new Deployment();
-            deployment.setService(brokerGateway);
-            deployment.setServer(host);
-            deployment.setPort(brokerGatewayPort);
-            deployment.setVersion("1.0.0");
-            deployment.setStatus(Deployment.DeploymentStatus.RUNNING);
-            deployment.setEnvironment(Deployment.DeploymentEnvironment.DEVELOPMENT);
-            deployment.setHealthCheckUrl("http://localhost:" + brokerGatewayPort + "/actuator/health");
-            deployment.setHealthStatus(Deployment.HealthStatus.HEALTHY);
-            deploymentRepository.save(deployment);
-        }
+            for (Map<String, Object> deploymentData : deployments) {
+                String serviceName = (String) deploymentData.get("serviceName");
+                String hostname = (String) deploymentData.get("hostname");
+                Integer port = (Integer) deploymentData.get("port");
+                String version = (String) deploymentData.get("version");
+                String statusStr = (String) deploymentData.get("status");
+                String environmentStr = (String) deploymentData.get("environment");
+                String healthCheckUrl = (String) deploymentData.get("healthCheckUrl");
+                String healthStatusStr = (String) deploymentData.get("healthStatus");
 
-        if (host != null && userService != null) {
-            Deployment deployment = new Deployment();
-            deployment.setService(userService);
-            deployment.setServer(host);
-            deployment.setPort(userServicePort);
-            deployment.setVersion("1.0.0");
-            deployment.setStatus(Deployment.DeploymentStatus.RUNNING);
-            deployment.setEnvironment(Deployment.DeploymentEnvironment.DEVELOPMENT);
-            deployment.setHealthCheckUrl("http://localhost:" + userServicePort + "/actuator/health");
-            deployment.setHealthStatus(Deployment.HealthStatus.HEALTHY);
-            deploymentRepository.save(deployment);
+                Service service = serviceRepository.findByName(serviceName).orElse(null);
+                Host host = hostRepository.findByHostname(hostname).orElse(null);
+
+                if (host != null && service != null) {
+                    Deployment deployment = new Deployment();
+                    deployment.setService(service);
+                    deployment.setServer(host);
+                    deployment.setPort(port);
+                    deployment.setVersion(version);
+                    deployment.setStatus(Deployment.DeploymentStatus.valueOf(statusStr));
+                    deployment.setEnvironment(Deployment.DeploymentEnvironment.valueOf(environmentStr));
+                    deployment.setHealthCheckUrl(healthCheckUrl);
+                    deployment.setHealthStatus(Deployment.HealthStatus.valueOf(healthStatusStr));
+                    deploymentRepository.save(deployment);
+                }
+            }
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to load deployment configurations", e);
         }
     }
     
     private void initializeConfigurations() {
-        Service brokerGateway = serviceRepository.findByName(brokerGatewayServiceName).orElse(null);
+        try {
+            List<Map<String, Object>> configurations = loadJsonConfig("config/service-configurations.json", new TypeReference<List<Map<String, Object>>>() {});
 
-        if (brokerGateway != null) {
-            ServiceConfiguration config1 = new ServiceConfiguration();
-            config1.setService(brokerGateway);
-            config1.setConfigKey("spring.data.mongodb.uri");
-            config1.setConfigValue(brokerGatewayMongoDbUri);
-            config1.setEnvironment(ServiceConfiguration.ConfigEnvironment.DEVELOPMENT);
-            config1.setType(ServiceConfiguration.ConfigType.DATABASE_URL);
-            config1.setIsSecret(false);
-            config1.setDescription("MongoDB connection string for development");
-            configurationRepository.save(config1);
+            for (Map<String, Object> configData : configurations) {
+                String serviceName = (String) configData.get("serviceName");
+                String configKey = (String) configData.get("configKey");
+                String configValue = (String) configData.get("configValue");
+                String environmentStr = (String) configData.get("environment");
+                String typeStr = (String) configData.get("type");
+                Boolean isSecret = (Boolean) configData.get("isSecret");
+                String description = (String) configData.get("description");
 
-            ServiceConfiguration config2 = new ServiceConfiguration();
-            config2.setService(brokerGateway);
-            config2.setConfigKey("server.port");
-            config2.setConfigValue(brokerGatewayServerPort);
-            config2.setEnvironment(ServiceConfiguration.ConfigEnvironment.ALL);
-            config2.setType(ServiceConfiguration.ConfigType.NUMBER);
-            config2.setIsSecret(false);
-            config2.setDescription("Server port");
-            configurationRepository.save(config2);
+                Service service = serviceRepository.findByName(serviceName).orElse(null);
+
+                if (service != null) {
+                    ServiceConfiguration configuration = new ServiceConfiguration();
+                    configuration.setService(service);
+                    configuration.setConfigKey(configKey);
+                    configuration.setConfigValue(configValue);
+                    configuration.setEnvironment(ServiceConfiguration.ConfigEnvironment.valueOf(environmentStr));
+                    configuration.setType(ServiceConfiguration.ConfigType.valueOf(typeStr));
+                    configuration.setIsSecret(isSecret);
+                    configuration.setDescription(description);
+                    configurationRepository.save(configuration);
+                }
+            }
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to load service configuration parameters", e);
         }
     }
 }
