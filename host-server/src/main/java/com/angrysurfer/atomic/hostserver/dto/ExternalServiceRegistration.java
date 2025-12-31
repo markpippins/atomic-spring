@@ -15,6 +15,7 @@ public class ExternalServiceRegistration {
     private String framework;
     private String version;
     private Integer port;
+    private List<String> dependencies;
     private List<HostedServiceInfo> hostedServices;
 
     @Data

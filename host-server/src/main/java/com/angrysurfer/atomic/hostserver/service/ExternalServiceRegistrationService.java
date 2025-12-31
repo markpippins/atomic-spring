@@ -21,32 +21,33 @@ import com.angrysurfer.atomic.hostserver.repository.ServiceTypeRepository;
 
 @Service
 public class ExternalServiceRegistrationService {
-    
+
     private static final Logger log = LoggerFactory.getLogger(ExternalServiceRegistrationService.class);
-    
+
     @Autowired
     private ServiceRepository serviceRepository;
-    
+
     @Autowired
     private FrameworkRepository frameworkRepository;
-    
+
     @Autowired
     private ServiceTypeRepository serviceTypeRepository;
-    
+
     @Autowired
     private ServiceConfigurationRepository serviceConfigurationRepository;
-    
+
     @Transactional
     public com.angrysurfer.atomic.hostserver.entity.Service registerExternalService(
             ExternalServiceRegistration registration) {
 
         log.info("Registering external service: {}", registration.getServiceName());
         log.debug("Registration details: version={}, endpoint={}, port={}, healthCheck={}",
-                 registration.getVersion(), registration.getEndpoint(), registration.getPort(), registration.getHealthCheck());
+                registration.getVersion(), registration.getEndpoint(), registration.getPort(),
+                registration.getHealthCheck());
 
-        com.angrysurfer.atomic.hostserver.entity.Service service =
-                serviceRepository.findByName(registration.getServiceName())
-                        .orElse(new com.angrysurfer.atomic.hostserver.entity.Service());
+        com.angrysurfer.atomic.hostserver.entity.Service service = serviceRepository
+                .findByName(registration.getServiceName())
+                .orElse(new com.angrysurfer.atomic.hostserver.entity.Service());
 
         service.setName(registration.getServiceName());
         service.setDescription("External service registered via API");
@@ -96,19 +97,52 @@ public class ExternalServiceRegistrationService {
         }
 
         if (registration.getHostedServices() != null && !registration.getHostedServices().isEmpty()) {
-            log.debug("Storing {} hosted services for service: {}", registration.getHostedServices().size(), service.getName());
+            log.debug("Storing {} hosted services for service: {}", registration.getHostedServices().size(),
+                    service.getName());
             storeHostedServices(service, registration.getHostedServices());
         } else {
             log.debug("No hosted services to store for service: {}", service.getName());
+        }
+
+        if (registration.getDependencies() != null && !registration.getDependencies().isEmpty()) {
+            log.debug("Processing dependencies for service: {}", service.getName());
+            storeDependencies(service, registration.getDependencies());
         }
 
         log.info("Successfully registered service: {} with ID: {}", service.getName(), service.getId());
 
         return service;
     }
-    
+
+    private void storeDependencies(com.angrysurfer.atomic.hostserver.entity.Service service,
+            List<String> dependencyNames) {
+        log.debug("Storing dependencies for service: {}", service.getName());
+
+        // We might want to clear existing dependencies if this is a full update
+        // service.getDependencies().clear();
+
+        boolean modified = false;
+
+        for (String depName : dependencyNames) {
+            Optional<com.angrysurfer.atomic.hostserver.entity.Service> targetOpt = serviceRepository
+                    .findByName(depName);
+            if (targetOpt.isPresent()) {
+                service.getDependencies().add(targetOpt.get());
+                modified = true;
+            } else {
+                log.warn("Dependency target service not found: '{}'. Skipping dependency for '{}'", depName,
+                        service.getName());
+            }
+        }
+
+        if (modified) {
+            serviceRepository.save(service);
+            log.debug("Updated dependencies for service: {}", service.getName());
+        }
+    }
+
     private void storeOperations(com.angrysurfer.atomic.hostserver.entity.Service service,
-                                  List<String> operations) {
+            List<String> operations) {
         log.debug("Storing operations for service: {} - Operations: {}", service.getName(), operations);
         String operationsStr = String.join(",", operations);
 
@@ -124,11 +158,12 @@ public class ExternalServiceRegistrationService {
         config.setDescription("Supported operations");
 
         ServiceConfiguration savedConfig = serviceConfigurationRepository.save(config);
-        log.debug("Stored operations configuration with ID: {} for service: {}", savedConfig.getId(), service.getName());
+        log.debug("Stored operations configuration with ID: {} for service: {}", savedConfig.getId(),
+                service.getName());
     }
-    
+
     private void storeMetadata(com.angrysurfer.atomic.hostserver.entity.Service service,
-                               java.util.Map<String, Object> metadata) {
+            java.util.Map<String, Object> metadata) {
         log.debug("Storing {} metadata entries for service: {}", metadata.size(), service.getName());
         for (java.util.Map.Entry<String, Object> entry : metadata.entrySet()) {
             log.debug("Processing metadata: {}={}", entry.getKey(), entry.getValue());
@@ -149,18 +184,20 @@ public class ExternalServiceRegistrationService {
     }
 
     private void storeHostedServices(com.angrysurfer.atomic.hostserver.entity.Service service,
-                                     java.util.List<ExternalServiceRegistration.HostedServiceInfo> hostedServices) {
+            java.util.List<ExternalServiceRegistration.HostedServiceInfo> hostedServices) {
         log.debug("Storing hosted services for service: {}", service.getName());
-        
+
         StringBuilder hostedServicesJson = new StringBuilder("[");
         for (int i = 0; i < hostedServices.size(); i++) {
             ExternalServiceRegistration.HostedServiceInfo info = hostedServices.get(i);
-            if (i > 0) hostedServicesJson.append(",");
+            if (i > 0)
+                hostedServicesJson.append(",");
             hostedServicesJson.append("{\"serviceName\":\"").append(info.getServiceName()).append("\",");
             hostedServicesJson.append("\"operations\":[");
             if (info.getOperations() != null) {
                 for (int j = 0; j < info.getOperations().size(); j++) {
-                    if (j > 0) hostedServicesJson.append(",");
+                    if (j > 0)
+                        hostedServicesJson.append(",");
                     hostedServicesJson.append("\"").append(info.getOperations().get(j)).append("\"");
                 }
             }
@@ -180,14 +217,15 @@ public class ExternalServiceRegistrationService {
         config.setDescription("Hosted services within this gateway");
 
         ServiceConfiguration savedConfig = serviceConfigurationRepository.save(config);
-        log.debug("Stored hosted services configuration with ID: {} for service: {}", savedConfig.getId(), service.getName());
+        log.debug("Stored hosted services configuration with ID: {} for service: {}", savedConfig.getId(),
+                service.getName());
     }
-    
+
     @Transactional
     public boolean updateHeartbeat(String serviceName) {
         log.debug("Updating heartbeat for service: {}", serviceName);
-        Optional<com.angrysurfer.atomic.hostserver.entity.Service> serviceOpt =
-                serviceRepository.findByName(serviceName);
+        Optional<com.angrysurfer.atomic.hostserver.entity.Service> serviceOpt = serviceRepository
+                .findByName(serviceName);
 
         if (serviceOpt.isPresent()) {
             com.angrysurfer.atomic.hostserver.entity.Service service = serviceOpt.get();
@@ -212,12 +250,12 @@ public class ExternalServiceRegistrationService {
         log.warn("Service not found for heartbeat update: {}", serviceName);
         return false;
     }
-    
+
     public List<com.angrysurfer.atomic.hostserver.entity.Service> getAllActiveServices() {
         return serviceRepository.findByStatus(
                 com.angrysurfer.atomic.hostserver.entity.Service.ServiceStatus.ACTIVE);
     }
-    
+
     public Optional<com.angrysurfer.atomic.hostserver.entity.Service> findServiceByOperation(String operation) {
         log.debug("Finding service by operation: {}", operation);
         List<ServiceConfiguration> configs = serviceConfigurationRepository.findByConfigKey("operations");
@@ -234,12 +272,12 @@ public class ExternalServiceRegistrationService {
         log.warn("No service found for operation: {}", operation);
         return Optional.empty();
     }
-    
+
     @Transactional
     public boolean deregisterService(String serviceName) {
         log.info("Deregistering service: {}", serviceName);
-        Optional<com.angrysurfer.atomic.hostserver.entity.Service> serviceOpt =
-                serviceRepository.findByName(serviceName);
+        Optional<com.angrysurfer.atomic.hostserver.entity.Service> serviceOpt = serviceRepository
+                .findByName(serviceName);
 
         if (serviceOpt.isPresent()) {
             com.angrysurfer.atomic.hostserver.entity.Service service = serviceOpt.get();
