@@ -1,60 +1,85 @@
 package com.angrysurfer.atomic.user.repository;
 
-import static org.junit.jupiter.api.Assertions.*;
+import com.angrysurfer.atomic.user.model.UserRegistration;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 
 import java.util.Optional;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
-import com.angrysurfer.atomic.user.model.UserRegistration;
-
+@ExtendWith(MockitoExtension.class)
 class UserRegistrationRepositoryTest {
 
-    private UserRegistration validUser;
+    @Mock
+    private MongoTemplate mongoTemplate;
 
-    @BeforeEach
-    void setUp() {
-        // Since UserRepository is an interface extending MongoRepository, 
-        // we'll test the behavior through mocking
-        validUser = new UserRegistration();
-        validUser.setMongoId("507f1f77bcf86cd799439011");
-        validUser.setId(123L);
-        validUser.setAlias("testUser");
-        validUser.setEmail("test@example.com");
+    @InjectMocks
+    private UserRegistrationRepository userRegistrationRepository;
+
+    @Test
+    void findByAlias_WithExistingUser_ShouldReturnUser() {
+        // Given
+        UserRegistration expectedUser = new UserRegistration();
+        expectedUser.setAlias("testuser");
+        when(mongoTemplate.findOne(any(Query.class), eq(UserRegistration.class))).thenReturn(expectedUser);
+
+        // When
+        Optional<UserRegistration> result = userRegistrationRepository.findByAlias("testuser");
+
+        // Then
+        assertTrue(result.isPresent());
+        assertEquals("testuser", result.get().getAlias());
+        verify(mongoTemplate).findOne(any(Query.class), eq(UserRegistration.class));
     }
 
     @Test
-    void testFindByAlias() {
-        // This would normally be implemented by Spring Data MongoDB
-        // For testing purposes, we'd use an integration test with an embedded MongoDB
-        // or mock the MongoRepository behavior
-        assertNotNull(validUser.getAlias());
-        assertEquals("testUser", validUser.getAlias());
+    void findByAlias_WithNonExistingUser_ShouldReturnEmpty() {
+        // Given
+        when(mongoTemplate.findOne(any(Query.class), eq(UserRegistration.class))).thenReturn(null);
+
+        // When
+        Optional<UserRegistration> result = userRegistrationRepository.findByAlias("nonexistent");
+
+        // Then
+        assertFalse(result.isPresent());
+        verify(mongoTemplate).findOne(any(Query.class), eq(UserRegistration.class));
     }
 
     @Test
-    void testFindByEmail() {
-        assertEquals("test@example.com", validUser.getEmail());
+    void findByEmail_WithExistingUser_ShouldReturnUser() {
+        // Given
+        UserRegistration expectedUser = new UserRegistration();
+        expectedUser.setEmail("test@example.com");
+        when(mongoTemplate.findOne(any(Query.class), eq(UserRegistration.class))).thenReturn(expectedUser);
+
+        // When
+        Optional<UserRegistration> result = userRegistrationRepository.findByEmail("test@example.com");
+
+        // Then
+        assertTrue(result.isPresent());
+        assertEquals("test@example.com", result.get().getEmail());
+        verify(mongoTemplate).findOne(any(Query.class), eq(UserRegistration.class));
     }
 
     @Test
-    void testSave() {
-        // Test that the user object can be saved and maintains its properties
-        UserRegistration savedUser = validUser; // In real scenario, this would be the result of save operation
-        
-        assertEquals("507f1f77bcf86cd799439011", savedUser.getMongoId());
-        assertEquals(123L, savedUser.getId());
-        assertEquals("testUser", savedUser.getAlias());
-        assertEquals("test@example.com", savedUser.getEmail());
-    }
+    void findByEmail_WithNonExistingUser_ShouldReturnEmpty() {
+        // Given
+        when(mongoTemplate.findOne(any(Query.class), eq(UserRegistration.class))).thenReturn(null);
 
-    @Test
-    void testFindById() {
-        Optional<UserRegistration> userOpt = Optional.of(validUser);
-        
-        assertTrue(userOpt.isPresent());
-        assertEquals("507f1f77bcf86cd799439011", userOpt.get().getMongoId());
-        assertEquals(123L, userOpt.get().getId());
+        // When
+        Optional<UserRegistration> result = userRegistrationRepository.findByEmail("nonexistent@example.com");
+
+        // Then
+        assertFalse(result.isPresent());
+        verify(mongoTemplate).findOne(any(Query.class), eq(UserRegistration.class));
     }
 }

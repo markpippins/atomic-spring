@@ -9,7 +9,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import com.angrysurfer.atomic.broker.Broker;
 import com.angrysurfer.atomic.login.LoginService;
 import com.angrysurfer.atomic.login.LoginResponse;
 import com.angrysurfer.atomic.user.UserRegistrationDTO;
@@ -19,16 +18,13 @@ import org.springframework.data.redis.core.RedisTemplate;
 class EndToEndIntegrationTest {
 
     @Mock
-    private Broker broker;
-
-    @Mock
     private RedisTemplate<String, Object> redisTemplate;
 
     private LoginService loginService;
 
     @BeforeEach
     void setUp() {
-        loginService = new LoginService(broker, redisTemplate);
+        loginService = new LoginService(redisTemplate);
     }
 
     @Nested
@@ -60,14 +56,13 @@ class EndToEndIntegrationTest {
         @Test
         void testRedisSessionStorage() {
             // Test that login service can store session data in Redis
-            assertNotNull(broker);
             assertNotNull(redisTemplate);
         }
 
         @Test
-        void testTokenValidationThroughBroker() {
-            // Test validating user tokens through the broker system
-            assertNotNull(broker);
+        void testTokenValidation() {
+            // Test validating user tokens through the login service
+            assertNotNull(loginService);
         }
     }
 
@@ -75,12 +70,11 @@ class EndToEndIntegrationTest {
     void testServiceLayerInteraction() {
         // Test that services can be properly instantiated and interact
         assertNotNull(loginService);
-        assertNotNull(broker);
         assertNotNull(redisTemplate);
-        
+
         // Verify dependency injection works as expected
         assertDoesNotThrow(() -> {
-            // The login service should be able to accept the broker and redis template dependencies
+            // The login service should be able to accept the redis template dependency
             loginService.getClass(); // This just ensures the class is accessible
         });
     }

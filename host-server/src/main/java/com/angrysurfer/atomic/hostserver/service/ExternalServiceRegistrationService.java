@@ -2,6 +2,7 @@ package com.angrysurfer.atomic.hostserver.service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.slf4j.Logger;
@@ -270,6 +271,44 @@ public class ExternalServiceRegistrationService {
         }
 
         log.warn("No service found for operation: {}", operation);
+        return Optional.empty();
+    }
+
+    public Optional<Map<String, Object>> getServiceDetails(String serviceName) {
+        log.debug("Getting service details for: {}", serviceName);
+        Optional<com.angrysurfer.atomic.hostserver.entity.Service> serviceOpt = serviceRepository.findByName(serviceName);
+        
+        if (serviceOpt.isPresent()) {
+            com.angrysurfer.atomic.hostserver.entity.Service service = serviceOpt.get();
+            
+            // Build the service URL
+            String baseUrl = service.getApiBasePath();
+            if (!baseUrl.startsWith("http")) {
+                baseUrl = "http://" + baseUrl;
+            }
+            if (service.getDefaultPort() != null && !baseUrl.contains(":")) {
+                baseUrl += ":" + service.getDefaultPort();
+            }
+            
+            // Get operations if available
+            Optional<String> operationsOpt = serviceConfigurationRepository
+                    .findByServiceAndConfigKey(service, "operations")
+                    .map(ServiceConfiguration::getConfigValue);
+            
+            Map<String, Object> details = Map.of(
+                "serviceName", service.getName(),
+                "endpoint", baseUrl,
+                "healthCheck", service.getHealthCheckPath(),
+                "framework", service.getFramework() != null ? service.getFramework().getName() : "unknown",
+                "status", service.getStatus().toString(),
+                "operations", operationsOpt.orElse("")
+            );
+            
+            log.debug("Returning details for service: {} with endpoint: {}", serviceName, baseUrl);
+            return Optional.of(details);
+        }
+        
+        log.warn("Service not found for details: {}", serviceName);
         return Optional.empty();
     }
 

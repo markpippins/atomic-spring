@@ -94,6 +94,16 @@ public class RegistryController {
     }
     
     /**
+     * Get service details with endpoint URL for direct calls
+     */
+    @GetMapping("/services/{serviceName}/details")
+    public ResponseEntity<Map<String, Object>> getServiceDetails(@PathVariable String serviceName) {
+        return registrationService.getServiceDetails(serviceName)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+    
+    /**
      * Deregister a service
      */
     @PostMapping("/deregister/{serviceName}")

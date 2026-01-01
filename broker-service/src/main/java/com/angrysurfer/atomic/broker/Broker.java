@@ -16,7 +16,9 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
@@ -25,6 +27,8 @@ import com.angrysurfer.atomic.broker.api.ServiceResponse;
 import com.angrysurfer.atomic.broker.spi.BrokerOperation;
 import com.angrysurfer.atomic.broker.spi.BrokerParam;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.angrysurfer.atomic.broker.gateway.service.ServiceDiscoveryClient;
+import com.angrysurfer.atomic.broker.gateway.service.ExternalServiceInvoker;
 
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validator;
@@ -37,6 +41,12 @@ public class Broker {
     private final ApplicationContext ctx;
     private final ObjectMapper objectMapper;
     private final Validator validator;
+
+    @Autowired(required = false)
+    private ServiceDiscoveryClient serviceDiscoveryClient;
+
+    @Autowired(required = false)
+    private ExternalServiceInvoker externalServiceInvoker;
 
     private record MethodKey(String service, String operation) {
 
@@ -56,6 +66,14 @@ public class Broker {
                 req.getRequestId());
         try {
             Object bean = resolveBean(req.getService());
+            
+            // Handle external service proxy
+            if (bean instanceof ExternalServiceProxy) {
+                ExternalServiceProxy proxy = (ExternalServiceProxy) bean;
+                Object result = proxy.invokeOperation(req.getOperation(), req.getParams());
+                return ServiceResponse.ok(req.getService(), req.getOperation(), result, req.getRequestId());
+            }
+            
             Method method = resolveMethod(bean, req.getOperation());
             Object[] args = bindArgs(method, req.getParams(), req.getRequestId());
 
@@ -120,6 +138,15 @@ public class Broker {
                 return bean;
             }
         }
+        
+        // Check external services if discovery client is available
+        if (serviceDiscoveryClient != null && externalServiceInvoker != null) {
+            log.debug("Local bean not found: {}, checking external services", serviceName);
+            
+            // For external services, return a proxy that handles calls
+            return new ExternalServiceProxy(serviceName, serviceDiscoveryClient, externalServiceInvoker);
+        }
+        
         log.error("Service bean not found: {}", serviceName);
         throw new NoSuchElementException("Service bean not found: " + serviceName);
     }
@@ -198,10 +225,10 @@ public class Broker {
                 throw new IllegalArgumentException("Missing required parameter: " + name);
             }
 
-            Object converted = objectMapper.convertValue(raw, objectMapper.constructType(p.getParameterizedType()));
+            Object converted = objectMapper.convertValue(raw, objectMapper.constructType(p.getType()));
 
             // Manual validation for @Valid parameters (method-level programmatic):
-            if (hasAnnotation(p, jakarta.validation.Valid.class) && converted != null) {
+            if (hasAnnotation(p, jakarta.validation.Valid.class) && converted != null && validator != null) {
                 Set<ConstraintViolation<Object>> errs = validator.validate(converted);
                 if (!errs.isEmpty()) {
                     errs.stream().map(cv -> Map.<String, Object>of("param", name, "path",
@@ -236,6 +263,40 @@ public class Broker {
     private ServiceResponse<?> serverError(String code, String msg, String requestId) {
         log.error("Server error [{}]: {}", code, msg);
         return ServiceResponse.error(List.of(Map.of("code", code, "message", msg)), requestId);
+    }
+
+    /**
+     * Proxy class that handles calls to external services
+     */
+    private static class ExternalServiceProxy {
+        private final String serviceName;
+        private final ServiceDiscoveryClient discoveryClient;
+        private final ExternalServiceInvoker externalServiceInvoker;
+
+        public ExternalServiceProxy(String serviceName,
+                                   ServiceDiscoveryClient discoveryClient,
+                                   ExternalServiceInvoker externalServiceInvoker) {
+            this.serviceName = serviceName;
+            this.discoveryClient = discoveryClient;
+            this.externalServiceInvoker = externalServiceInvoker;
+        }
+
+        /**
+         * Handle any method call by routing to the external service
+         */
+        public Object invokeOperation(String operation, Map<String, Object> params) {
+            log.debug("Proxying call to external service: {} operation: {}", serviceName, operation);
+            
+            ResponseEntity<String> response = externalServiceInvoker.invokeOperation(operation, params);
+            
+            if (response.getStatusCode().is2xxSuccessful()) {
+                log.debug("External service call successful for {}: {}", operation, response.getStatusCode());
+                return response.getBody();
+            } else {
+                log.warn("External service call failed for {}: {}", operation, response.getStatusCode());
+                throw new RuntimeException("External service call failed: " + response.getStatusCode());
+            }
+        }
     }
 
 }

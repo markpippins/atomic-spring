@@ -116,4 +116,4 @@ Check startup logs for: `The following 1 profile is active: "beryllium"`
 - [Spring Profiles Guide](../../docs/spring-profiles-guide.md)
 - [CORS Troubleshooting](../../docs/cors-troubleshooting.md)
 - [Health Checks](../../docs/health-checks.md)
-- [Angular Throttler Setup](../../docs/angular-throttler-setup.md)
+- [Angular Nexus Setup](../../docs/nexus-setup.md)
