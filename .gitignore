@@ -727,3 +727,12 @@ broker-service-spi/target/classes/com/angrysurfer/atomic/broker/spi/IBroker.clas
 broker-gateway/broker-gateway.log
 host-server/host-server.log
 .gitignore
+host-server/src/main/resources/config/deployments.json
+host-server/src/main/resources/config/framework-categories.json
+host-server/src/main/resources/config/framework-languages.json
+host-server/src/main/resources/config/frameworks.json
+host-server/src/main/resources/config/server-types.json
+host-server/src/main/resources/config/servers.json
+host-server/src/main/resources/config/service-configurations.json
+host-server/src/main/resources/config/service-types.json
+host-server/src/main/resources/config/services.json
