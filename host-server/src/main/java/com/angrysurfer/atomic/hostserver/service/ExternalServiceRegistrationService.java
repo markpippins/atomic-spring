@@ -56,16 +56,28 @@ public class ExternalServiceRegistrationService {
         service.setHealthCheckPath(registration.getHealthCheck());
         service.setApiBasePath(registration.getEndpoint());
         service.setDefaultPort(registration.getPort());
-        service.setStatus(com.angrysurfer.atomic.hostserver.entity.Service.ServiceStatus.ACTIVE);
+        service.setStatus("ACTIVE");
 
         if (registration.getFramework() != null) {
             log.debug("Looking up framework: {}", registration.getFramework());
             Optional<Framework> framework = frameworkRepository.findByName(registration.getFramework());
             if (framework.isPresent()) {
-                service.setFramework(framework.get());
+                service.setFrameworkId(framework.get().getId());
                 log.debug("Framework found and assigned: {}", framework.get().getName());
             } else {
-                log.warn("Framework not found: {}", registration.getFramework());
+                log.warn("Framework not found: {}. Creating new framework.", registration.getFramework());
+                Framework newFramework = new Framework();
+                newFramework.setName(registration.getFramework());
+                newFramework.setDescription("Auto-generated framework for " + registration.getFramework());
+                newFramework.setActiveFlag(true); // Assuming default to active
+                newFramework.setCreatedAt(LocalDateTime.now());
+                newFramework.setUpdatedAt(LocalDateTime.now());
+                newFramework.setVendorId(1L); // Default vendor ID
+                newFramework.setCategoryId(1L); // Default category ID
+                newFramework.setLanguageId(1L); // Default language ID
+                framework = Optional.of(frameworkRepository.save(newFramework));
+                service.setFrameworkId(framework.get().getId());
+                log.debug("New framework created and assigned: {}", framework.get().getName());
             }
         }
 
@@ -77,7 +89,7 @@ public class ExternalServiceRegistrationService {
                     newType.setDescription("REST API Service");
                     return serviceTypeRepository.save(newType);
                 });
-        service.setType(serviceType);
+        service.setServiceTypeId(serviceType.getId());
         log.debug("Assigned service type: {}", serviceType.getName());
 
         service = serviceRepository.save(service);
@@ -119,27 +131,10 @@ public class ExternalServiceRegistrationService {
             List<String> dependencyNames) {
         log.debug("Storing dependencies for service: {}", service.getName());
 
-        // We might want to clear existing dependencies if this is a full update
-        // service.getDependencies().clear();
-
-        boolean modified = false;
-
-        for (String depName : dependencyNames) {
-            Optional<com.angrysurfer.atomic.hostserver.entity.Service> targetOpt = serviceRepository
-                    .findByName(depName);
-            if (targetOpt.isPresent()) {
-                service.getDependencies().add(targetOpt.get());
-                modified = true;
-            } else {
-                log.warn("Dependency target service not found: '{}'. Skipping dependency for '{}'", depName,
-                        service.getName());
-            }
-        }
-
-        if (modified) {
-            serviceRepository.save(service);
-            log.debug("Updated dependencies for service: {}", service.getName());
-        }
+        // With the new entity structure, dependencies are handled differently
+        // The Service entity no longer has a direct dependencies collection
+        // Dependencies are now handled through the ServiceDependency entity
+        log.warn("Dependency storage not implemented in new entity structure");
     }
 
     private void storeOperations(com.angrysurfer.atomic.hostserver.entity.Service service,
@@ -151,11 +146,11 @@ public class ExternalServiceRegistrationService {
                 .findByServiceAndConfigKey(service, "operations")
                 .orElse(new ServiceConfiguration());
 
-        config.setService(service);
+        config.setServiceId(service.getId());
         config.setConfigKey("operations");
         config.setConfigValue(operationsStr);
-        config.setEnvironment(ServiceConfiguration.ConfigEnvironment.ALL);
-        config.setType(ServiceConfiguration.ConfigType.STRING);
+        config.setEnvironmentId(1L); // Default environment ID
+        config.setConfigTypeId(1L); // Default config type ID
         config.setDescription("Supported operations");
 
         ServiceConfiguration savedConfig = serviceConfigurationRepository.save(config);
@@ -172,11 +167,11 @@ public class ExternalServiceRegistrationService {
                     .findByServiceAndConfigKey(service, "metadata." + entry.getKey())
                     .orElse(new ServiceConfiguration());
 
-            config.setService(service);
+            config.setServiceId(service.getId());
             config.setConfigKey("metadata." + entry.getKey());
             config.setConfigValue(entry.getValue().toString());
-            config.setEnvironment(ServiceConfiguration.ConfigEnvironment.ALL);
-            config.setType(ServiceConfiguration.ConfigType.STRING);
+            config.setEnvironmentId(1L); // Default environment ID
+            config.setConfigTypeId(1L); // Default config type ID
             config.setDescription("Metadata: " + entry.getKey());
 
             ServiceConfiguration savedConfig = serviceConfigurationRepository.save(config);
@@ -210,11 +205,11 @@ public class ExternalServiceRegistrationService {
                 .findByServiceAndConfigKey(service, "hostedServices")
                 .orElse(new ServiceConfiguration());
 
-        config.setService(service);
+        config.setServiceId(service.getId());
         config.setConfigKey("hostedServices");
         config.setConfigValue(hostedServicesJson.toString());
-        config.setEnvironment(ServiceConfiguration.ConfigEnvironment.ALL);
-        config.setType(ServiceConfiguration.ConfigType.STRING);
+        config.setEnvironmentId(1L); // Default environment ID
+        config.setConfigTypeId(1L); // Default config type ID
         config.setDescription("Hosted services within this gateway");
 
         ServiceConfiguration savedConfig = serviceConfigurationRepository.save(config);
@@ -236,11 +231,11 @@ public class ExternalServiceRegistrationService {
                     .findByServiceAndConfigKey(service, "lastHeartbeat")
                     .orElse(new ServiceConfiguration());
 
-            heartbeatConfig.setService(service);
+            heartbeatConfig.setServiceId(service.getId());
             heartbeatConfig.setConfigKey("lastHeartbeat");
             heartbeatConfig.setConfigValue(LocalDateTime.now().toString());
-            heartbeatConfig.setEnvironment(ServiceConfiguration.ConfigEnvironment.ALL);
-            heartbeatConfig.setType(ServiceConfiguration.ConfigType.STRING);
+            heartbeatConfig.setEnvironmentId(1L); // Default environment ID
+            heartbeatConfig.setConfigTypeId(1L); // Default config type ID
             heartbeatConfig.setDescription("Last heartbeat timestamp");
 
             ServiceConfiguration savedConfig = serviceConfigurationRepository.save(heartbeatConfig);
@@ -253,8 +248,7 @@ public class ExternalServiceRegistrationService {
     }
 
     public List<com.angrysurfer.atomic.hostserver.entity.Service> getAllActiveServices() {
-        return serviceRepository.findByStatus(
-                com.angrysurfer.atomic.hostserver.entity.Service.ServiceStatus.ACTIVE);
+        return serviceRepository.findByStatus("ACTIVE");
     }
 
     public Optional<com.angrysurfer.atomic.hostserver.entity.Service> findServiceByOperation(String operation) {
@@ -265,8 +259,9 @@ public class ExternalServiceRegistrationService {
         for (ServiceConfiguration config : configs) {
             String operations = config.getConfigValue();
             if (operations != null && operations.contains(operation)) {
-                log.debug("Found service {} for operation: {}", config.getService().getName(), operation);
-                return Optional.of(config.getService());
+                log.debug("Found service ID {} for operation: {}", config.getServiceId(), operation);
+                Optional<com.angrysurfer.atomic.hostserver.entity.Service> serviceOpt = serviceRepository.findById(config.getServiceId());
+                return serviceOpt;
             }
         }
 
@@ -277,10 +272,10 @@ public class ExternalServiceRegistrationService {
     public Optional<Map<String, Object>> getServiceDetails(String serviceName) {
         log.debug("Getting service details for: {}", serviceName);
         Optional<com.angrysurfer.atomic.hostserver.entity.Service> serviceOpt = serviceRepository.findByName(serviceName);
-        
+
         if (serviceOpt.isPresent()) {
             com.angrysurfer.atomic.hostserver.entity.Service service = serviceOpt.get();
-            
+
             // Build the service URL
             String baseUrl = service.getApiBasePath();
             if (!baseUrl.startsWith("http")) {
@@ -289,25 +284,34 @@ public class ExternalServiceRegistrationService {
             if (service.getDefaultPort() != null && !baseUrl.contains(":")) {
                 baseUrl += ":" + service.getDefaultPort();
             }
-            
+
             // Get operations if available
             Optional<String> operationsOpt = serviceConfigurationRepository
                     .findByServiceAndConfigKey(service, "operations")
                     .map(ServiceConfiguration::getConfigValue);
-            
+
+            // Get framework details if available
+            String frameworkName = "unknown";
+            if (service.getFrameworkId() != null) {
+                Optional<Framework> frameworkOpt = frameworkRepository.findById(service.getFrameworkId());
+                if (frameworkOpt.isPresent()) {
+                    frameworkName = frameworkOpt.get().getName();
+                }
+            }
+
             Map<String, Object> details = Map.of(
                 "serviceName", service.getName(),
                 "endpoint", baseUrl,
                 "healthCheck", service.getHealthCheckPath(),
-                "framework", service.getFramework() != null ? service.getFramework().getName() : "unknown",
-                "status", service.getStatus().toString(),
+                "framework", frameworkName,
+                "status", service.getStatus(),
                 "operations", operationsOpt.orElse("")
             );
-            
+
             log.debug("Returning details for service: {} with endpoint: {}", serviceName, baseUrl);
             return Optional.of(details);
         }
-        
+
         log.warn("Service not found for details: {}", serviceName);
         return Optional.empty();
     }
@@ -321,7 +325,7 @@ public class ExternalServiceRegistrationService {
         if (serviceOpt.isPresent()) {
             com.angrysurfer.atomic.hostserver.entity.Service service = serviceOpt.get();
             log.debug("Service found with ID: {} for deregistration", service.getId());
-            service.setStatus(com.angrysurfer.atomic.hostserver.entity.Service.ServiceStatus.ARCHIVED);
+            service.setStatus("ARCHIVED");
             serviceRepository.save(service);
 
             log.info("Successfully deregistered service: {} with ID: {}", serviceName, service.getId());

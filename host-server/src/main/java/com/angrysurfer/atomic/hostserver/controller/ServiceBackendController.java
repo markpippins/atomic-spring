@@ -55,10 +55,10 @@ public class ServiceBackendController {
         log.debug("Found {} backends for deployment {}", backends.size(), deploymentId);
         return ResponseEntity.ok(backends);
     }
-    
+
     /**
      * Get all consumers (services using this deployment as a backend)
-     * 
+     *
      * Example: GET /api/backends/consumers/123
      * Returns: List of services that use deployment 123 as a backend
      */
@@ -69,10 +69,10 @@ public class ServiceBackendController {
         log.debug("Found {} consumers for deployment {}", consumers.size(), deploymentId);
         return ResponseEntity.ok(consumers);
     }
-    
+
     /**
      * Get deployment with all backend connections
-     * 
+     *
      * Example: GET /api/backends/deployment/123/details
      * Returns: Deployment info + backends + consumers
      */
@@ -83,10 +83,10 @@ public class ServiceBackendController {
         log.debug("Retrieved deployment details for deployment {}", deploymentId);
         return ResponseEntity.ok(dto);
     }
-    
+
     /**
      * Add a backend connection
-     * 
+     *
      * Example: POST /api/backends
      * Body: {
      *   "serviceDeploymentId": 123,
@@ -103,21 +103,21 @@ public class ServiceBackendController {
         ServiceBackend.BackendRole role = ServiceBackend.BackendRole.valueOf(
             request.getOrDefault("role", "PRIMARY").toString()
         );
-        Integer priority = request.containsKey("priority") ? 
+        Integer priority = request.containsKey("priority") ?
             Integer.valueOf(request.get("priority").toString()) : 1;
-        
+
         ServiceBackend backend = serviceBackendService.addBackend(
             serviceDeploymentId, backendDeploymentId, role, priority
         );
-        
-        log.debug("Created backend connection with id: {}, service: {}, backend: {}, role: {}", 
+
+        log.debug("Created backend connection with id: {}, service: {}, backend: {}, role: {}",
             backend.getId(), serviceDeploymentId, backendDeploymentId, role);
         return new ResponseEntity<>(backend, HttpStatus.CREATED);
     }
-    
+
     /**
      * Update backend configuration
-     * 
+     *
      * Example: PUT /api/backends/789
      * Body: {
      *   "role": "BACKUP",
@@ -127,17 +127,17 @@ public class ServiceBackendController {
      */
     @PutMapping("/{backendId}")
     public ResponseEntity<ServiceBackend> updateBackend(
-            @PathVariable Long backendId, 
+            @PathVariable Long backendId,
             @RequestBody ServiceBackendDto dto) {
         log.info("Updating backend id: {} with data: {}", backendId, dto);
         ServiceBackend updated = serviceBackendService.updateBackend(backendId, dto);
         log.debug("Successfully updated backend id: {}", backendId);
         return ResponseEntity.ok(updated);
     }
-    
+
     /**
      * Remove a backend connection
-     * 
+     *
      * Example: DELETE /api/backends/789
      */
     @DeleteMapping("/{backendId}")

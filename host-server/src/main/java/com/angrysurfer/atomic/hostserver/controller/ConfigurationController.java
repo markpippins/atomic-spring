@@ -51,7 +51,7 @@ public class ConfigurationController {
                 return ResponseEntity.notFound().build();
             });
     }
-    
+
     @GetMapping("/service/{serviceId}")
     public List<ServiceConfiguration> getConfigurationsByService(@PathVariable Long serviceId) {
         log.info("Fetching configurations by service ID: {}", serviceId);
@@ -59,34 +59,34 @@ public class ConfigurationController {
         log.debug("Fetched {} configurations for service ID: {}", configurations.size(), serviceId);
         return configurations;
     }
-    
-    @GetMapping("/service/{serviceId}/environment/{environment}")
+
+    @GetMapping("/service/{serviceId}/environment/{environmentId}")
     public List<ServiceConfiguration> getConfigurationsByServiceAndEnvironment(
             @PathVariable Long serviceId,
-            @PathVariable ServiceConfiguration.ConfigEnvironment environment) {
-        log.info("Fetching configurations by service ID: {} and environment: {}", serviceId, environment);
-        List<ServiceConfiguration> configurations = configurationRepository.findByServiceIdAndEnvironment(serviceId, environment);
-        log.debug("Fetched {} configurations for service ID: {} and environment: {}", configurations.size(), serviceId, environment);
+            @PathVariable Long environmentId) {
+        log.info("Fetching configurations by service ID: {} and environment ID: {}", serviceId, environmentId);
+        List<ServiceConfiguration> configurations = configurationRepository.findByServiceIdAndEnvironmentId(serviceId, environmentId);
+        log.debug("Fetched {} configurations for service ID: {} and environment ID: {}", configurations.size(), serviceId, environmentId);
         return configurations;
     }
-    
-    @GetMapping("/service/{serviceId}/key/{configKey}/environment/{environment}")
+
+    @GetMapping("/service/{serviceId}/key/{configKey}/environment/{environmentId}")
     public ResponseEntity<ServiceConfiguration> getConfigurationByKey(
             @PathVariable Long serviceId,
             @PathVariable String configKey,
-            @PathVariable ServiceConfiguration.ConfigEnvironment environment) {
-        log.info("Fetching configuration by service ID: {}, key: {}, environment: {}", serviceId, configKey, environment);
-        return configurationRepository.findByServiceIdAndConfigKeyAndEnvironment(serviceId, configKey, environment)
+            @PathVariable Long environmentId) {
+        log.info("Fetching configuration by service ID: {}, key: {}, environment ID: {}", serviceId, configKey, environmentId);
+        return configurationRepository.findByServiceIdAndConfigKeyAndEnvironmentId(serviceId, configKey, environmentId)
             .map(config -> {
-                log.debug("Configuration found for service ID: {}, key: {}, environment: {}", serviceId, configKey, environment);
+                log.debug("Configuration found for service ID: {}, key: {}, environment ID: {}", serviceId, configKey, environmentId);
                 return ResponseEntity.ok(config);
             })
             .orElseGet(() -> {
-                log.warn("Configuration not found for service ID: {}, key: {}, environment: {}", serviceId, configKey, environment);
+                log.warn("Configuration not found for service ID: {}, key: {}, environment ID: {}", serviceId, configKey, environmentId);
                 return ResponseEntity.notFound().build();
             });
     }
-    
+
     @PostMapping
     public ResponseEntity<ServiceConfiguration> createConfiguration(@RequestBody ServiceConfiguration configuration) {
         log.info("Creating configuration with key: {}", configuration.getConfigKey());
@@ -99,18 +99,18 @@ public class ConfigurationController {
             throw e;
         }
     }
-    
+
     @PutMapping("/{id}")
     public ResponseEntity<ServiceConfiguration> updateConfiguration(
-            @PathVariable Long id, 
+            @PathVariable Long id,
             @RequestBody ServiceConfiguration configDetails) {
         log.info("Updating configuration with ID: {}", id);
         return configurationRepository.findById(id)
             .map(config -> {
                 config.setConfigKey(configDetails.getConfigKey());
                 config.setConfigValue(configDetails.getConfigValue());
-                config.setEnvironment(configDetails.getEnvironment());
-                config.setType(configDetails.getType());
+                config.setEnvironmentId(configDetails.getEnvironmentId());
+                config.setConfigTypeId(configDetails.getConfigTypeId());
                 config.setIsSecret(configDetails.getIsSecret());
                 config.setDescription(configDetails.getDescription());
                 ServiceConfiguration updatedConfig = configurationRepository.save(config);
@@ -122,7 +122,7 @@ public class ConfigurationController {
                 return ResponseEntity.notFound().build();
             });
     }
-    
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteConfiguration(@PathVariable Long id) {
         log.info("Deleting configuration with ID: {}", id);

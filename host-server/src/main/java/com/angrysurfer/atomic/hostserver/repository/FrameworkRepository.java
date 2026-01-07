@@ -13,7 +13,6 @@ import com.angrysurfer.atomic.hostserver.entity.FrameworkLanguage;
 @Repository
 public interface FrameworkRepository extends JpaRepository<Framework, Long> {
     Optional<Framework> findByName(String name);
-    List<Framework> findByCategory(FrameworkCategory category);
-    List<Framework> findByLanguage(FrameworkLanguage language);
-    List<Framework> findBySupportsBrokerPattern(Boolean supportsBrokerPattern);
+    List<Framework> findByCategoryId(Long categoryId);
+    List<Framework> findByLanguageId(Long languageId);
 }

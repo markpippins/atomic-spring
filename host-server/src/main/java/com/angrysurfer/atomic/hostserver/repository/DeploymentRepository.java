@@ -10,7 +10,7 @@ import java.util.List;
 public interface DeploymentRepository extends JpaRepository<Deployment, Long> {
     List<Deployment> findByServiceId(Long serviceId);
     List<Deployment> findByServerId(Long serverId);
-    List<Deployment> findByStatus(Deployment.DeploymentStatus status);
-    List<Deployment> findByEnvironment(Deployment.DeploymentEnvironment environment);
-    List<Deployment> findByServiceIdAndEnvironment(Long serviceId, Deployment.DeploymentEnvironment environment);
+    List<Deployment> findByStatus(String status);
+    List<Deployment> findByEnvironmentId(Long environmentId);
+    List<Deployment> findByServiceIdAndEnvironmentId(Long serviceId, Long environmentId);
 }

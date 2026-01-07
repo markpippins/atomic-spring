@@ -48,17 +48,40 @@ public class ServiceBackend {
      * The service instance that uses this backend
      * Example: file-service deployment on port 8084
      */
+    @Column(name = "service_deployment_id", nullable = false)
+    private Long serviceDeploymentId;
+
     @ManyToOne
-    @JoinColumn(name = "service_deployment_id", nullable = false)
+    @JoinColumn(name = "service_deployment_id", referencedColumnName = "id", insertable = false, updatable = false)
     private Deployment serviceDeployment;
 
     /**
      * The backend service instance being used
      * Example: file-system-server deployment on port 4040
      */
+    @Column(name = "backend_deployment_id", nullable = false)
+    private Long backendDeploymentId;
+
     @ManyToOne
-    @JoinColumn(name = "backend_deployment_id", nullable = false)
+    @JoinColumn(name = "backend_deployment_id", referencedColumnName = "id", insertable = false, updatable = false)
     private Deployment backendDeployment;
+
+    // Getter and setter methods for the new fields
+    public Long getServiceDeploymentId() {
+        return serviceDeploymentId;
+    }
+
+    public void setServiceDeploymentId(Long serviceDeploymentId) {
+        this.serviceDeploymentId = serviceDeploymentId;
+    }
+
+    public Long getBackendDeploymentId() {
+        return backendDeploymentId;
+    }
+
+    public void setBackendDeploymentId(Long backendDeploymentId) {
+        this.backendDeploymentId = backendDeploymentId;
+    }
 
     /**
      * Role of this backend in the service architecture

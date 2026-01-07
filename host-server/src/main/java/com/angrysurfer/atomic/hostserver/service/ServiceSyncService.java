@@ -111,9 +111,9 @@ public class ServiceSyncService {
                 service.setApiBasePath(reg.getEndpoint());
                 
                 if (reg.getStatus() == ServiceRegistration.ServiceStatus.HEALTHY) {
-                    service.setStatus(com.angrysurfer.atomic.hostserver.entity.Service.ServiceStatus.ACTIVE);
+                    service.setStatus("ACTIVE");
                 } else {
-                    service.setStatus(com.angrysurfer.atomic.hostserver.entity.Service.ServiceStatus.PLANNED);
+                    service.setStatus("PLANNED");
                 }
 
                 serviceRepository.save(service);

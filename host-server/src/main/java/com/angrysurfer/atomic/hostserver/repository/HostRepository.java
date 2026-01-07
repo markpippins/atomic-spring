@@ -12,8 +12,8 @@ import com.angrysurfer.atomic.hostserver.entity.ServerType;
 @Repository
 public interface HostRepository extends JpaRepository<Host, Long> {
     Optional<Host> findByHostname(String hostname);
-    List<Host> findByEnvironment(Host.ServerEnvironment environment);
-    List<Host> findByStatus(Host.ServerStatus status);
-    List<Host> findByType(ServerType type);
+    List<Host> findByEnvironmentTypeId(Long environmentTypeId);
+    List<Host> findByStatus(String status);
+    List<Host> findByServerTypeId(Long serverTypeId);
     List<Host> findByCloudProvider(String cloudProvider);
 }

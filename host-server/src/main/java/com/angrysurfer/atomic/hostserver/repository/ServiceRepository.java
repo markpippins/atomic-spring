@@ -15,8 +15,8 @@ public interface ServiceRepository extends JpaRepository<Service, Long> {
     Optional<Service> findByName(String name);
     List<Service> findByFrameworkId(Long frameworkId);
     List<Service> findByType(ServiceType type);
-    List<Service> findByStatus(Service.ServiceStatus status);
-    
-    @Query("SELECT s FROM Service s JOIN s.dependencies d WHERE d.id = :serviceId")
+    List<Service> findByStatus(String status);
+
+    @Query("SELECT s FROM Service s JOIN s.serviceDependenciesAsConsumer d WHERE d.id = :serviceId")
     List<Service> findDependents(Long serviceId);
 }

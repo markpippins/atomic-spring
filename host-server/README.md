@@ -191,13 +191,13 @@ cd spring/host-server
 
 The service will start on port **8085**.
 
-### Access H2 Console
+### Access Database
 
-Navigate to: `http://localhost:8085/h2-console`
+The application now uses MySQL database instead of H2.
 
-- JDBC URL: `jdbc:h2:mem:hostserverdb`
-- Username: `sa`
-- Password: (leave empty)
+- JDBC URL: `jdbc:mysql://localhost:3306/services_console`
+- Username: `root`
+- Password: `rootpass`
 
 ## Sample Data
 

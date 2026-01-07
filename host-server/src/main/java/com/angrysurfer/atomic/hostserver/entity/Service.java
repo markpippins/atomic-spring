@@ -34,45 +34,51 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@JsonIgnoreProperties({"deployments", "configurations", "dependents"})
+@JsonIgnoreProperties({ "deployments", "serviceConfigs", "serviceDependenciesAsConsumer",
+        "serviceDependenciesAsProvider" })
 public class Service {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false)
     private String name;
 
     @Column(length = 1000)
     private String description;
 
+    @Column(name = "framework_id", nullable = false)
+    private Long frameworkId;
+
     @ManyToOne
-    @JoinColumn(name = "framework_id")
+    @JoinColumn(name = "framework_id", referencedColumnName = "id", insertable = false, updatable = false)
     private Framework framework;
 
+    @Column(name = "service_type_id", nullable = false)
+    private Long serviceTypeId;
+
     @ManyToOne
-    @JoinColumn(name = "service_type_id")
+    @JoinColumn(name = "service_type_id", referencedColumnName = "id", insertable = false, updatable = false)
     private ServiceType type;
 
-    @Column
+    @Column(name = "default_port")
+    private Integer defaultPort;
+
+    @Column(name = "api_base_path")
+    private String apiBasePath;
+
+    @Column(name = "repository_url")
     private String repositoryUrl;
 
     @Column
     private String version;
 
     @Column
-    private Integer defaultPort;
+    private String status;
 
-    @Column
-    private String healthCheckPath;
-
-    @Column
-    private String apiBasePath;
-
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private ServiceStatus status = ServiceStatus.ACTIVE;
+    @Column(name = "active_flag")
+    private Boolean activeFlag = true;
 
     @Column
     private LocalDateTime createdAt;
@@ -83,19 +89,16 @@ public class Service {
     @OneToMany(mappedBy = "service", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Deployment> deployments = new HashSet<>();
 
-    @OneToMany(mappedBy = "service", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<ServiceConfiguration> configurations = new HashSet<>();
+    // This would need to be mapped to the ServiceConfig entity
+    @OneToMany(mappedBy = "service")
+    private Set<ServiceConfiguration> serviceConfigs = new HashSet<>();
 
-    @ManyToMany
-    @JoinTable(
-        name = "service_dependencies",
-        joinColumns = @JoinColumn(name = "service_id"),
-        inverseJoinColumns = @JoinColumn(name = "depends_on_id")
-    )
-    private Set<Service> dependencies = new HashSet<>();
+    // For service dependencies - we'll need to create a separate entity for this
+    @OneToMany(mappedBy = "service")
+    private Set<ServiceDependency> serviceDependenciesAsConsumer = new HashSet<>();
 
-    @ManyToMany(mappedBy = "dependencies")
-    private Set<Service> dependents = new HashSet<>();
+    @OneToMany(mappedBy = "targetService")
+    private Set<ServiceDependency> serviceDependenciesAsProvider = new HashSet<>();
 
     @PrePersist
     protected void onCreate() {
@@ -110,11 +113,13 @@ public class Service {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Service)) return false;
+        if (this == o)
+            return true;
+        if (!(o instanceof Service))
+            return false;
         Service service = (Service) o;
         return Objects.equals(id, service.id) &&
-               Objects.equals(name, service.name);
+                Objects.equals(name, service.name);
     }
 
     @Override
@@ -122,6 +127,24 @@ public class Service {
         return Objects.hash(id, name);
     }
 
+    // Methods needed for backward compatibility with controllers and services
+    public String getHealthCheckPath() {
+        // This field was removed, returning null for now
+        return null;
+    }
+
+    public void setHealthCheckPath(String healthCheckPath) {
+        // This field was removed, doing nothing for now
+    }
+
+    public java.util.Set<Service> getDependencies() {
+        // This field was removed, returning empty set for now
+        return new java.util.HashSet<>();
+    }
+
+    public ServiceStatus getStatusEnum() {
+        return ServiceStatus.valueOf(this.status);
+    }
 
     public enum ServiceStatus {
         ACTIVE, DEPRECATED, ARCHIVED, PLANNED

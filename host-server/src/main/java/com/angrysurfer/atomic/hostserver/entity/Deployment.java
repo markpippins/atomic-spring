@@ -1,15 +1,24 @@
 package com.angrysurfer.atomic.hostserver.entity;
 
+import java.time.LocalDateTime;
+import java.util.Objects;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-import java.time.LocalDateTime;
-import java.util.Objects;
 
 @Entity
 @Table(name = "deployments")
@@ -17,87 +26,77 @@ import java.util.Objects;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@JsonIgnoreProperties({"service.deployments", "service.configurations", "service.dependents", "server.deployments"})
+@JsonIgnoreProperties({ "service.deployments", "service.configurations", "service.dependents", "server.deployments" })
 public class Deployment {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "service_id", nullable = false)
+    private Long serviceId;
+
     @ManyToOne
-    @JoinColumn(name = "service_id", nullable = false)
+    @JoinColumn(name = "service_id", referencedColumnName = "id", insertable = false, updatable = false)
     private Service service;
 
+    @Column(name = "environment_id", nullable = false)
+    private Long environmentId;
+
+    @Column(name = "server_id", nullable = false)
+    private Long serverId;
+
     @ManyToOne
-    @JoinColumn(name = "server_id", nullable = false)
+    @JoinColumn(name = "server_id", referencedColumnName = "id", insertable = false, updatable = false)
     private Host server;
-
-    @Column(nullable = false)
-    private Integer port;
-
-    @Column
-    private String contextPath;
 
     @Column
     private String version;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private DeploymentStatus status = DeploymentStatus.STOPPED;
-
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private DeploymentEnvironment environment;
-
-    @Column
-    private String healthCheckUrl;
-
-    @Column
-    private LocalDateTime lastHealthCheck;
-
-    @Enumerated(EnumType.STRING)
-    @Column
-    private HealthStatus healthStatus;
-
-    @Column
-    private String processId;
-
-    @Column
-    private String containerName;
-
-    @Column
-    private String deploymentPath;
-
-    @Column
+    @Column(name = "deployed_at")
     private LocalDateTime deployedAt;
 
     @Column
-    private LocalDateTime startedAt;
+    private String status;
 
     @Column
+    private Integer port;
+
+    @Column(name = "context_path")
+    private String contextPath;
+
+    @Column(name = "health_check_url")
+    private String healthCheckUrl;
+
+    @Column(name = "health_status")
+    private String healthStatus;
+
+    @Column(name = "last_health_check")
+    private LocalDateTime lastHealthCheck;
+
+    @Column(name = "process_id")
+    private String processId;
+
+    @Column(name = "container_name")
+    private String containerName;
+
+    @Column(name = "deployment_path")
+    private String deploymentPath;
+
+    @Column(name = "started_at")
+    private LocalDateTime startedAt;
+
+    @Column(name = "stopped_at")
     private LocalDateTime stoppedAt;
+
+    @Column(name = "active_flag")
+    private Boolean activeFlag = true;
 
     @Column
     private LocalDateTime createdAt;
 
     @Column
     private LocalDateTime updatedAt;
-
-    /**
-     * Backend connections - services that this deployment uses as backends
-     * Example: file-service deployment uses file-system-server deployments
-     */
-    @OneToMany(mappedBy = "serviceDeployment", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnoreProperties({"serviceDeployment", "backendDeployment"})
-    private java.util.Set<ServiceBackend> backends = new java.util.HashSet<>();
-
-    /**
-     * Consumer connections - services that use this deployment as a backend
-     * Example: file-system-server deployment is used by file-service deployments
-     */
-    @OneToMany(mappedBy = "backendDeployment", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnoreProperties({"serviceDeployment", "backendDeployment"})
-    private java.util.Set<ServiceBackend> consumers = new java.util.HashSet<>();
 
     @PrePersist
     protected void onCreate() {
@@ -112,8 +111,10 @@ public class Deployment {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Deployment)) return false;
+        if (this == o)
+            return true;
+        if (!(o instanceof Deployment))
+            return false;
         Deployment that = (Deployment) o;
         return Objects.equals(id, that.id);
     }
@@ -121,6 +122,54 @@ public class Deployment {
     @Override
     public int hashCode() {
         return Objects.hash(id);
+    }
+
+    // Helper method to get environment as string for JSON serialization
+    @com.fasterxml.jackson.annotation.JsonProperty("environment")
+    public String getEnvironment() {
+        return getEnvironmentEnum().name();
+    }
+
+    // Helper method to get environment as enum
+    public DeploymentEnvironment getEnvironmentEnum() {
+        if (environmentId == null)
+            return DeploymentEnvironment.DEVELOPMENT;
+        // Map environment IDs to enum values
+        // This is a simplified mapping - in production you'd query the environment type
+        switch (environmentId.intValue()) {
+            case 1:
+                return DeploymentEnvironment.DEVELOPMENT;
+            case 2:
+                return DeploymentEnvironment.STAGING;
+            case 3:
+                return DeploymentEnvironment.PRODUCTION;
+            case 4:
+                return DeploymentEnvironment.TEST;
+            default:
+                return DeploymentEnvironment.DEVELOPMENT;
+        }
+    }
+
+    // Helper method to get status as enum
+    public DeploymentStatus getStatusEnum() {
+        if (status == null)
+            return DeploymentStatus.UNKNOWN;
+        try {
+            return DeploymentStatus.valueOf(status);
+        } catch (IllegalArgumentException e) {
+            return DeploymentStatus.UNKNOWN;
+        }
+    }
+
+    // Helper method to get health status as enum
+    public HealthStatus getHealthStatusEnum() {
+        if (healthStatus == null)
+            return HealthStatus.UNKNOWN;
+        try {
+            return HealthStatus.valueOf(healthStatus);
+        } catch (IllegalArgumentException e) {
+            return HealthStatus.UNKNOWN;
+        }
     }
 
     public enum DeploymentStatus {

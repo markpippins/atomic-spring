@@ -28,15 +28,15 @@ public class ServerDto {
         dto.setId(host.getId());
         dto.setHostname(host.getHostname());
         dto.setIpAddress(host.getIpAddress());
-        dto.setType(host.getType() != null ? host.getType().getName() : null);
-        dto.setEnvironment(host.getEnvironment() != null ? host.getEnvironment().name() : null);
-        dto.setOperatingSystem(host.getOperatingSystem());
+        dto.setType(host.getServerTypeId().toString());
+        dto.setEnvironment(host.getEnvironmentTypeId().toString());
+        dto.setOperatingSystem(host.getOperatingSystemId().toString());
         dto.setCpuCores(host.getCpuCores());
         dto.setMemoryMb(host.getMemoryMb());
         dto.setDiskGb(host.getDiskGb());
         dto.setRegion(host.getRegion());
         dto.setCloudProvider(host.getCloudProvider());
-        dto.setStatus(host.getStatus() != null ? host.getStatus().name() : null);
+        dto.setStatus(host.getStatus()); // Updated to use string instead of enum
         dto.setDescription(host.getDescription());
         dto.setCreatedAt(host.getCreatedAt());
         dto.setUpdatedAt(host.getUpdatedAt());

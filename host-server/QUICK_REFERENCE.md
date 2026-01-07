@@ -253,11 +253,11 @@ curl http://localhost:8085/api/configurations/service/1/environment/PRODUCTION
 # Check if port is already in use
 netstat -ano | findstr :8085
 
-# Check H2 console
-# Navigate to http://localhost:8085/h2-console
-# JDBC URL: jdbc:h2:mem:hostserverdb
-# Username: sa
-# Password: (empty)
+# Check Database Connection
+# The application now uses MySQL instead of H2
+# JDBC URL: jdbc:mysql://localhost:3306/services_console
+# Username: root
+# Password: rootpass
 ```
 
 ### Can't connect to API
