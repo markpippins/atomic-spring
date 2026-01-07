@@ -120,9 +120,9 @@
     "dependencies": []
   },
   {
-    "name": "projman",
+    "name": "projman-service",
     "description": "Project management service built with Go",
-    "framework": "Gin",
+    "framework": "Go",
     "type": "REST_API",
     "defaultPort": 8073,
     "apiBasePath": "/api",

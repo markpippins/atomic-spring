@@ -99,22 +99,13 @@
     "url": "https://flask.palletsprojects.com"
   },
   {
-    "name": "Gin",
-    "description": "Go web framework",
-    "category": "GO_GIN",
-    "language": "Go",
-    "current_version": "1.9.0",
-    "lts_version": "1.9.0",
-    "url": "https://gin-gonic.com"
-  },
-  {
-    "name": "Fiber",
-    "description": "Express-inspired web framework for Go",
+    "name": "Go",
+    "description": "Go standard library HTTP server",
     "category": "GO_FIBER",
     "language": "Go",
-    "current_version": "2.52.0",
-    "lts_version": "2.52.0",
-    "url": "https://gofiber.io"
+    "current_version": "1.21.0",
+    "lts_version": "1.21.0",
+    "url": "https://golang.org"
   },
   {
     "name": "React",
