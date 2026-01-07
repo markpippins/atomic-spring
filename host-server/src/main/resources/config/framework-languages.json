@@ -4,20 +4,16 @@
     "description": "Java Programming Language"
   },
   {
-    "name": "TypeScript",
-    "description": "TypeScript Programming Language"
-  },
-  {
     "name": "JavaScript",
     "description": "JavaScript Programming Language"
   },
   {
-    "name": "Python",
-    "description": "Python Programming Language"
+    "name": "TypeScript",
+    "description": "TypeScript Programming Language"
   },
   {
-    "name": "C#",
-    "description": "C# Programming Language"
+    "name": "Python",
+    "description": "Python Programming Language"
   },
   {
     "name": "Go",
@@ -26,5 +22,9 @@
   {
     "name": "Rust",
     "description": "Rust Programming Language"
+  },
+  {
+    "name": ".NET",
+    "description": ".NET Framework"
   }
 ]

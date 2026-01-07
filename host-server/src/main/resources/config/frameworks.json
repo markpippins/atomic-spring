@@ -1,56 +1,182 @@
 [
   {
     "name": "Spring Boot",
-    "description": "Java framework for building production-ready applications",
+    "description": "Java Spring Boot microservices framework",
     "category": "JAVA_SPRING",
     "language": "Java",
-    "version": "3.5.0",
-    "url": "https://spring.io/projects/spring-boot",
-    "supportsBroker": true
+    "current_version": "3.2.0",
+    "lts_version": "3.1.5",
+    "url": "https://spring.io/projects/spring-boot"
   },
   {
     "name": "Quarkus",
-    "description": "Kubernetes-native Java framework",
+    "description": "Supersonic Subatomic Java framework",
     "category": "JAVA_QUARKUS",
     "language": "Java",
-    "version": "3.15.1",
-    "url": "https://quarkus.io",
-    "supportsBroker": true
+    "current_version": "3.6.0",
+    "lts_version": "3.2.9",
+    "url": "https://quarkus.io"
   },
   {
     "name": "Micronaut",
     "description": "Modern JVM-based framework for microservices",
     "category": "JAVA_MICRONAUT",
     "language": "Java",
-    "version": "4.0.0",
-    "url": "https://micronaut.io",
-    "supportsBroker": false
+    "current_version": "4.2.0",
+    "lts_version": "4.0.6",
+    "url": "https://micronaut.io"
+  },
+  {
+    "name": "Helidon",
+    "description": "Oracle Helidon microservices framework",
+    "category": "JAVA_HELIDON",
+    "language": "Java",
+    "current_version": "4.0.0",
+    "lts_version": "3.2.0",
+    "url": "https://helidon.io"
   },
   {
     "name": "NestJS",
-    "description": "Progressive Node.js framework for building server-side applications",
+    "description": "Progressive Node.js framework",
     "category": "NODE_NESTJS",
     "language": "TypeScript",
-    "version": "10.0.0",
-    "url": "https://nestjs.com",
-    "supportsBroker": false
+    "current_version": "10.0.0",
+    "lts_version": "9.5.0",
+    "url": "https://nestjs.com"
   },
   {
     "name": "AdonisJS",
     "description": "Node.js MVC framework",
     "category": "NODE_ADONISJS",
     "language": "TypeScript",
-    "version": "6.0.0",
-    "url": "https://adonisjs.com",
-    "supportsBroker": false
+    "current_version": "6.0.0",
+    "lts_version": "5.9.0",
+    "url": "https://adonisjs.com"
   },
   {
     "name": "Moleculer",
     "description": "Progressive microservices framework for Node.js",
     "category": "NODE_MOLECULER",
+    "language": "JavaScript",
+    "current_version": "0.14.0",
+    "lts_version": "0.14.0",
+    "url": "https://moleculer.services"
+  },
+  {
+    "name": "Express",
+    "description": "Fast, unopinionated web framework for Node.js",
+    "category": "NODE_EXPRESS",
+    "language": "JavaScript",
+    "current_version": "4.18.0",
+    "lts_version": "4.18.0",
+    "url": "https://expressjs.com"
+  },
+  {
+    "name": "FastAPI",
+    "description": "Modern Python web framework",
+    "category": "PYTHON_FASTAPI",
+    "language": "Python",
+    "current_version": "0.109.0",
+    "lts_version": "0.109.0",
+    "url": "https://fastapi.tiangolo.com"
+  },
+  {
+    "name": "Django",
+    "description": "High-level Python web framework",
+    "category": "PYTHON_DJANGO",
+    "language": "Python",
+    "current_version": "5.0.0",
+    "lts_version": "4.2.0",
+    "url": "https://www.djangoproject.com"
+  },
+  {
+    "name": "Flask",
+    "description": "Lightweight Python web framework",
+    "category": "PYTHON_FLASK",
+    "language": "Python",
+    "current_version": "3.0.0",
+    "lts_version": "2.3.0",
+    "url": "https://flask.palletsprojects.com"
+  },
+  {
+    "name": "Gin",
+    "description": "Go web framework",
+    "category": "GO_GIN",
+    "language": "Go",
+    "current_version": "1.9.0",
+    "lts_version": "1.9.0",
+    "url": "https://gin-gonic.com"
+  },
+  {
+    "name": "Fiber",
+    "description": "Express-inspired web framework for Go",
+    "category": "GO_FIBER",
+    "language": "Go",
+    "current_version": "2.52.0",
+    "lts_version": "2.52.0",
+    "url": "https://gofiber.io"
+  },
+  {
+    "name": "React",
+    "description": "JavaScript library for building user interfaces",
+    "category": "FRONTEND_REACT",
+    "language": "JavaScript",
+    "current_version": "18.2.0",
+    "lts_version": "18.2.0",
+    "url": "https://react.dev"
+  },
+  {
+    "name": "Angular",
+    "description": "Platform for building web applications",
+    "category": "FRONTEND_ANGULAR",
     "language": "TypeScript",
-    "version": "0.14.0",
-    "url": "https://moleculer.services",
-    "supportsBroker": true
+    "current_version": "17.0.0",
+    "lts_version": "16.2.0",
+    "url": "https://angular.dev"
+  },
+  {
+    "name": "Next.js",
+    "description": "React framework for production",
+    "category": "FRONTEND_NEXTJS",
+    "language": "TypeScript",
+    "current_version": "14.0.0",
+    "lts_version": "13.5.0",
+    "url": "https://nextjs.org"
+  },
+  {
+    "name": "Analog",
+    "description": "Fullstack meta-framework for Angular",
+    "category": "FRONTEND_ANALOG",
+    "language": "TypeScript",
+    "current_version": "1.0.0",
+    "lts_version": "0.2.0",
+    "url": "https://analogjs.org"
+  },
+  {
+    "name": "Deno",
+    "description": "Secure runtime for JavaScript and TypeScript",
+    "category": "RUNTIME_DENO",
+    "language": "TypeScript",
+    "current_version": "1.40.0",
+    "lts_version": "1.40.0",
+    "url": "https://deno.land"
+  },
+  {
+    "name": "Bun",
+    "description": "Fast all-in-one JavaScript runtime",
+    "category": "RUNTIME_BUN",
+    "language": "JavaScript",
+    "current_version": "1.0.0",
+    "lts_version": "1.0.0",
+    "url": "https://bun.sh"
+  },
+  {
+    "name": "Node.js",
+    "description": "JavaScript runtime built on Chrome V8",
+    "category": "RUNTIME_NODE",
+    "language": "JavaScript",
+    "current_version": "21.0.0",
+    "lts_version": "20.10.0",
+    "url": "https://nodejs.org"
   }
 ]

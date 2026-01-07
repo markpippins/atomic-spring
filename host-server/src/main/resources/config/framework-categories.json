@@ -12,44 +12,80 @@
     "description": "Java Micronaut Framework"
   },
   {
-    "name": "NODE_EXPRESS",
-    "description": "Node.js Express"
+    "name": "JAVA_HELIDON",
+    "description": "Java Helidon Framework"
   },
   {
     "name": "NODE_NESTJS",
-    "description": "Node.js NestJS"
+    "description": "Node.js NestJS Framework"
   },
   {
     "name": "NODE_ADONISJS",
-    "description": "Node.js AdonisJS"
+    "description": "Node.js AdonisJS Framework"
   },
   {
     "name": "NODE_MOLECULER",
-    "description": "Node.js Moleculer"
+    "description": "Node.js Moleculer Framework"
   },
   {
-    "name": "PYTHON_DJANGO",
-    "description": "Python Django"
-  },
-  {
-    "name": "PYTHON_FLASK",
-    "description": "Python Flask"
+    "name": "NODE_EXPRESS",
+    "description": "Node.js Express Framework"
   },
   {
     "name": "PYTHON_FASTAPI",
-    "description": "Python FastAPI"
+    "description": "Python FastAPI Framework"
   },
   {
-    "name": "DOTNET_ASPNET",
-    "description": ".NET ASP.NET Core"
+    "name": "PYTHON_DJANGO",
+    "description": "Python Django Framework"
+  },
+  {
+    "name": "PYTHON_FLASK",
+    "description": "Python Flask Framework"
   },
   {
     "name": "GO_GIN",
-    "description": "Go Gin"
+    "description": "Go Gin Framework"
+  },
+  {
+    "name": "GO_FIBER",
+    "description": "Go Fiber Framework"
+  },
+  {
+    "name": "FRONTEND_REACT",
+    "description": "React Frontend Framework"
+  },
+  {
+    "name": "FRONTEND_ANGULAR",
+    "description": "Angular Frontend Framework"
+  },
+  {
+    "name": "FRONTEND_NEXTJS",
+    "description": "Next.js Frontend Framework"
+  },
+  {
+    "name": "FRONTEND_ANALOG",
+    "description": "Analog Frontend Framework"
+  },
+  {
+    "name": "RUNTIME_DENO",
+    "description": "Deno Runtime"
+  },
+  {
+    "name": "RUNTIME_BUN",
+    "description": "Bun Runtime"
+  },
+  {
+    "name": "RUNTIME_NODE",
+    "description": "Node.js Runtime"
   },
   {
     "name": "RUST_ACTIX",
-    "description": "Rust Actix"
+    "description": "Rust Actix Framework"
+  },
+  {
+    "name": "DOTNET_ASPNET",
+    "description": ".NET ASP.NET Framework"
   },
   {
     "name": "OTHER",

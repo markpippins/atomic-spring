@@ -752,3 +752,5 @@ host-server/target/classes/config/environment-types.json
 host-server/app_output.log
 host-server/hostserver_output.log
 .gitignore
+host-server/target/classes/config/framework-languages.json.bak
+host-server/src/main/resources/config/framework-languages.json.bak
