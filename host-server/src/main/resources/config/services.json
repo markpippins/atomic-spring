@@ -1,0 +1,65 @@
+[
+  {
+    "name": "spring-broker-gateway",
+    "description": "Main API gateway with service orchestration",
+    "framework": "Spring Boot",
+    "type": "GATEWAY",
+    "defaultPort": 8080,
+    "apiBasePath": "/api/broker",
+    "dependencies": ["user-service", "login-service", "file-service"]
+  },
+  {
+    "name": "user-service",
+    "description": "Primary user management with MongoDB",
+    "framework": "Spring Boot",
+    "type": "REST_API",
+    "defaultPort": 8083,
+    "apiBasePath": "/api/users",
+    "dependencies": []
+  },
+  {
+    "name": "login-service",
+    "description": "Authentication and session management",
+    "framework": "Spring Boot",
+    "type": "REST_API",
+    "defaultPort": 8082,
+    "apiBasePath": "/api/login",
+    "dependencies": ["user-service"]
+  },
+  {
+    "name": "file-service",
+    "description": "File handling services",
+    "framework": "Spring Boot",
+    "type": "REST_API",
+    "defaultPort": 4040,
+    "apiBasePath": "/api/files",
+    "dependencies": []
+  },
+  {
+    "name": "note-service",
+    "description": "User notes management",
+    "framework": "Spring Boot",
+    "type": "REST_API",
+    "defaultPort": 8084,
+    "apiBasePath": "/api/notes",
+    "dependencies": ["login-service"]
+  },
+  {
+    "name": "quarkus-broker-gateway",
+    "description": "Quarkus implementation of broker gateway",
+    "framework": "Quarkus",
+    "type": "GATEWAY",
+    "defaultPort": 8190,
+    "apiBasePath": "/api/broker",
+    "dependencies": []
+  },
+  {
+    "name": "moleculer-search",
+    "description": "Search service with multiple providers",
+    "framework": "Moleculer",
+    "type": "REST_API",
+    "defaultPort": 4050,
+    "apiBasePath": "/api/search",
+    "dependencies": []
+  }
+]

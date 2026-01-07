@@ -1,0 +1,30 @@
+[
+  {
+    "name": "Java",
+    "description": "Java Programming Language"
+  },
+  {
+    "name": "TypeScript",
+    "description": "TypeScript Programming Language"
+  },
+  {
+    "name": "JavaScript",
+    "description": "JavaScript Programming Language"
+  },
+  {
+    "name": "Python",
+    "description": "Python Programming Language"
+  },
+  {
+    "name": "C#",
+    "description": "C# Programming Language"
+  },
+  {
+    "name": "Go",
+    "description": "Go Programming Language"
+  },
+  {
+    "name": "Rust",
+    "description": "Rust Programming Language"
+  }
+]

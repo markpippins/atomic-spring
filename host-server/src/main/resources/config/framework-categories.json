@@ -1,0 +1,58 @@
+[
+  {
+    "name": "JAVA_SPRING",
+    "description": "Java Spring Framework"
+  },
+  {
+    "name": "JAVA_QUARKUS",
+    "description": "Java Quarkus Framework"
+  },
+  {
+    "name": "JAVA_MICRONAUT",
+    "description": "Java Micronaut Framework"
+  },
+  {
+    "name": "NODE_EXPRESS",
+    "description": "Node.js Express"
+  },
+  {
+    "name": "NODE_NESTJS",
+    "description": "Node.js NestJS"
+  },
+  {
+    "name": "NODE_ADONISJS",
+    "description": "Node.js AdonisJS"
+  },
+  {
+    "name": "NODE_MOLECULER",
+    "description": "Node.js Moleculer"
+  },
+  {
+    "name": "PYTHON_DJANGO",
+    "description": "Python Django"
+  },
+  {
+    "name": "PYTHON_FLASK",
+    "description": "Python Flask"
+  },
+  {
+    "name": "PYTHON_FASTAPI",
+    "description": "Python FastAPI"
+  },
+  {
+    "name": "DOTNET_ASPNET",
+    "description": ".NET ASP.NET Core"
+  },
+  {
+    "name": "GO_GIN",
+    "description": "Go Gin"
+  },
+  {
+    "name": "RUST_ACTIX",
+    "description": "Rust Actix"
+  },
+  {
+    "name": "OTHER",
+    "description": "Other Framework"
+  }
+]

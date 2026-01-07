@@ -1,0 +1,22 @@
+[
+  {
+    "serviceName": "spring-broker-gateway",
+    "hostname": "iridium",
+    "port": 8080,
+    "version": "1.0.0",
+    "status": "RUNNING",
+    "environment": "DEVELOPMENT",
+    "healthCheckUrl": "http://localhost:8080/actuator/health",
+    "healthStatus": "HEALTHY"
+  },
+  {
+    "serviceName": "user-service",
+    "hostname": "iridium",
+    "port": 8083,
+    "version": "1.0.0",
+    "status": "RUNNING",
+    "environment": "DEVELOPMENT",
+    "healthCheckUrl": "http://localhost:8083/actuator/health",
+    "healthStatus": "HEALTHY"
+  }
+]

@@ -1,0 +1,12 @@
+{
+  "hostname": "iridium",
+  "ipAddress": "127.0.0.1",
+  "type": "VIRTUAL",
+  "environment": "DEVELOPMENT",
+  "operatingSystem": "LINUX",
+  "cpuCores": 4,
+  "memoryMb": 8096,
+  "diskGb": 512,
+  "status": "ACTIVE",
+  "description": "Local development machine"
+}
