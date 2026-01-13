@@ -1,6 +1,5 @@
 package com.angrysurfer.atomic.hostserver.controller;
 
-import java.net.URI;
 import java.util.List;
 import java.util.Map;
 
@@ -18,62 +17,72 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.angrysurfer.atomic.hostserver.dto.ExternalServiceRegistration;
 import com.angrysurfer.atomic.hostserver.entity.Service;
+import com.angrysurfer.atomic.hostserver.repository.ServiceRepository;
 import com.angrysurfer.atomic.hostserver.service.ExternalServiceRegistrationService;
+import com.angrysurfer.atomic.hostserver.service.ServiceStatusCacheService;
 
 @RestController
 @RequestMapping("/api/registry")
 @CrossOrigin(origins = "*")
 public class RegistryController {
-    
+
     private static final Logger log = LoggerFactory.getLogger(RegistryController.class);
-    
+
     @Autowired
     private ExternalServiceRegistrationService registrationService;
-    
+
+    @Autowired
+    private ServiceStatusCacheService cacheService;
+
+    @Autowired
+    private ServiceRepository serviceRepository;
+
     /**
      * Register an external service (e.g., Moleculer, Python, Go services)
      */
     @PostMapping("/register")
     public ResponseEntity<Map<String, Object>> register(@RequestBody ExternalServiceRegistration registration) {
         log.info("Received registration request for service: {}", registration.getServiceName());
-        
+
         try {
             Service service = registrationService.registerExternalService(registration);
-            
+
             return ResponseEntity.ok(Map.of(
-                "success", true,
-                "message", "Service registered successfully",
-                "serviceName", service.getName(),
-                "serviceId", service.getId()
-            ));
+                    "success", true,
+                    "message", "Service registered successfully",
+                    "serviceName", service.getName(),
+                    "serviceId", service.getId()));
         } catch (Exception e) {
             log.error("Failed to register service: {}", registration.getServiceName(), e);
             return ResponseEntity.badRequest().body(Map.of(
-                "success", false,
-                "message", "Failed to register service: " + e.getMessage()
-            ));
+                    "success", false,
+                    "message", "Failed to register service: " + e.getMessage()));
         }
     }
-    
+
     /**
-     * Heartbeat endpoint for external services to maintain registration
+     * Heartbeat endpoint for external services to maintain registration.
+     * Updates both database and Redis cache.
      */
     @PostMapping("/heartbeat/{serviceName}")
     public ResponseEntity<Map<String, String>> heartbeat(@PathVariable String serviceName) {
         log.debug("Received heartbeat from service: {}", serviceName);
-        
+
         boolean updated = registrationService.updateHeartbeat(serviceName);
-        
+
         if (updated) {
+            // Also update Redis cache for real-time access
+            serviceRepository.findByName(serviceName)
+                    .ifPresent(service -> cacheService.recordHeartbeat(serviceName, service.getId()));
+
             return ResponseEntity.ok(Map.of(
-                "message", "Heartbeat received",
-                "serviceName", serviceName
-            ));
+                    "message", "Heartbeat received",
+                    "serviceName", serviceName));
         } else {
             return ResponseEntity.notFound().build();
         }
     }
-    
+
     /**
      * Get all registered services (for broker-gateway to query)
      */
@@ -82,7 +91,7 @@ public class RegistryController {
         List<Service> services = registrationService.getAllActiveServices();
         return ResponseEntity.ok(services);
     }
-    
+
     /**
      * Find service by operation name (for broker-gateway routing)
      */
@@ -92,7 +101,7 @@ public class RegistryController {
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
-    
+
     /**
      * Get service details with endpoint URL for direct calls
      */
@@ -102,21 +111,20 @@ public class RegistryController {
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
-    
+
     /**
      * Deregister a service
      */
     @PostMapping("/deregister/{serviceName}")
     public ResponseEntity<Map<String, String>> deregister(@PathVariable String serviceName) {
         log.info("Deregistering service: {}", serviceName);
-        
+
         boolean removed = registrationService.deregisterService(serviceName);
-        
+
         if (removed) {
             return ResponseEntity.ok(Map.of(
-                "message", "Service deregistered successfully",
-                "serviceName", serviceName
-            ));
+                    "message", "Service deregistered successfully",
+                    "serviceName", serviceName));
         } else {
             return ResponseEntity.notFound().build();
         }

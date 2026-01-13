@@ -35,6 +35,8 @@ public class DataInitializer implements CommandLineRunner {
     private final HostRepository hostRepository;
     private final DeploymentRepository deploymentRepository;
     private final ServiceConfigurationRepository configurationRepository;
+    private final LibraryCategoryRepository libraryCategoryRepository;
+    private final LibraryRepository libraryRepository;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     public DataInitializer(
@@ -47,7 +49,9 @@ public class DataInitializer implements CommandLineRunner {
             EnvironmentTypeRepository environmentTypeRepository,
             HostRepository hostRepository,
             DeploymentRepository deploymentRepository,
-            ServiceConfigurationRepository configurationRepository) {
+            ServiceConfigurationRepository configurationRepository,
+            LibraryCategoryRepository libraryCategoryRepository,
+            LibraryRepository libraryRepository) {
         this.serviceRepository = serviceRepository;
         this.frameworkRepository = frameworkRepository;
         this.categoryRepository = categoryRepository;
@@ -58,6 +62,8 @@ public class DataInitializer implements CommandLineRunner {
         this.hostRepository = hostRepository;
         this.deploymentRepository = deploymentRepository;
         this.configurationRepository = configurationRepository;
+        this.libraryCategoryRepository = libraryCategoryRepository;
+        this.libraryRepository = libraryRepository;
     }
 
     @Override
@@ -66,6 +72,8 @@ public class DataInitializer implements CommandLineRunner {
         try {
             initializeLookupTables();
             initializeFrameworks();
+            initializeLibraryCategories();
+            initializeLibraries();
             initializeServers();
             initializeServices();
             initializeServiceDependencies();
@@ -400,6 +408,69 @@ public class DataInitializer implements CommandLineRunner {
             }
         } catch (IOException e) {
             throw new RuntimeException("Failed to load configurations", e);
+        }
+    }
+
+    @Transactional
+    private void initializeLibraryCategories() {
+        try {
+            List<Map<String, String>> categories = loadJsonConfig("config/library-categories.json",
+                    new TypeReference<List<Map<String, String>>>() {
+                    });
+            for (Map<String, String> data : categories) {
+                String name = data.get("name");
+                if (libraryCategoryRepository.findByName(name).isEmpty()) {
+                    LibraryCategory category = new LibraryCategory();
+                    category.setName(name);
+                    category.setDescription(data.get("description"));
+                    category.setActiveFlag(true);
+                    libraryCategoryRepository.save(category);
+                    log.info("Created LibraryCategory: {}", name);
+                }
+            }
+        } catch (IOException e) {
+            log.warn("Failed to load library categories config, skipping: {}", e.getMessage());
+        }
+    }
+
+    @Transactional
+    private void initializeLibraries() {
+        try {
+            List<Map<String, Object>> libraries = loadJsonConfig("config/libraries.json",
+                    new TypeReference<List<Map<String, Object>>>() {
+                    });
+
+            for (Map<String, Object> data : libraries) {
+                String name = (String) data.get("name");
+                if (libraryRepository.findByName(name).isPresent()) {
+                    continue;
+                }
+
+                String categoryName = (String) data.get("category");
+                String languageName = (String) data.get("language");
+
+                Optional<LibraryCategory> categoryOpt = libraryCategoryRepository.findByName(categoryName);
+                Optional<FrameworkLanguage> languageOpt = languageRepository.findByName(languageName);
+
+                Library library = new Library();
+                library.setName(name);
+                library.setDescription((String) data.get("description"));
+                library.setCurrentVersion((String) data.get("current_version"));
+                library.setPackageName((String) data.get("package_name"));
+                library.setPackageManager((String) data.get("package_manager"));
+                library.setUrl((String) data.get("url"));
+                library.setRepositoryUrl((String) data.get("repository_url"));
+                library.setLicense((String) data.get("license"));
+                library.setActiveFlag(true);
+
+                categoryOpt.ifPresent(cat -> library.setCategoryId(cat.getId()));
+                languageOpt.ifPresent(lang -> library.setLanguageId(lang.getId()));
+
+                libraryRepository.save(library);
+                log.info("Created Library: {}", name);
+            }
+        } catch (IOException e) {
+            log.warn("Failed to load libraries config, skipping: {}", e.getMessage());
         }
     }
 }
