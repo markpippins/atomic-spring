@@ -1,12 +1,10 @@
 package com.angrysurfer.atomic.hostserver.controller;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -40,6 +38,12 @@ public class ServiceController {
     @GetMapping
     public List<Service> getAllServices() {
         log.info("Fetching all services from database");
+        return serviceRepository.findAll();
+    }
+
+    @GetMapping("/all")
+    public List<Service> getAllServicesIncludingInactive() {
+        log.info("Fetching ALL services from database (including inactive)");
         return serviceRepository.findAll();
     }
 
@@ -84,16 +88,16 @@ public class ServiceController {
     @PostMapping
     public ResponseEntity<Service> createService(@RequestBody Service service) {
         log.info("Creating new service: {}", service.getName());
-        
+
         // Validate that service name is unique
         if (serviceRepository.findByName(service.getName()).isPresent()) {
             log.warn("Service with name {} already exists", service.getName());
             return ResponseEntity.badRequest().build();
         }
-        
+
         // Set active flag
         service.setActiveFlag(true);
-        
+
         Service savedService = serviceRepository.save(service);
         log.info("Successfully created service with ID: {}", savedService.getId());
         return ResponseEntity.ok(savedService);
@@ -102,13 +106,13 @@ public class ServiceController {
     @PutMapping("/{id}")
     public ResponseEntity<Service> updateService(@PathVariable Long id, @RequestBody Service service) {
         log.info("Updating service with ID: {}", id);
-        
+
         Optional<Service> existingServiceOpt = serviceRepository.findById(id);
         if (existingServiceOpt.isEmpty()) {
             log.warn("Service with ID {} not found", id);
             return ResponseEntity.notFound().build();
         }
-        
+
         // Check if name is being changed and if new name already exists
         Service existingService = existingServiceOpt.get();
         if (!existingService.getName().equals(service.getName())) {
@@ -117,7 +121,7 @@ public class ServiceController {
                 return ResponseEntity.badRequest().build();
             }
         }
-        
+
         // Update the service
         service.setId(id);
         Service updatedService = serviceRepository.save(service);
@@ -128,13 +132,13 @@ public class ServiceController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteService(@PathVariable Long id) {
         log.info("Deleting service with ID: {}", id);
-        
+
         Optional<Service> serviceOpt = serviceRepository.findById(id);
         if (serviceOpt.isEmpty()) {
             log.warn("Service with ID {} not found", id);
             return ResponseEntity.notFound().build();
         }
-        
+
         // TODO: Check if service has deployments before deleting
         // For now, just delete
         serviceRepository.deleteById(id);

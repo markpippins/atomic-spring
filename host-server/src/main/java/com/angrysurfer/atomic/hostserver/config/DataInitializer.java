@@ -2,6 +2,7 @@ package com.angrysurfer.atomic.hostserver.config;
 
 import com.angrysurfer.atomic.hostserver.entity.*;
 import com.angrysurfer.atomic.hostserver.repository.*;
+import com.angrysurfer.atomic.hostserver.service.CacheWarmingService;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
@@ -37,6 +38,7 @@ public class DataInitializer implements CommandLineRunner {
     private final ServiceConfigurationRepository configurationRepository;
     private final LibraryCategoryRepository libraryCategoryRepository;
     private final LibraryRepository libraryRepository;
+    private final CacheWarmingService cacheWarmingService;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     public DataInitializer(
@@ -51,7 +53,8 @@ public class DataInitializer implements CommandLineRunner {
             DeploymentRepository deploymentRepository,
             ServiceConfigurationRepository configurationRepository,
             LibraryCategoryRepository libraryCategoryRepository,
-            LibraryRepository libraryRepository) {
+            LibraryRepository libraryRepository,
+            CacheWarmingService cacheWarmingService) {
         this.serviceRepository = serviceRepository;
         this.frameworkRepository = frameworkRepository;
         this.categoryRepository = categoryRepository;
@@ -64,12 +67,23 @@ public class DataInitializer implements CommandLineRunner {
         this.configurationRepository = configurationRepository;
         this.libraryCategoryRepository = libraryCategoryRepository;
         this.libraryRepository = libraryRepository;
+        this.cacheWarmingService = cacheWarmingService;
     }
 
     @Override
     public void run(String... args) {
         log.info("Starting data initialization...");
         try {
+            // Check if data already exists to avoid redundant initialization
+            if (isDataAlreadyInitialized()) {
+                log.info("Data already initialized, syncing from JSON configs...");
+                // Sync all data to ensure JSON configs are up to date in DB
+                syncLookupTables();
+                syncFrameworksFromJson();
+                syncServicesFromJson();
+                return;
+            }
+
             initializeLookupTables();
             initializeFrameworks();
             initializeLibraryCategories();
@@ -83,6 +97,29 @@ public class DataInitializer implements CommandLineRunner {
         } catch (Exception e) {
             log.error("Data initialization failed", e);
             // Don't re-throw to allow application to start
+        }
+    }
+
+    /**
+     * Check if data has already been initialized.
+     */
+    private boolean isDataAlreadyInitialized() {
+        try {
+            // Check if any of the lookup tables have data
+            long frameworkCount = frameworkRepository.count();
+            long serviceTypeCount = serviceTypeRepository.count();
+            long environmentTypeCount = environmentTypeRepository.count();
+
+            if (frameworkCount > 0 || serviceTypeCount > 0 || environmentTypeCount > 0) {
+                log.debug("Found existing data: {} frameworks, {} service types, {} environment types",
+                        frameworkCount, serviceTypeCount, environmentTypeCount);
+                return true;
+            }
+
+            return false;
+        } catch (Exception e) {
+            log.warn("Error checking if data is initialized, proceeding with initialization: {}", e.getMessage());
+            return false;
         }
     }
 
@@ -171,6 +208,90 @@ public class DataInitializer implements CommandLineRunner {
         }
     }
 
+    /**
+     * Sync lookup tables - adds any missing entries from JSON configs.
+     * This is called when data already exists to ensure completeness.
+     */
+    @Transactional
+    private void syncLookupTables() {
+        log.info("Syncing lookup tables from JSON configs...");
+        // Reuse the same logic - it already skips existing entries
+        initializeLookupTables();
+        log.info("Lookup tables sync completed");
+    }
+
+    /**
+     * Sync frameworks from JSON - creates new or updates existing frameworks.
+     */
+    @Transactional
+    private void syncFrameworksFromJson() {
+        try {
+            List<Map<String, Object>> frameworks = loadJsonConfig("config/frameworks.json",
+                    new TypeReference<List<Map<String, Object>>>() {
+                    });
+
+            int createdCount = 0;
+            int updatedCount = 0;
+            int skippedCount = 0;
+
+            for (Map<String, Object> data : frameworks) {
+                String name = (String) data.get("name");
+                String categoryName = (String) data.get("category");
+                String languageName = (String) data.get("language");
+
+                Optional<FrameworkCategory> categoryOpt = categoryRepository.findByName(categoryName);
+                Optional<FrameworkLanguage> languageOpt = languageRepository.findByName(languageName);
+
+                if (categoryOpt.isEmpty()) {
+                    log.warn("Category '{}' not found for framework '{}', skipping", categoryName, name);
+                    skippedCount++;
+                    continue;
+                }
+
+                if (languageOpt.isEmpty()) {
+                    log.warn("Language '{}' not found for framework '{}', skipping", languageName, name);
+                    skippedCount++;
+                    continue;
+                }
+
+                Optional<Framework> existingOpt = frameworkRepository.findByName(name);
+                Framework framework;
+                boolean isNew = false;
+
+                if (existingOpt.isPresent()) {
+                    framework = existingOpt.get();
+                } else {
+                    framework = new Framework();
+                    framework.setName(name);
+                    isNew = true;
+                }
+
+                framework.setDescription((String) data.get("description"));
+                framework.setVendorId(1L);
+                framework.setCategoryId(categoryOpt.get().getId());
+                framework.setLanguageId(languageOpt.get().getId());
+                framework.setCurrentVersion((String) data.get("current_version"));
+                framework.setLtsVersion((String) data.get("lts_version"));
+                framework.setUrl((String) data.get("url"));
+                framework.setActiveFlag(true);
+
+                frameworkRepository.save(framework);
+
+                if (isNew) {
+                    log.info("Created Framework: {}", name);
+                    createdCount++;
+                } else {
+                    updatedCount++;
+                }
+            }
+
+            log.info("Framework sync completed: {} created, {} updated, {} skipped",
+                    createdCount, updatedCount, skippedCount);
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to load frameworks", e);
+        }
+    }
+
     @Transactional
     private void initializeFrameworks() {
         try {
@@ -251,17 +372,27 @@ public class DataInitializer implements CommandLineRunner {
 
     @Transactional
     private void initializeServices() {
+        syncServicesFromJson();
+    }
+
+    /**
+     * Sync services from services.json - creates new services or updates existing
+     * ones.
+     * This is called both during initial load and when data already exists.
+     */
+    @Transactional
+    private void syncServicesFromJson() {
         try {
             List<Map<String, Object>> services = loadJsonConfig("config/services.json",
                     new TypeReference<List<Map<String, Object>>>() {
                     });
 
+            int createdCount = 0;
+            int updatedCount = 0;
+            int skippedCount = 0;
+
             for (Map<String, Object> data : services) {
                 String name = (String) data.get("name");
-                if (serviceRepository.findByName(name).isPresent()) {
-                    continue;
-                }
-
                 String frameworkName = (String) data.get("framework");
                 String typeName = (String) data.get("type");
 
@@ -272,23 +403,55 @@ public class DataInitializer implements CommandLineRunner {
                     typeOpt = serviceTypeRepository.findByName(typeName.replace("_", " "));
                 }
 
-                if (frameworkOpt.isPresent() && typeOpt.isPresent()) {
-                    Service service = new Service();
-                    service.setName(name);
-                    service.setDescription((String) data.get("description"));
-                    service.setFrameworkId(frameworkOpt.get().getId());
-                    service.setServiceTypeId(typeOpt.get().getId());
-                    service.setDefaultPort((Integer) data.get("defaultPort"));
-                    service.setApiBasePath((String) data.get("apiBasePath"));
-                    service.setRepositoryUrl((String) data.get("repositoryUrl"));
-                    service.setStatus((String) data.getOrDefault("status", "ACTIVE"));
-                    service.setVersion((String) data.getOrDefault("version", "1.0.0"));
-                    service.setActiveFlag(true);
+                if (frameworkOpt.isEmpty()) {
+                    log.warn("Framework '{}' not found for service '{}', skipping", frameworkName, name);
+                    skippedCount++;
+                    continue;
+                }
 
-                    serviceRepository.save(service);
+                if (typeOpt.isEmpty()) {
+                    log.warn("Service type '{}' not found for service '{}', skipping", typeName, name);
+                    skippedCount++;
+                    continue;
+                }
+
+                Optional<Service> existingServiceOpt = serviceRepository.findByName(name);
+                Service service;
+                boolean isNew = false;
+
+                if (existingServiceOpt.isPresent()) {
+                    service = existingServiceOpt.get();
+                    log.debug("Updating existing service: {}", name);
+                } else {
+                    service = new Service();
+                    service.setName(name);
+                    isNew = true;
+                    log.debug("Creating new service: {}", name);
+                }
+
+                // Update service fields from JSON
+                service.setDescription((String) data.get("description"));
+                service.setFrameworkId(frameworkOpt.get().getId());
+                service.setServiceTypeId(typeOpt.get().getId());
+                service.setDefaultPort((Integer) data.get("defaultPort"));
+                service.setApiBasePath((String) data.get("apiBasePath"));
+                service.setRepositoryUrl((String) data.get("repositoryUrl"));
+                service.setStatus((String) data.getOrDefault("status", "ACTIVE"));
+                service.setVersion((String) data.getOrDefault("version", "1.0.0"));
+                service.setActiveFlag(true);
+
+                serviceRepository.save(service);
+
+                if (isNew) {
                     log.info("Created Service: {}", name);
+                    createdCount++;
+                } else {
+                    updatedCount++;
                 }
             }
+
+            log.info("Service sync completed: {} created, {} updated, {} skipped",
+                    createdCount, updatedCount, skippedCount);
         } catch (IOException e) {
             throw new RuntimeException("Failed to load services", e);
         }

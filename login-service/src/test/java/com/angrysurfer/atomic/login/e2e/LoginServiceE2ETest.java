@@ -11,25 +11,54 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.time.Duration; // Import Duration
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
+import org.mockito.quality.Strictness;
+import org.mockito.junit.jupiter.MockitoSettings;
 
 @ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 class LoginServiceE2ETest {
 
     @Mock
     private RedisTemplate<String, Object> redisTemplate;
 
+    @Mock
+    private ValueOperations<String, Object> valueOperations;
+
     private LoginService loginService;
+
+    private Map<String, Object> redisStore; // In-memory store
 
     @BeforeEach
     void setUp() {
+        redisStore = new HashMap<>();
+        when(redisTemplate.opsForValue()).thenReturn(valueOperations);
+        
+        // Mock ValueOperations.set to store in our in-memory map
+        doAnswer(invocation -> {
+            String key = invocation.getArgument(0);
+            Object value = invocation.getArgument(1);
+            Duration timeout = invocation.getArgument(2);
+            redisStore.put(key, value);
+            return null;
+        }).when(valueOperations).set(anyString(), any(), any(Duration.class));
+
+        // Mock ValueOperations.get to retrieve from our in-memory map
+        when(valueOperations.get(anyString())).thenAnswer(invocation -> redisStore.get(invocation.getArgument(0)));
+
+        // Mock RedisTemplate.delete to remove from our in-memory map
+        when(redisTemplate.delete(anyString())).thenAnswer(invocation -> redisStore.remove(invocation.getArgument(0)) != null);
+
         loginService = new LoginService(redisTemplate);
     }
 

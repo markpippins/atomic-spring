@@ -54,7 +54,6 @@ public class LoginService {
             } else {
                 // Invalid credentials
                 LoginResponse response = new LoginResponse("FAILURE", "invalid credentials");
-                response.setOk(false);
                 response.addError("credentials", "invalid alias or password");
 
                 serviceResponse.setOk(false);
@@ -65,12 +64,7 @@ public class LoginService {
             // Generate UUID token for successful login
             UUID token = UUID.randomUUID();
             
-            LoginResponse response = new LoginResponse("SUCCESS", null);
-            response.setToken(token.toString());
-            response.setUserId(user.getId());
-            response.setAvatarUrl(user.getAvatarUrl());
-            response.setAdmin(user.isAdmin());
-            response.setOk(true);
+            LoginResponse response = new LoginResponse(token.toString(), user.getId(), user.getAvatarUrl(), user.isAdmin());
             
             // Store user in Redis with TTL (e.g., 24 hours)
             ValueOperations<String, Object> ops = redisTemplate.opsForValue();

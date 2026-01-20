@@ -122,13 +122,73 @@
   {
     "name": "projman-service",
     "description": "Project management service built with Go",
-    "framework": "Go",
+    "framework": "Gin",
     "type": "REST_API",
     "defaultPort": 8073,
     "apiBasePath": "/api",
     "repositoryUrl": "https://github.com/yourorg/projman",
     "status": "ACTIVE",
     "version": "1.0.0",
+    "dependencies": []
+  },
+  {
+    "name": "host-server",
+    "description": "Spring Boot host server for service registry and platform management",
+    "framework": "Spring Boot",
+    "type": "REST_API",
+    "defaultPort": 8085,
+    "apiBasePath": "/api",
+    "repositoryUrl": "https://github.com/yourorg/host-server",
+    "status": "ACTIVE",
+    "version": "1.0.0",
+    "dependencies": []
+  },
+  {
+    "name": "nexus-web",
+    "description": "Angular web application for service mesh visualization and management",
+    "framework": "Angular",
+    "type": "WEB_APP",
+    "defaultPort": 4200,
+    "apiBasePath": "/",
+    "repositoryUrl": "https://github.com/yourorg/nexus",
+    "status": "ACTIVE",
+    "version": "1.0.0",
+    "dependencies": []
+  },
+  {
+    "name": "notification-service",
+    "description": "Notification and alerting service (planned)",
+    "framework": "NestJS",
+    "type": "REST_API",
+    "defaultPort": 8089,
+    "apiBasePath": "/api/notifications",
+    "repositoryUrl": "https://github.com/yourorg/notification-service",
+    "status": "PLANNED",
+    "version": "0.1.0",
+    "dependencies": []
+  },
+  {
+    "name": "analytics-service",
+    "description": "Analytics and reporting service (planned)",
+    "framework": "FastAPI",
+    "type": "REST_API",
+    "defaultPort": 8090,
+    "apiBasePath": "/api/analytics",
+    "repositoryUrl": "https://github.com/yourorg/analytics-service",
+    "status": "PLANNED",
+    "version": "0.1.0",
+    "dependencies": []
+  },
+  {
+    "name": "legacy-adapter",
+    "description": "Adapter for legacy system integration (deprecated)",
+    "framework": "Spring Boot",
+    "type": "REST_API",
+    "defaultPort": 8091,
+    "apiBasePath": "/api/legacy",
+    "repositoryUrl": "https://github.com/yourorg/legacy-adapter",
+    "status": "DEPRECATED",
+    "version": "1.5.0",
     "dependencies": []
   }
 ]

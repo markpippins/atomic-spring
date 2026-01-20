@@ -284,3 +284,60 @@ For production use, migrate from H2 to a persistent database:
 2. Update `application.properties` with database connection
 3. Change `spring.jpa.hibernate.ddl-auto` to `update` or `validate`
 4. Consider adding Flyway/Liquibase for schema migrations
+
+## Database Schema Issues
+
+If you encounter database schema compatibility errors during startup (such as "wrong column type encountered" errors), you have two options:
+
+### Option 1: Run the automated database fix script
+
+```bash
+# Make the script executable
+chmod +x run-db-fix.sh
+
+# Run the database fix script
+./run-db-fix.sh
+```
+
+### Option 2: Use the temporary configuration to update the schema
+
+If the automated script doesn't work, you can temporarily update the schema using Hibernate:
+
+```bash
+# Make the script executable
+chmod +x update-schema.sh
+
+# Run the schema update script
+./update-schema.sh
+```
+
+This will start the application with `ddl-auto=update` to fix the schema, then you can stop it with Ctrl+C.
+
+### Option 3: Run the SQL commands manually
+
+```bash
+# Connect to your MySQL database and run:
+mysql -u root -p services_console < database-fix.sql
+```
+
+After applying any of these fixes, restart the application normally. This resolves column type incompatibilities between the database schema and entity definitions.
+
+## Recommended Solution
+
+The recommended approach is to fix the database schema to ensure column types match the entity definitions:
+
+1. If you have access to MySQL directly, run the database fix script:
+   ```bash
+   ./fix-database.sh
+   ```
+
+2. Then start the application normally:
+   ```bash
+   # From the project root
+   cd /path/to/project
+   mvn spring-boot:run -pl host-server
+   ```
+
+3. The application.properties is configured to use `ddl-auto=validate` mode by default, which ensures the schema matches the entity definitions.
+
+If you don't have direct MySQL access, the application will attempt to fix schema issues on startup using the DatabaseSchemaValidator.

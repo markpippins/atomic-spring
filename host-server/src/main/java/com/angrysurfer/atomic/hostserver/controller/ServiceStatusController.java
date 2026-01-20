@@ -1,9 +1,17 @@
 package com.angrysurfer.atomic.hostserver.controller;
 
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.time.Duration;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,6 +27,9 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import com.angrysurfer.atomic.hostserver.dto.ServiceStatus;
+import com.angrysurfer.atomic.hostserver.dto.ServiceStatus.HealthState;
+import com.angrysurfer.atomic.hostserver.entity.Deployment;
+import com.angrysurfer.atomic.hostserver.repository.DeploymentRepository;
 import com.angrysurfer.atomic.hostserver.service.ServiceStatusCacheService;
 
 import lombok.RequiredArgsConstructor;
@@ -26,6 +37,7 @@ import lombok.RequiredArgsConstructor;
 /**
  * REST controller for real-time service status data.
  * Provides fast, cached data for the 3D visualizer.
+ * Falls back to live health checks when Redis is unavailable.
  */
 @RestController
 @RequestMapping("/api/status")
@@ -36,14 +48,134 @@ public class ServiceStatusController {
     private static final Logger log = LoggerFactory.getLogger(ServiceStatusController.class);
 
     private final ServiceStatusCacheService cacheService;
+    private final DeploymentRepository deploymentRepository;
+
+    private final HttpClient httpClient = HttpClient.newBuilder()
+            .connectTimeout(Duration.ofSeconds(3))
+            .build();
 
     /**
-     * Get all service statuses (cached from Redis for fast response)
+     * Get all service statuses.
+     * First tries Redis cache, falls back to live health checks.
      */
     @GetMapping
     public ResponseEntity<List<ServiceStatus>> getAllStatuses() {
         List<ServiceStatus> statuses = cacheService.getAllServiceStatuses();
+
+        // If Redis returned data, use it
+        if (!statuses.isEmpty()) {
+            return ResponseEntity.ok(statuses);
+        }
+
+        // Fallback: perform live health checks on deployments
+        log.info("Redis unavailable or empty, performing live health checks...");
+        statuses = performLiveHealthChecks();
         return ResponseEntity.ok(statuses);
+    }
+
+    /**
+     * Perform live health checks on all deployments.
+     */
+    private List<ServiceStatus> performLiveHealthChecks() {
+        List<ServiceStatus> statuses = new ArrayList<>();
+        List<Deployment> deployments = deploymentRepository.findAll();
+
+        List<CompletableFuture<ServiceStatus>> futures = new ArrayList<>();
+
+        for (Deployment deployment : deployments) {
+            String healthUrl = deployment.getHealthCheckUrl();
+            String serviceName = deployment.getService() != null ? deployment.getService().getName() : "unknown";
+            Long serviceId = deployment.getService() != null ? deployment.getService().getId() : null;
+
+            // If no explicit healthCheckUrl, construct one from server and port
+            if ((healthUrl == null || healthUrl.isEmpty()) && deployment.getServer() != null
+                    && deployment.getPort() != null) {
+                String hostname = deployment.getServer().getHostname();
+                if (hostname == null || hostname.isEmpty()) {
+                    hostname = deployment.getServer().getIpAddress();
+                }
+                if (hostname != null && !hostname.isEmpty()) {
+                    // Try standard health endpoints: /health, /actuator/health, /q/health
+                    healthUrl = String.format("http://%s:%d/health", hostname, deployment.getPort());
+                }
+            }
+
+            if (healthUrl != null && !healthUrl.isEmpty()) {
+                CompletableFuture<ServiceStatus> future = checkHealthAsync(serviceId, serviceName, healthUrl);
+                futures.add(future);
+            } else {
+                // No health URL - create unknown status
+                statuses.add(ServiceStatus.builder()
+                        .serviceId(serviceId)
+                        .serviceName(serviceName)
+                        .healthState(HealthState.UNKNOWN)
+                        .lastHealthCheck(Instant.now())
+                        .build());
+            }
+        }
+
+        // Wait for all health checks (with timeout)
+        try {
+            CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]))
+                    .get(10, TimeUnit.SECONDS);
+
+            for (CompletableFuture<ServiceStatus> future : futures) {
+                statuses.add(future.get());
+            }
+        } catch (Exception e) {
+            log.warn("Some health checks timed out: {}", e.getMessage());
+            // Add any completed futures
+            for (CompletableFuture<ServiceStatus> future : futures) {
+                if (future.isDone() && !future.isCompletedExceptionally()) {
+                    try {
+                        statuses.add(future.get());
+                    } catch (Exception ex) {
+                        // ignore
+                    }
+                }
+            }
+        }
+
+        return statuses;
+    }
+
+    /**
+     * Asynchronously check health of a service endpoint.
+     */
+    private CompletableFuture<ServiceStatus> checkHealthAsync(Long serviceId, String serviceName, String healthUrl) {
+        return CompletableFuture.supplyAsync(() -> {
+            Instant checkTime = Instant.now();
+            try {
+                HttpRequest request = HttpRequest.newBuilder()
+                        .uri(URI.create(healthUrl))
+                        .timeout(Duration.ofSeconds(3))
+                        .GET()
+                        .build();
+
+                HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+
+                HealthState state = response.statusCode() >= 200 && response.statusCode() < 300
+                        ? HealthState.HEALTHY
+                        : HealthState.UNHEALTHY;
+
+                return ServiceStatus.builder()
+                        .serviceId(serviceId)
+                        .serviceName(serviceName)
+                        .healthState(state)
+                        .lastHealthCheck(checkTime)
+                        .responseTimeMs(Duration.between(checkTime, Instant.now()).toMillis())
+                        .build();
+            } catch (Exception e) {
+                log.debug("Health check failed for {}: {}", serviceName, e.getMessage());
+                return ServiceStatus.builder()
+                        .serviceId(serviceId)
+                        .serviceName(serviceName)
+                        .healthState(HealthState.UNHEALTHY)
+                        .lastHealthCheck(checkTime)
+                        .errorMessage(e.getMessage())
+                        .build();
+            }
+        });
     }
 
     /**

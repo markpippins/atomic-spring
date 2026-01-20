@@ -25,30 +25,32 @@ class LoginResponseTest {
     }
 
     @Test
-    void loginResponse_WithTokenConstructor_ShouldInitializeCorrectly() {
+    void loginResponse_WithTokenOnly_ShouldInitializeCorrectly() {
         // When
-        LoginResponse response = new LoginResponse("test-token");
+        LoginResponse response = new LoginResponse(); // Use default constructor
+        response.setToken("test-token"); // Set token manually
 
         // Then
         assertNull(response.getUserId());
         assertNull(response.getAvatarUrl());
         assertEquals("test-token", response.getToken());
         assertNull(response.getMessage());
-        assertFalse(response.isOk());
+        assertFalse(response.isOk()); // Still false because it wasn't set via success constructor
         assertFalse(response.isAdmin());
         assertNotNull(response.getErrors());
         assertTrue(response.getErrors().isEmpty());
     }
 
     @Test
-    void loginResponse_WithTokenAndMessageConstructor_ShouldInitializeCorrectly() {
+    void loginResponse_WithStatusAndMessageConstructor_ShouldInitializeCorrectly() {
         // When
-        LoginResponse response = new LoginResponse("test-token", "test message");
+        LoginResponse response = new LoginResponse("ERROR", "test message");
 
         // Then
         assertNull(response.getUserId());
         assertNull(response.getAvatarUrl());
-        assertEquals("test-token", response.getToken());
+        assertNull(response.getToken()); // Token is not set with this constructor
+        assertEquals("ERROR", response.getStatus()); // Status is set, not token
         assertEquals("test message", response.getMessage());
         assertFalse(response.isOk());
         assertFalse(response.isAdmin());
