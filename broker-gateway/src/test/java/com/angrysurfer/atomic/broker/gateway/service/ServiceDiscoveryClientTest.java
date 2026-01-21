@@ -1,7 +1,7 @@
 package com.angrysurfer.atomic.broker.gateway.service;
 
-import com.angrysurfer.atomic.broker.gateway.service.ServiceDiscoveryClient.ServiceDetails;
-import com.angrysurfer.atomic.broker.gateway.service.ServiceDiscoveryClient.ServiceInfo;
+import com.angrysurfer.atomic.broker.spi.ServiceDiscoveryClient;
+import com.angrysurfer.atomic.broker.gateway.service.ServiceDiscoveryClientImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -21,11 +21,11 @@ class ServiceDiscoveryClientTest {
     @Mock
     private RestTemplate restTemplate;
 
-    private ServiceDiscoveryClient discoveryClient;
+    private ServiceDiscoveryClientImpl discoveryClient;
 
     @BeforeEach
     void setUp() {
-        discoveryClient = new ServiceDiscoveryClient();
+        discoveryClient = new ServiceDiscoveryClientImpl();
         discoveryClient.setRestTemplate(restTemplate);
         discoveryClient.setHostServerUrl("http://localhost:8085");
     }
@@ -34,17 +34,17 @@ class ServiceDiscoveryClientTest {
     void findServiceByOperation_WithExistingService_ShouldReturnServiceInfo() {
         // Given
         String operation = "testOperation";
-        ServiceInfo expectedServiceInfo = new ServiceInfo();
+        ServiceDiscoveryClientImpl.ServiceInfoImpl expectedServiceInfo = new ServiceDiscoveryClientImpl.ServiceInfoImpl();
         expectedServiceInfo.setName("testService");
         expectedServiceInfo.setId(1L);
 
         when(restTemplate.getForObject(
                 eq("http://localhost:8085/api/registry/services/by-operation/testOperation"),
-                eq(ServiceInfo.class)
+                eq(ServiceDiscoveryClientImpl.ServiceInfoImpl.class)
         )).thenReturn(expectedServiceInfo);
 
         // When
-        Optional<ServiceInfo> result = discoveryClient.findServiceByOperation(operation);
+        Optional<com.angrysurfer.atomic.broker.spi.ServiceDiscoveryClient.ServiceInfo> result = discoveryClient.findServiceByOperation(operation);
 
         // Then
         assertTrue(result.isPresent());
@@ -52,7 +52,7 @@ class ServiceDiscoveryClientTest {
         assertEquals(Long.valueOf(1L), result.get().getId());
         verify(restTemplate).getForObject(
                 eq("http://localhost:8085/api/registry/services/by-operation/testOperation"),
-                eq(ServiceInfo.class)
+                eq(ServiceDiscoveryClientImpl.ServiceInfoImpl.class)
         );
     }
 
@@ -63,17 +63,17 @@ class ServiceDiscoveryClientTest {
 
         when(restTemplate.getForObject(
                 eq("http://localhost:8085/api/registry/services/by-operation/nonExistentOperation"),
-                eq(ServiceInfo.class)
+                eq(ServiceDiscoveryClientImpl.ServiceInfoImpl.class)
         )).thenReturn(null);
 
         // When
-        Optional<ServiceInfo> result = discoveryClient.findServiceByOperation(operation);
+        Optional<com.angrysurfer.atomic.broker.spi.ServiceDiscoveryClient.ServiceInfo> result = discoveryClient.findServiceByOperation(operation);
 
         // Then
         assertFalse(result.isPresent());
         verify(restTemplate).getForObject(
                 eq("http://localhost:8085/api/registry/services/by-operation/nonExistentOperation"),
-                eq(ServiceInfo.class)
+                eq(ServiceDiscoveryClientImpl.ServiceInfoImpl.class)
         );
     }
 
@@ -84,17 +84,17 @@ class ServiceDiscoveryClientTest {
 
         when(restTemplate.getForObject(
                 eq("http://localhost:8085/api/registry/services/by-operation/errorOperation"),
-                eq(ServiceInfo.class)
+                eq(ServiceDiscoveryClientImpl.ServiceInfoImpl.class)
         )).thenThrow(new RuntimeException("Connection failed"));
 
         // When
-        Optional<ServiceInfo> result = discoveryClient.findServiceByOperation(operation);
+        Optional<com.angrysurfer.atomic.broker.spi.ServiceDiscoveryClient.ServiceInfo> result = discoveryClient.findServiceByOperation(operation);
 
         // Then
         assertFalse(result.isPresent());
         verify(restTemplate).getForObject(
                 eq("http://localhost:8085/api/registry/services/by-operation/errorOperation"),
-                eq(ServiceInfo.class)
+                eq(ServiceDiscoveryClientImpl.ServiceInfoImpl.class)
         );
     }
 
@@ -102,17 +102,17 @@ class ServiceDiscoveryClientTest {
     void getServiceDetails_WithExistingService_ShouldReturnServiceDetails() {
         // Given
         String serviceName = "testService";
-        ServiceDetails expectedServiceDetails = new ServiceDetails();
+        ServiceDiscoveryClientImpl.ServiceDetailsImpl expectedServiceDetails = new ServiceDiscoveryClientImpl.ServiceDetailsImpl();
         expectedServiceDetails.setServiceName("testService");
         expectedServiceDetails.setEndpoint("http://test-service:8080");
 
         when(restTemplate.getForObject(
                 eq("http://localhost:8085/api/registry/services/testService/details"),
-                eq(ServiceDetails.class)
+                eq(ServiceDiscoveryClientImpl.ServiceDetailsImpl.class)
         )).thenReturn(expectedServiceDetails);
 
         // When
-        Optional<ServiceDetails> result = discoveryClient.getServiceDetails(serviceName);
+        Optional<com.angrysurfer.atomic.broker.spi.ServiceDiscoveryClient.ServiceDetails> result = discoveryClient.getServiceDetails(serviceName);
 
         // Then
         assertTrue(result.isPresent());
@@ -120,7 +120,7 @@ class ServiceDiscoveryClientTest {
         assertEquals("http://test-service:8080", result.get().getEndpoint());
         verify(restTemplate).getForObject(
                 eq("http://localhost:8085/api/registry/services/testService/details"),
-                eq(ServiceDetails.class)
+                eq(ServiceDiscoveryClientImpl.ServiceDetailsImpl.class)
         );
     }
 
@@ -131,17 +131,17 @@ class ServiceDiscoveryClientTest {
 
         when(restTemplate.getForObject(
                 eq("http://localhost:8085/api/registry/services/nonExistentService/details"),
-                eq(ServiceDetails.class)
+                eq(ServiceDiscoveryClientImpl.ServiceDetailsImpl.class)
         )).thenReturn(null);
 
         // When
-        Optional<ServiceDetails> result = discoveryClient.getServiceDetails(serviceName);
+        Optional<com.angrysurfer.atomic.broker.spi.ServiceDiscoveryClient.ServiceDetails> result = discoveryClient.getServiceDetails(serviceName);
 
         // Then
         assertFalse(result.isPresent());
         verify(restTemplate).getForObject(
                 eq("http://localhost:8085/api/registry/services/nonExistentService/details"),
-                eq(ServiceDetails.class)
+                eq(ServiceDiscoveryClientImpl.ServiceDetailsImpl.class)
         );
     }
 
@@ -152,24 +152,24 @@ class ServiceDiscoveryClientTest {
 
         when(restTemplate.getForObject(
                 eq("http://localhost:8085/api/registry/services/errorService/details"),
-                eq(ServiceDetails.class)
+                eq(ServiceDiscoveryClientImpl.ServiceDetailsImpl.class)
         )).thenThrow(new RuntimeException("Connection failed"));
 
         // When
-        Optional<ServiceDetails> result = discoveryClient.getServiceDetails(serviceName);
+        Optional<com.angrysurfer.atomic.broker.spi.ServiceDiscoveryClient.ServiceDetails> result = discoveryClient.getServiceDetails(serviceName);
 
         // Then
         assertFalse(result.isPresent());
         verify(restTemplate).getForObject(
                 eq("http://localhost:8085/api/registry/services/errorService/details"),
-                eq(ServiceDetails.class)
+                eq(ServiceDiscoveryClientImpl.ServiceDetailsImpl.class)
         );
     }
 
     @Test
     void serviceInfo_GettersAndSetters_ShouldWorkCorrectly() {
         // Given
-        ServiceInfo serviceInfo = new ServiceInfo();
+        ServiceDiscoveryClientImpl.ServiceInfoImpl serviceInfo = new ServiceDiscoveryClientImpl.ServiceInfoImpl();
 
         // When
         serviceInfo.setId(123L);
@@ -187,7 +187,7 @@ class ServiceDiscoveryClientTest {
     @Test
     void serviceDetails_GettersAndSetters_ShouldWorkCorrectly() {
         // Given
-        ServiceDetails serviceDetails = new ServiceDetails();
+        ServiceDiscoveryClientImpl.ServiceDetailsImpl serviceDetails = new ServiceDiscoveryClientImpl.ServiceDetailsImpl();
 
         // When
         serviceDetails.setServiceName("testService");

@@ -1,7 +1,6 @@
 package com.angrysurfer.atomic.broker.gateway.service;
 
-import com.angrysurfer.atomic.broker.gateway.service.ServiceDiscoveryClient.ServiceDetails;
-import com.angrysurfer.atomic.broker.gateway.service.ServiceDiscoveryClient.ServiceInfo;
+import com.angrysurfer.atomic.broker.spi.ServiceDiscoveryClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -26,11 +25,11 @@ class ExternalServiceInvokerTest {
     @Mock
     private RestTemplate restTemplate;
 
-    private ExternalServiceInvoker serviceInvoker;
+    private ExternalServiceInvokerImpl serviceInvoker;
 
     @BeforeEach
     void setUp() {
-        serviceInvoker = new ExternalServiceInvoker();
+        serviceInvoker = new ExternalServiceInvokerImpl();
         serviceInvoker.setDiscoveryClient(discoveryClient);
         serviceInvoker.setRestTemplate(restTemplate);
     }
@@ -40,9 +39,9 @@ class ExternalServiceInvokerTest {
         // Given
         String operation = "testOperation";
         Object requestBody = new Object();
-        ServiceInfo serviceInfo = new ServiceInfo();
+        ServiceDiscoveryClientImpl.ServiceInfoImpl serviceInfo = new ServiceDiscoveryClientImpl.ServiceInfoImpl();
         serviceInfo.setName("testService");
-        ServiceDetails serviceDetails = new ServiceDetails();
+        ServiceDiscoveryClientImpl.ServiceDetailsImpl serviceDetails = new ServiceDiscoveryClientImpl.ServiceDetailsImpl();
         serviceDetails.setEndpoint("http://test-service:8080");
 
         when(discoveryClient.findServiceByOperation(operation)).thenReturn(Optional.of(serviceInfo));
@@ -57,10 +56,11 @@ class ExternalServiceInvokerTest {
         )).thenReturn(mockResponse);
 
         // When
-        ResponseEntity<String> result = serviceInvoker.invokeOperation(operation, requestBody);
+        var result = serviceInvoker.invokeOperation(operation, requestBody);
 
         // Then
-        assertEquals(HttpStatus.OK, result.getStatusCode());
+        assertTrue(result.isSuccess());
+        assertEquals(200, result.getStatusCode());
         assertEquals("success", result.getBody());
 
         // Verify that the correct URL was called
@@ -83,10 +83,11 @@ class ExternalServiceInvokerTest {
         when(discoveryClient.findServiceByOperation(operation)).thenReturn(Optional.empty());
 
         // When
-        ResponseEntity<String> result = serviceInvoker.invokeOperation(operation, requestBody);
+        var result = serviceInvoker.invokeOperation(operation, requestBody);
 
         // Then
-        assertEquals(HttpStatus.NOT_FOUND, result.getStatusCode());
+        assertFalse(result.isSuccess());
+        assertEquals(404, result.getStatusCode());
         verify(restTemplate, never()).exchange(anyString(), any(HttpMethod.class), any(HttpEntity.class), any(Class.class));
     }
 
@@ -95,17 +96,18 @@ class ExternalServiceInvokerTest {
         // Given
         String operation = "testOperation";
         Object requestBody = new Object();
-        ServiceInfo serviceInfo = new ServiceInfo();
+        ServiceDiscoveryClientImpl.ServiceInfoImpl serviceInfo = new ServiceDiscoveryClientImpl.ServiceInfoImpl();
         serviceInfo.setName("testService");
 
         when(discoveryClient.findServiceByOperation(operation)).thenReturn(Optional.of(serviceInfo));
         when(discoveryClient.getServiceDetails("testService")).thenReturn(Optional.empty());
 
         // When
-        ResponseEntity<String> result = serviceInvoker.invokeOperation(operation, requestBody);
+        var result = serviceInvoker.invokeOperation(operation, requestBody);
 
         // Then
-        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, result.getStatusCode());
+        assertFalse(result.isSuccess());
+        assertEquals(500, result.getStatusCode());
         verify(restTemplate, never()).exchange(anyString(), any(HttpMethod.class), any(HttpEntity.class), any(Class.class));
     }
 
@@ -114,9 +116,9 @@ class ExternalServiceInvokerTest {
         // Given
         String operation = "testOperation";
         Object requestBody = new Object();
-        ServiceInfo serviceInfo = new ServiceInfo();
+        ServiceDiscoveryClientImpl.ServiceInfoImpl serviceInfo = new ServiceDiscoveryClientImpl.ServiceInfoImpl();
         serviceInfo.setName("testService");
-        ServiceDetails serviceDetails = new ServiceDetails();
+        ServiceDiscoveryClientImpl.ServiceDetailsImpl serviceDetails = new ServiceDiscoveryClientImpl.ServiceDetailsImpl();
         serviceDetails.setEndpoint("http://test-service:8080");
 
         when(discoveryClient.findServiceByOperation(operation)).thenReturn(Optional.of(serviceInfo));
@@ -129,18 +131,19 @@ class ExternalServiceInvokerTest {
         )).thenThrow(new RuntimeException("Connection failed"));
 
         // When
-        ResponseEntity<String> result = serviceInvoker.invokeOperation(operation, requestBody);
+        var result = serviceInvoker.invokeOperation(operation, requestBody);
 
         // Then
-        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, result.getStatusCode());
-        assertTrue(result.getBody().contains("Failed to invoke external service"));
+        assertFalse(result.isSuccess());
+        assertEquals(500, result.getStatusCode());
+        assertTrue(result.getErrorMessage().contains("Failed to invoke external service"));
     }
 
     @Test
     void healthCheck_WithHealthyService_ShouldReturnTrue() {
         // Given
         String serviceName = "testService";
-        ServiceDetails serviceDetails = new ServiceDetails();
+        ServiceDiscoveryClientImpl.ServiceDetailsImpl serviceDetails = new ServiceDiscoveryClientImpl.ServiceDetailsImpl();
         serviceDetails.setEndpoint("http://test-service:8080");
 
         when(discoveryClient.getServiceDetails(serviceName)).thenReturn(Optional.of(serviceDetails));
@@ -158,7 +161,7 @@ class ExternalServiceInvokerTest {
     void healthCheck_WithUnhealthyService_ShouldReturnFalse() {
         // Given
         String serviceName = "testService";
-        ServiceDetails serviceDetails = new ServiceDetails();
+        ServiceDiscoveryClientImpl.ServiceDetailsImpl serviceDetails = new ServiceDiscoveryClientImpl.ServiceDetailsImpl();
         serviceDetails.setEndpoint("http://test-service:8080");
 
         when(discoveryClient.getServiceDetails(serviceName)).thenReturn(Optional.of(serviceDetails));
@@ -190,7 +193,7 @@ class ExternalServiceInvokerTest {
     void healthCheck_WithRestTemplateException_ShouldReturnFalse() {
         // Given
         String serviceName = "testService";
-        ServiceDetails serviceDetails = new ServiceDetails();
+        ServiceDiscoveryClientImpl.ServiceDetailsImpl serviceDetails = new ServiceDiscoveryClientImpl.ServiceDetailsImpl();
         serviceDetails.setEndpoint("http://test-service:8080");
 
         when(discoveryClient.getServiceDetails(serviceName)).thenReturn(Optional.of(serviceDetails));

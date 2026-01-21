@@ -18,7 +18,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
@@ -27,8 +26,8 @@ import com.angrysurfer.atomic.broker.api.ServiceResponse;
 import com.angrysurfer.atomic.broker.spi.BrokerOperation;
 import com.angrysurfer.atomic.broker.spi.BrokerParam;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.angrysurfer.atomic.broker.gateway.service.ServiceDiscoveryClient;
-import com.angrysurfer.atomic.broker.gateway.service.ExternalServiceInvoker;
+import com.angrysurfer.atomic.broker.spi.ServiceDiscoveryClient;
+import com.angrysurfer.atomic.broker.spi.ExternalServiceInvoker;
 
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validator;
@@ -66,14 +65,14 @@ public class Broker {
                 req.getRequestId());
         try {
             Object bean = resolveBean(req.getService());
-            
+
             // Handle external service proxy
             if (bean instanceof ExternalServiceProxy) {
                 ExternalServiceProxy proxy = (ExternalServiceProxy) bean;
                 Object result = proxy.invokeOperation(req.getOperation(), req.getParams());
                 return ServiceResponse.ok(req.getService(), req.getOperation(), result, req.getRequestId());
             }
-            
+
             Method method = resolveMethod(bean, req.getOperation());
             Object[] args = bindArgs(method, req.getParams(), req.getRequestId());
 
@@ -138,15 +137,15 @@ public class Broker {
                 return bean;
             }
         }
-        
+
         // Check external services if discovery client is available
         if (serviceDiscoveryClient != null && externalServiceInvoker != null) {
             log.debug("Local bean not found: {}, checking external services", serviceName);
-            
+
             // For external services, return a proxy that handles calls
             return new ExternalServiceProxy(serviceName, serviceDiscoveryClient, externalServiceInvoker);
         }
-        
+
         log.error("Service bean not found: {}", serviceName);
         throw new NoSuchElementException("Service bean not found: " + serviceName);
     }
@@ -274,8 +273,8 @@ public class Broker {
         private final ExternalServiceInvoker externalServiceInvoker;
 
         public ExternalServiceProxy(String serviceName,
-                                   ServiceDiscoveryClient discoveryClient,
-                                   ExternalServiceInvoker externalServiceInvoker) {
+                ServiceDiscoveryClient discoveryClient,
+                ExternalServiceInvoker externalServiceInvoker) {
             this.serviceName = serviceName;
             this.discoveryClient = discoveryClient;
             this.externalServiceInvoker = externalServiceInvoker;
@@ -286,15 +285,15 @@ public class Broker {
          */
         public Object invokeOperation(String operation, Map<String, Object> params) {
             log.debug("Proxying call to external service: {} operation: {}", serviceName, operation);
-            
-            ResponseEntity<String> response = externalServiceInvoker.invokeOperation(operation, params);
-            
-            if (response.getStatusCode().is2xxSuccessful()) {
-                log.debug("External service call successful for {}: {}", operation, response.getStatusCode());
-                return response.getBody();
+
+            ExternalServiceInvoker.InvocationResult result = externalServiceInvoker.invokeOperation(operation, params);
+
+            if (result.isSuccess()) {
+                log.debug("External service call successful for {}: {}", operation, result.getStatusCode());
+                return result.getBody();
             } else {
-                log.warn("External service call failed for {}: {}", operation, response.getStatusCode());
-                throw new RuntimeException("External service call failed: " + response.getStatusCode());
+                log.warn("External service call failed for {}: {}", operation, result.getStatusCode());
+                throw new RuntimeException("External service call failed: " + result.getErrorMessage());
             }
         }
     }
