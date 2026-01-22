@@ -189,6 +189,16 @@ public class ExternalServiceRegistrationService {
             if (i > 0)
                 hostedServicesJson.append(",");
             hostedServicesJson.append("{\"serviceName\":\"").append(info.getServiceName()).append("\",");
+            hostedServicesJson.append("\"framework\":\"")
+                    .append(info.getFramework() != null ? info.getFramework() : "unknown").append("\",");
+            hostedServicesJson.append("\"status\":\"").append(info.getStatus() != null ? info.getStatus() : "HEALTHY")
+                    .append("\",");
+            hostedServicesJson.append("\"type\":\"").append(info.getType() != null ? info.getType() : "embedded")
+                    .append("\",");
+            hostedServicesJson.append("\"endpoint\":\"").append(info.getEndpoint() != null ? info.getEndpoint() : "")
+                    .append("\",");
+            hostedServicesJson.append("\"healthCheck\":\"")
+                    .append(info.getHealthCheck() != null ? info.getHealthCheck() : "").append("\",");
             hostedServicesJson.append("\"operations\":[");
             if (info.getOperations() != null) {
                 for (int j = 0; j < info.getOperations().size(); j++) {
@@ -260,7 +270,8 @@ public class ExternalServiceRegistrationService {
             String operations = config.getConfigValue();
             if (operations != null && operations.contains(operation)) {
                 log.debug("Found service ID {} for operation: {}", config.getServiceId(), operation);
-                Optional<com.angrysurfer.atomic.hostserver.entity.Service> serviceOpt = serviceRepository.findById(config.getServiceId());
+                Optional<com.angrysurfer.atomic.hostserver.entity.Service> serviceOpt = serviceRepository
+                        .findById(config.getServiceId());
                 return serviceOpt;
             }
         }
@@ -271,7 +282,8 @@ public class ExternalServiceRegistrationService {
 
     public Optional<Map<String, Object>> getServiceDetails(String serviceName) {
         log.debug("Getting service details for: {}", serviceName);
-        Optional<com.angrysurfer.atomic.hostserver.entity.Service> serviceOpt = serviceRepository.findByName(serviceName);
+        Optional<com.angrysurfer.atomic.hostserver.entity.Service> serviceOpt = serviceRepository
+                .findByName(serviceName);
 
         if (serviceOpt.isPresent()) {
             com.angrysurfer.atomic.hostserver.entity.Service service = serviceOpt.get();
@@ -300,13 +312,12 @@ public class ExternalServiceRegistrationService {
             }
 
             Map<String, Object> details = Map.of(
-                "serviceName", service.getName(),
-                "endpoint", baseUrl,
-                "healthCheck", service.getHealthCheckPath(),
-                "framework", frameworkName,
-                "status", service.getStatus(),
-                "operations", operationsOpt.orElse("")
-            );
+                    "serviceName", service.getName(),
+                    "endpoint", baseUrl,
+                    "healthCheck", service.getHealthCheckPath(),
+                    "framework", frameworkName,
+                    "status", service.getStatus(),
+                    "operations", operationsOpt.orElse(""));
 
             log.debug("Returning details for service: {} with endpoint: {}", serviceName, baseUrl);
             return Optional.of(details);
@@ -334,5 +345,97 @@ public class ExternalServiceRegistrationService {
 
         log.warn("Service not found for deregistration: {}", serviceName);
         return false;
+    }
+
+    /**
+     * Get all services with their hosted/embedded services.
+     * Returns a list of service maps, each including a 'hostedServices' array.
+     */
+    public List<Map<String, Object>> getAllServicesWithHosted() {
+        log.debug("Fetching all services with hosted services");
+        List<com.angrysurfer.atomic.hostserver.entity.Service> services = serviceRepository.findByStatus("ACTIVE");
+        List<Map<String, Object>> result = new java.util.ArrayList<>();
+
+        for (com.angrysurfer.atomic.hostserver.entity.Service service : services) {
+            Map<String, Object> serviceMap = new java.util.HashMap<>();
+            serviceMap.put("id", service.getId());
+            serviceMap.put("name", service.getName());
+            serviceMap.put("description", service.getDescription());
+            serviceMap.put("status", service.getStatus());
+            serviceMap.put("endpoint", service.getApiBasePath());
+            serviceMap.put("defaultPort", service.getDefaultPort());
+            serviceMap.put("version", service.getVersion());
+
+            // Get framework name
+            if (service.getFrameworkId() != null) {
+                frameworkRepository.findById(service.getFrameworkId())
+                        .ifPresent(f -> serviceMap.put("framework", f.getName()));
+            }
+
+            // Get operations
+            serviceConfigurationRepository.findByServiceAndConfigKey(service, "operations")
+                    .ifPresent(config -> serviceMap.put("operations", config.getConfigValue()));
+
+            // Get last heartbeat
+            serviceConfigurationRepository.findByServiceAndConfigKey(service, "lastHeartbeat")
+                    .ifPresent(config -> serviceMap.put("lastHeartbeat", config.getConfigValue()));
+
+            // Get hosted services
+            serviceConfigurationRepository.findByServiceAndConfigKey(service, "hostedServices")
+                    .ifPresent(config -> {
+                        try {
+                            // Parse the JSON array of hosted services
+                            com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
+                            List<Map<String, Object>> hostedServices = mapper.readValue(
+                                    config.getConfigValue(),
+                                    mapper.getTypeFactory().constructCollectionType(List.class, Map.class));
+                            serviceMap.put("hostedServices", hostedServices);
+                        } catch (Exception e) {
+                            log.warn("Failed to parse hosted services JSON for service: {}", service.getName(), e);
+                            serviceMap.put("hostedServices", java.util.Collections.emptyList());
+                        }
+                    });
+
+            result.add(serviceMap);
+        }
+
+        log.debug("Returning {} services with hosted services", result.size());
+        return result;
+    }
+
+    /**
+     * Get hosted services for a specific parent service.
+     */
+    public Optional<List<Map<String, Object>>> getHostedServicesForService(String serviceName) {
+        log.debug("Fetching hosted services for: {}", serviceName);
+        Optional<com.angrysurfer.atomic.hostserver.entity.Service> serviceOpt = serviceRepository
+                .findByName(serviceName);
+
+        if (serviceOpt.isPresent()) {
+            com.angrysurfer.atomic.hostserver.entity.Service service = serviceOpt.get();
+
+            Optional<ServiceConfiguration> configOpt = serviceConfigurationRepository
+                    .findByServiceAndConfigKey(service, "hostedServices");
+
+            if (configOpt.isPresent()) {
+                try {
+                    com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
+                    List<Map<String, Object>> hostedServices = mapper.readValue(
+                            configOpt.get().getConfigValue(),
+                            mapper.getTypeFactory().constructCollectionType(List.class, Map.class));
+                    log.debug("Found {} hosted services for: {}", hostedServices.size(), serviceName);
+                    return Optional.of(hostedServices);
+                } catch (Exception e) {
+                    log.warn("Failed to parse hosted services JSON for service: {}", serviceName, e);
+                    return Optional.of(java.util.Collections.emptyList());
+                }
+            }
+
+            log.debug("No hosted services configuration found for: {}", serviceName);
+            return Optional.of(java.util.Collections.emptyList());
+        }
+
+        log.warn("Service not found: {}", serviceName);
+        return Optional.empty();
     }
 }

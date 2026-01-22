@@ -22,5 +22,10 @@ public class ExternalServiceRegistration {
     public static class HostedServiceInfo {
         private String serviceName;
         private List<String> operations;
+        private String framework;
+        private String status;
+        private String type;
+        private String endpoint;
+        private String healthCheck;
     }
 }

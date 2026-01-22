@@ -93,6 +93,28 @@ public class RegistryController {
     }
 
     /**
+     * Get all services with their hosted/embedded services.
+     * This is the primary endpoint for the service mesh UI.
+     */
+    @GetMapping("/services/with-hosted")
+    public ResponseEntity<List<Map<String, Object>>> getAllServicesWithHosted() {
+        log.debug("Fetching all services with hosted services");
+        List<Map<String, Object>> servicesWithHosted = registrationService.getAllServicesWithHosted();
+        return ResponseEntity.ok(servicesWithHosted);
+    }
+
+    /**
+     * Get hosted services for a specific parent service.
+     */
+    @GetMapping("/services/{serviceName}/hosted")
+    public ResponseEntity<List<Map<String, Object>>> getHostedServices(@PathVariable String serviceName) {
+        log.debug("Fetching hosted services for: {}", serviceName);
+        return registrationService.getHostedServicesForService(serviceName)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    /**
      * Find service by operation name (for broker-gateway routing)
      */
     @GetMapping("/services/by-operation/{operation}")

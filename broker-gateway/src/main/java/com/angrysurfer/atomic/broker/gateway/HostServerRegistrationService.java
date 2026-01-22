@@ -61,7 +61,7 @@ public class HostServerRegistrationService {
     }
 
     @EventListener(ApplicationReadyEvent.class)
-    @Order(100)  // Run after BrokerAutoRegistration populates the in-memory registry
+    @Order(100) // Run after BrokerAutoRegistration populates the in-memory registry
     public void onStart() {
         if (!registrationEnabled) {
             log.info("Host-server registration is disabled");
@@ -74,11 +74,10 @@ public class HostServerRegistrationService {
 
         scheduler = Executors.newScheduledThreadPool(1);
         scheduler.scheduleAtFixedRate(
-            this::sendHeartbeat,
-            heartbeatInterval,
-            heartbeatInterval,
-            TimeUnit.SECONDS
-        );
+                this::sendHeartbeat,
+                heartbeatInterval,
+                heartbeatInterval,
+                TimeUnit.SECONDS);
 
         log.info("Host-server registration service started. Heartbeat interval: {}s", heartbeatInterval);
     }
@@ -95,10 +94,9 @@ public class HostServerRegistrationService {
         Map<String, Object> registration = new HashMap<>();
         registration.put("serviceName", serviceName);
         registration.put("operations", List.of(
-            "submitRequest",
-            "routeRequest",
-            "healthCheck"
-        ));
+                "submitRequest",
+                "routeRequest",
+                "healthCheck"));
         registration.put("endpoint", String.format("http://%s:%d", serviceHost, port));
         registration.put("healthCheck", String.format("http://%s:%d/api/health", serviceHost, port));
         registration.put("framework", "Spring Boot");
@@ -123,10 +121,9 @@ public class HostServerRegistrationService {
             HttpEntity<Map<String, Object>> request = new HttpEntity<>(registration, headers);
 
             ResponseEntity<Map> response = restTemplate.postForEntity(
-                hostServerUrl + "/api/registry/register",
-                request,
-                Map.class
-            );
+                    hostServerUrl + "/api/registry/register",
+                    request,
+                    Map.class);
 
             if (response.getStatusCode().is2xxSuccessful()) {
                 log.info("Successfully registered with host-server at {}", hostServerUrl);
@@ -143,11 +140,19 @@ public class HostServerRegistrationService {
         List<Map<String, Object>> hostedServices = new ArrayList<>();
         try {
             List<ServiceRegistration> registrations = registryService.getAllServices();
+            log.debug("Found {} services in local registry", registrations.size());
             for (ServiceRegistration reg : registrations) {
                 Map<String, Object> serviceInfo = new HashMap<>();
                 serviceInfo.put("serviceName", reg.getServiceName());
                 serviceInfo.put("operations", reg.getOperations());
+                serviceInfo.put("framework", "Spring Boot");
+                serviceInfo.put("status", reg.getStatus() != null ? reg.getStatus().name() : "HEALTHY");
+                serviceInfo.put("type", "embedded");
+                serviceInfo.put("endpoint", reg.getEndpoint());
+                serviceInfo.put("healthCheck", reg.getHealthCheck());
                 hostedServices.add(serviceInfo);
+                log.debug("Added hosted service: {} with {} operations",
+                        reg.getServiceName(), reg.getOperations().size());
             }
         } catch (Exception e) {
             log.warn("Could not retrieve hosted services: {}", e.getMessage());
@@ -162,10 +167,9 @@ public class HostServerRegistrationService {
             HttpEntity<String> request = new HttpEntity<>("{}", headers);
 
             ResponseEntity<Map> response = restTemplate.postForEntity(
-                hostServerUrl + "/api/registry/heartbeat/" + serviceName,
-                request,
-                Map.class
-            );
+                    hostServerUrl + "/api/registry/heartbeat/" + serviceName,
+                    request,
+                    Map.class);
 
             if (response.getStatusCode().is2xxSuccessful()) {
                 log.debug("Heartbeat sent successfully");
