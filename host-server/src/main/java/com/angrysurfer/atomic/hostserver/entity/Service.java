@@ -62,6 +62,13 @@ public class Service {
     @JoinColumn(name = "service_type_id", referencedColumnName = "id", insertable = false, updatable = false)
     private ServiceType type;
 
+    @Column(name = "component_override_id")
+    private Long componentOverrideId;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "component_override_id", referencedColumnName = "id", insertable = false, updatable = false)
+    private VisualComponent componentOverride;
+
     @Column(name = "default_port")
     private Integer defaultPort;
 

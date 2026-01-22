@@ -24,6 +24,13 @@ public class ServiceType {
     @Column(name = "active_flag")
     private Boolean activeFlag = true;
 
+    @Column(name = "default_component_id")
+    private Long defaultComponentId;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "default_component_id", referencedColumnName = "id", insertable = false, updatable = false)
+    private VisualComponent defaultComponent;
+
     // Methods needed for backward compatibility with controllers and services
     public String getDescription() {
         // This field was removed, returning null for now
