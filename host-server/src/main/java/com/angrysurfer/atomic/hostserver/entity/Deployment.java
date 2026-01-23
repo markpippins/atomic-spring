@@ -180,6 +180,26 @@ public class Deployment {
         DEVELOPMENT, STAGING, PRODUCTION, TEST
     }
 
+    public void setStartedAt(LocalDateTime startedAt) {
+        this.startedAt = startedAt;
+    }
+
+    public void setLastHealthCheck(LocalDateTime lastHealthCheck) {
+        this.lastHealthCheck = lastHealthCheck;
+    }
+
+    public Integer getPort() {
+        return port;
+    }
+
+    public String getContextPath() {
+        return contextPath;
+    }
+
+    public void setHealthCheckUrl(String healthCheckUrl) {
+        this.healthCheckUrl = healthCheckUrl;
+    }
+
     public enum HealthStatus {
         HEALTHY, UNHEALTHY, DEGRADED, UNKNOWN
     }

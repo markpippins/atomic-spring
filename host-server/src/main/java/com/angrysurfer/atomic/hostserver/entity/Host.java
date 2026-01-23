@@ -32,7 +32,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@JsonIgnoreProperties({"deployments"})
+@JsonIgnoreProperties({ "deployments" })
 public class Host {
 
     @Id
@@ -108,11 +108,13 @@ public class Host {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Host)) return false;
+        if (this == o)
+            return true;
+        if (!(o instanceof Host))
+            return false;
         Host host = (Host) o;
         return Objects.equals(id, host.id) &&
-               Objects.equals(hostname, host.hostname);
+                Objects.equals(hostname, host.hostname);
     }
 
     @Override
@@ -195,6 +197,10 @@ public class Host {
 
     public enum ServerEnvironment {
         DEVELOPMENT, STAGING, PRODUCTION, TEST
+    }
+
+    public String getHostname() {
+        return hostname;
     }
 
     public enum ServerStatus {

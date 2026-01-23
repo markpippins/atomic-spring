@@ -1,13 +1,22 @@
 package com.angrysurfer.atomic.hostserver.entity;
 
-import jakarta.persistence.*;
+import java.time.LocalDateTime;
+import java.util.Objects;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-import java.time.LocalDateTime;
-import java.util.Objects;
 
 @Entity
 @Table(name = "service_configs")
@@ -65,8 +74,10 @@ public class ServiceConfiguration {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof ServiceConfiguration)) return false;
+        if (this == o)
+            return true;
+        if (!(o instanceof ServiceConfiguration))
+            return false;
         ServiceConfiguration that = (ServiceConfiguration) o;
         return Objects.equals(id, that.id);
     }
@@ -119,5 +130,25 @@ public class ServiceConfiguration {
 
     public void setService(Service service) {
         // This field was removed, doing nothing for now
+    }
+
+    public void setConfigTypeId(Long configTypeId) {
+        this.configTypeId = configTypeId;
+    }
+
+    public void setEnvironmentId(Long environmentId) {
+        this.environmentId = environmentId;
+    }
+
+    public void setConfigKey(String configKey) {
+        this.configKey = configKey;
+    }
+
+    public void setConfigValue(String configValue) {
+        this.configValue = configValue;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 }
