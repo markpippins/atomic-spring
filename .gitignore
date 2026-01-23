@@ -803,3 +803,13 @@ host-server/target/classes/com/angrysurfer/atomic/hostserver/controller/VisualCo
 host-server/target/classes/com/angrysurfer/atomic/hostserver/entity/VisualComponent.class
 host-server/target/classes/com/angrysurfer/atomic/hostserver/repository/VisualComponentRepository.class
 host-server/target/classes/application-titanium.properties
+export-service/target/classes/application-titanium.properties
+broker-service/target/classes/application-titanium.properties
+shrapnel-data/target/classes/application-titanium.properties
+user-access-service/target/classes/application-titanium.properties
+user-service/target/classes/application-titanium.properties
+.gitignore
+login-service/target/classes/application-titanium.properties
+search-service/target/classes/application-titanium.properties
+file-service/target/classes/application-titanium.properties
+.gitignore
