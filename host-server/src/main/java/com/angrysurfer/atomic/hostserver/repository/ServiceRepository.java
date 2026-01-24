@@ -13,10 +13,18 @@ import com.angrysurfer.atomic.hostserver.entity.ServiceType;
 @Repository
 public interface ServiceRepository extends JpaRepository<Service, Long> {
     Optional<Service> findByName(String name);
+
     List<Service> findByFrameworkId(Long frameworkId);
+
     List<Service> findByType(ServiceType type);
+
     List<Service> findByStatus(String status);
 
     @Query("SELECT s FROM Service s JOIN s.serviceDependenciesAsConsumer d WHERE d.id = :serviceId")
     List<Service> findDependents(Long serviceId);
+
+    // Sub-module relationship queries
+    List<Service> findByParentServiceId(Long parentServiceId);
+
+    List<Service> findByParentServiceIdIsNull();
 }

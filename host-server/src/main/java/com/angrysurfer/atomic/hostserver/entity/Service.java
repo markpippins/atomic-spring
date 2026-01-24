@@ -32,7 +32,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonIgnoreProperties({ "deployments", "serviceConfigs", "serviceDependenciesAsConsumer",
-        "serviceDependenciesAsProvider" })
+        "serviceDependenciesAsProvider", "parentService", "subModules" })
 public class Service {
 
     @Id
@@ -65,6 +65,19 @@ public class Service {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "component_override_id", referencedColumnName = "id", insertable = false, updatable = false)
     private VisualComponent componentOverride;
+
+    // Parent service ID - null if this is a standalone/parent service
+    @Column(name = "parent_service_id")
+    private Long parentServiceId;
+
+    // Parent service relationship
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "parent_service_id", referencedColumnName = "id", insertable = false, updatable = false)
+    private Service parentService;
+
+    // Child sub-module services
+    @OneToMany(mappedBy = "parentService", fetch = FetchType.LAZY)
+    private Set<Service> subModules = new HashSet<>();
 
     @Column(name = "default_port")
     private Integer defaultPort;

@@ -85,6 +85,19 @@ public class ServiceController {
         return ResponseEntity.ok(List.of());
     }
 
+    @GetMapping("/{id}/sub-modules")
+    public ResponseEntity<List<Service>> getSubModules(@PathVariable Long id) {
+        log.info("Fetching sub-modules for service: {}", id);
+        List<Service> subModules = serviceRepository.findByParentServiceId(id);
+        return ResponseEntity.ok(subModules);
+    }
+
+    @GetMapping("/standalone")
+    public List<Service> getStandaloneServices() {
+        log.info("Fetching standalone/parent services (parentServiceId is null)");
+        return serviceRepository.findByParentServiceIdIsNull();
+    }
+
     @PostMapping
     public ResponseEntity<Service> createService(@RequestBody Service service) {
         log.info("Creating new service: {}", service.getName());

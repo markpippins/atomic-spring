@@ -20,7 +20,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.angrysurfer.atomic.hostserver.client.ServicesConsoleClient;
 import com.angrysurfer.atomic.hostserver.entity.Deployment;
+import com.angrysurfer.atomic.hostserver.entity.Service;
 import com.angrysurfer.atomic.hostserver.repository.DeploymentRepository;
+import com.angrysurfer.atomic.hostserver.repository.ServiceRepository;
 
 @RestController
 @RequestMapping("/api/deployments")
@@ -30,10 +32,13 @@ public class DeploymentController {
     private static final Logger log = LoggerFactory.getLogger(DeploymentController.class);
     private final ServicesConsoleClient client;
     private final DeploymentRepository deploymentRepository;
+    private final ServiceRepository serviceRepository;
 
-    public DeploymentController(ServicesConsoleClient client, DeploymentRepository deploymentRepository) {
+    public DeploymentController(ServicesConsoleClient client, DeploymentRepository deploymentRepository,
+            ServiceRepository serviceRepository) {
         this.client = client;
         this.deploymentRepository = deploymentRepository;
+        this.serviceRepository = serviceRepository;
     }
 
     @GetMapping
@@ -65,6 +70,31 @@ public class DeploymentController {
 
         Deployment savedDeployment = deploymentRepository.save(deployment);
         log.info("Successfully created deployment with ID: {}", savedDeployment.getId());
+
+        // Check if this service has sub-modules and deploy them automatically
+        List<Service> subModules = serviceRepository.findByParentServiceId(deployment.getServiceId());
+        if (!subModules.isEmpty()) {
+            log.info("Service {} has {} sub-modules, creating deployments for them", deployment.getServiceId(),
+                    subModules.size());
+            for (Service subModule : subModules) {
+                Deployment subDeployment = new Deployment();
+                subDeployment.setServiceId(subModule.getId());
+                subDeployment.setServerId(deployment.getServerId());
+                subDeployment.setEnvironmentId(deployment.getEnvironmentId());
+                subDeployment.setVersion(deployment.getVersion());
+                subDeployment.setStatus(deployment.getStatus());
+                subDeployment.setPort(deployment.getPort()); // Sub-modules share the same port (bundled)
+                subDeployment.setContextPath(deployment.getContextPath());
+                subDeployment.setHealthCheckUrl(deployment.getHealthCheckUrl());
+                subDeployment.setHealthStatus(deployment.getHealthStatus());
+                subDeployment.setActiveFlag(true);
+
+                Deployment savedSubDeployment = deploymentRepository.save(subDeployment);
+                log.info("Created sub-module deployment for service {} with ID: {}", subModule.getName(),
+                        savedSubDeployment.getId());
+            }
+        }
+
         return ResponseEntity.ok(savedDeployment);
     }
 
@@ -127,6 +157,26 @@ public class DeploymentController {
         if (deploymentOpt.isEmpty()) {
             log.warn("Deployment with ID {} not found", id);
             return ResponseEntity.notFound().build();
+        }
+
+        Deployment deployment = deploymentOpt.get();
+
+        // Check if this service has sub-modules and delete their deployments
+        List<Service> subModules = serviceRepository.findByParentServiceId(deployment.getServiceId());
+        if (!subModules.isEmpty()) {
+            log.info("Service {} has {} sub-modules, deleting their deployments", deployment.getServiceId(),
+                    subModules.size());
+            for (Service subModule : subModules) {
+                List<Deployment> subDeployments = deploymentRepository.findByServiceId(subModule.getId());
+                for (Deployment subDeployment : subDeployments) {
+                    // Only delete sub-deployments on the same server
+                    if (subDeployment.getServerId().equals(deployment.getServerId())) {
+                        deploymentRepository.deleteById(subDeployment.getId());
+                        log.info("Deleted sub-module deployment for service {} with ID: {}", subModule.getName(),
+                                subDeployment.getId());
+                    }
+                }
+            }
         }
 
         deploymentRepository.deleteById(id);
