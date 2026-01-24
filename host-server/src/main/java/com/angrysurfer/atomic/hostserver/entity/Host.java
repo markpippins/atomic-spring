@@ -62,6 +62,10 @@ public class Host {
     @Column(name = "operating_system_id", nullable = false)
     private Long operatingSystemId;
 
+    @ManyToOne
+    @JoinColumn(name = "operating_system_id", referencedColumnName = "id", insertable = false, updatable = false)
+    private OperatingSystem operatingSystem;
+
     @Column(name = "cpu_cores")
     private Integer cpuCores;
 

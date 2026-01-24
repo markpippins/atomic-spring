@@ -813,3 +813,10 @@ login-service/target/classes/application-titanium.properties
 search-service/target/classes/application-titanium.properties
 file-service/target/classes/application-titanium.properties
 .gitignore
+host-server/target/classes/data-seed.sql
+host-server/target/classes/com/angrysurfer/atomic/hostserver/controller/EnvironmentTypeController.class
+host-server/target/classes/com/angrysurfer/atomic/hostserver/controller/OperatingSystemController.class
+host-server/target/classes/com/angrysurfer/atomic/hostserver/entity/OperatingSystem.class
+host-server/target/classes/com/angrysurfer/atomic/hostserver/repository/OperatingSystemRepository.class
+user-service/target/test-classes/com/angrysurfer/atomic/user/TestUserServiceApplication.class
+.gitignore

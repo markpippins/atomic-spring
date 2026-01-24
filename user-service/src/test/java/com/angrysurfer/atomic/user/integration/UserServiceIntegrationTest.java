@@ -17,12 +17,14 @@ import org.testcontainers.containers.MongoDBContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
+import com.angrysurfer.atomic.user.TestUserServiceApplication;
+
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(SpringExtension.class)
-@SpringBootTest
+@SpringBootTest(classes = TestUserServiceApplication.class)
 @Testcontainers
 class UserServiceIntegrationTest {
 
