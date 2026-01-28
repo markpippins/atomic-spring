@@ -10,8 +10,6 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -21,17 +19,9 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Entity
 @Table(name = "servers")
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
 @JsonIgnoreProperties({ "deployments" })
 public class Host {
 
@@ -99,6 +89,195 @@ public class Host {
     @OneToMany(mappedBy = "server", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Deployment> deployments = new HashSet<>();
 
+    public Host() {
+    }
+
+    public Host(Long id, String hostname, String ipAddress, Long serverTypeId, ServerType type, Long environmentTypeId,
+            EnvironmentType environmentType, Long operatingSystemId, OperatingSystem operatingSystem, Integer cpuCores,
+            String memory, String disk, String status, String region, String cloudProvider, String description,
+            Boolean activeFlag, LocalDateTime createdAt, LocalDateTime updatedAt, Set<Deployment> deployments) {
+        this.id = id;
+        this.hostname = hostname;
+        this.ipAddress = ipAddress;
+        this.serverTypeId = serverTypeId;
+        this.type = type;
+        this.environmentTypeId = environmentTypeId;
+        this.environmentType = environmentType;
+        this.operatingSystemId = operatingSystemId;
+        this.operatingSystem = operatingSystem;
+        this.cpuCores = cpuCores;
+        this.memory = memory;
+        this.disk = disk;
+        this.status = status;
+        this.region = region;
+        this.cloudProvider = cloudProvider;
+        this.description = description;
+        this.activeFlag = activeFlag;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
+        this.deployments = deployments;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getHostname() {
+        return hostname;
+    }
+
+    public void setHostname(String hostname) {
+        this.hostname = hostname;
+    }
+
+    public String getIpAddress() {
+        return ipAddress;
+    }
+
+    public void setIpAddress(String ipAddress) {
+        this.ipAddress = ipAddress;
+    }
+
+    public Long getServerTypeId() {
+        return serverTypeId;
+    }
+
+    public void setServerTypeId(Long serverTypeId) {
+        this.serverTypeId = serverTypeId;
+    }
+
+    public ServerType getType() {
+        return type;
+    }
+
+    public void setType(ServerType type) {
+        this.type = type;
+    }
+
+    public Long getEnvironmentTypeId() {
+        return environmentTypeId;
+    }
+
+    public void setEnvironmentTypeId(Long environmentTypeId) {
+        this.environmentTypeId = environmentTypeId;
+    }
+
+    public EnvironmentType getEnvironmentType() {
+        return environmentType;
+    }
+
+    public void setEnvironmentType(EnvironmentType environmentType) {
+        this.environmentType = environmentType;
+    }
+
+    public Long getOperatingSystemId() {
+        return operatingSystemId;
+    }
+
+    public void setOperatingSystemId(Long operatingSystemId) {
+        this.operatingSystemId = operatingSystemId;
+    }
+
+    public OperatingSystem getOperatingSystem() {
+        return operatingSystem;
+    }
+
+    public void setOperatingSystem(OperatingSystem operatingSystem) {
+        this.operatingSystem = operatingSystem;
+    }
+
+    public Integer getCpuCores() {
+        return cpuCores;
+    }
+
+    public void setCpuCores(Integer cpuCores) {
+        this.cpuCores = cpuCores;
+    }
+
+    public String getMemory() {
+        return memory;
+    }
+
+    public void setMemory(String memory) {
+        this.memory = memory;
+    }
+
+    public String getDisk() {
+        return disk;
+    }
+
+    public void setDisk(String disk) {
+        this.disk = disk;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public String getRegion() {
+        return region;
+    }
+
+    public void setRegion(String region) {
+        this.region = region;
+    }
+
+    public String getCloudProvider() {
+        return cloudProvider;
+    }
+
+    public void setCloudProvider(String cloudProvider) {
+        this.cloudProvider = cloudProvider;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public Boolean getActiveFlag() {
+        return activeFlag;
+    }
+
+    public void setActiveFlag(Boolean activeFlag) {
+        this.activeFlag = activeFlag;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
+    public Set<Deployment> getDeployments() {
+        return deployments;
+    }
+
+    public void setDeployments(Set<Deployment> deployments) {
+        this.deployments = deployments;
+    }
+
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
@@ -124,90 +303,5 @@ public class Host {
     @Override
     public int hashCode() {
         return Objects.hash(id, hostname);
-    }
-
-    // Methods needed for backward compatibility with controllers and services
-    public ServerType getType() {
-        // This field was removed, returning null for now
-        return null;
-    }
-
-    public void setType(ServerType type) {
-        // This field was removed, doing nothing for now
-    }
-
-    public String getEnvironment() {
-        // This field was removed, returning null for now
-        return null;
-    }
-
-    public void setEnvironment(String environment) {
-        // This field was removed, doing nothing for now
-    }
-
-    public String getOperatingSystem() {
-        // This field was removed, returning null for now
-        return null;
-    }
-
-    public void setOperatingSystem(String operatingSystem) {
-        // This field was removed, doing nothing for now
-    }
-
-    public Long getMemoryMb() {
-        // This field was removed, returning null for now
-        return null;
-    }
-
-    public void setMemoryMb(Long memoryMb) {
-        // This field was removed, doing nothing for now
-    }
-
-    public Long getDiskGb() {
-        // This field was removed, returning null for now
-        return null;
-    }
-
-    public void setDiskGb(Long diskGb) {
-        // This field was removed, doing nothing for now
-    }
-
-    public String getRegion() {
-        // This field was removed, returning null for now
-        return null;
-    }
-
-    public void setRegion(String region) {
-        // This field was removed, doing nothing for now
-    }
-
-    public String getCloudProvider() {
-        // This field was removed, returning null for now
-        return null;
-    }
-
-    public void setCloudProvider(String cloudProvider) {
-        // This field was removed, doing nothing for now
-    }
-
-    public String getStatus() {
-        // This field was removed, returning null for now
-        return null;
-    }
-
-    public void setStatus(String status) {
-        // This field was removed, doing nothing for now
-    }
-
-    public enum ServerEnvironment {
-        DEVELOPMENT, STAGING, PRODUCTION, TEST
-    }
-
-    public String getHostname() {
-        return hostname;
-    }
-
-    public enum ServerStatus {
-        ACTIVE, INACTIVE, MAINTENANCE, DECOMMISSIONED
     }
 }

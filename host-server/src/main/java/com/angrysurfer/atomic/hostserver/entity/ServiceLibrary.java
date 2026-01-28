@@ -16,10 +16,6 @@ import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 /**
  * Join entity linking Services to Libraries with version information.
@@ -28,12 +24,8 @@ import lombok.Setter;
  */
 @Entity
 @Table(name = "service_libraries", uniqueConstraints = {
-    @UniqueConstraint(columnNames = {"service_id", "library_id"})
+        @UniqueConstraint(columnNames = { "service_id", "library_id" })
 })
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
 public class ServiceLibrary {
 
     @Id
@@ -98,6 +90,140 @@ public class ServiceLibrary {
     @Column
     private LocalDateTime updatedAt;
 
+    public ServiceLibrary() {
+    }
+
+    public ServiceLibrary(Long id, Long serviceId, Service service, Long libraryId, Library library, String version,
+            String versionConstraint, DependencyScope scope, Boolean isDirect, Boolean isDevDependency, String notes,
+            Boolean activeFlag, LocalDateTime createdAt, LocalDateTime updatedAt) {
+        this.id = id;
+        this.serviceId = serviceId;
+        this.service = service;
+        this.libraryId = libraryId;
+        this.library = library;
+        this.version = version;
+        this.versionConstraint = versionConstraint;
+        this.scope = scope;
+        this.isDirect = isDirect;
+        this.isDevDependency = isDevDependency;
+        this.notes = notes;
+        this.activeFlag = activeFlag;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Long getServiceId() {
+        return serviceId;
+    }
+
+    public void setServiceId(Long serviceId) {
+        this.serviceId = serviceId;
+    }
+
+    public Service getService() {
+        return service;
+    }
+
+    public void setService(Service service) {
+        this.service = service;
+    }
+
+    public Long getLibraryId() {
+        return libraryId;
+    }
+
+    public void setLibraryId(Long libraryId) {
+        this.libraryId = libraryId;
+    }
+
+    public Library getLibrary() {
+        return library;
+    }
+
+    public void setLibrary(Library library) {
+        this.library = library;
+    }
+
+    public String getVersion() {
+        return version;
+    }
+
+    public void setVersion(String version) {
+        this.version = version;
+    }
+
+    public String getVersionConstraint() {
+        return versionConstraint;
+    }
+
+    public void setVersionConstraint(String versionConstraint) {
+        this.versionConstraint = versionConstraint;
+    }
+
+    public DependencyScope getScope() {
+        return scope;
+    }
+
+    public void setScope(DependencyScope scope) {
+        this.scope = scope;
+    }
+
+    public Boolean getIsDirect() {
+        return isDirect;
+    }
+
+    public void setIsDirect(Boolean isDirect) {
+        this.isDirect = isDirect;
+    }
+
+    public Boolean getIsDevDependency() {
+        return isDevDependency;
+    }
+
+    public void setIsDevDependency(Boolean isDevDependency) {
+        this.isDevDependency = isDevDependency;
+    }
+
+    public String getNotes() {
+        return notes;
+    }
+
+    public void setNotes(String notes) {
+        this.notes = notes;
+    }
+
+    public Boolean getActiveFlag() {
+        return activeFlag;
+    }
+
+    public void setActiveFlag(Boolean activeFlag) {
+        this.activeFlag = activeFlag;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
@@ -111,8 +237,10 @@ public class ServiceLibrary {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof ServiceLibrary)) return false;
+        if (this == o)
+            return true;
+        if (!(o instanceof ServiceLibrary))
+            return false;
         ServiceLibrary that = (ServiceLibrary) o;
         return Objects.equals(id, that.id);
     }
@@ -126,10 +254,10 @@ public class ServiceLibrary {
      * Dependency scope enum
      */
     public enum DependencyScope {
-        COMPILE,    // Required at compile time (default)
-        RUNTIME,    // Only needed at runtime
-        TEST,       // Only needed for testing
-        PROVIDED,   // Provided by the container/runtime
-        OPTIONAL    // Optional dependency
+        COMPILE, // Required at compile time (default)
+        RUNTIME, // Only needed at runtime
+        TEST, // Only needed for testing
+        PROVIDED, // Provided by the container/runtime
+        OPTIONAL // Optional dependency
     }
 }

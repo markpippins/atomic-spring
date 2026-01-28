@@ -1,17 +1,9 @@
 package com.angrysurfer.atomic.hostserver.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Entity
 @Table(name = "languages")
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
 public class FrameworkLanguage {
 
     @Id
@@ -36,13 +28,73 @@ public class FrameworkLanguage {
     @Column(name = "active_flag")
     private Boolean activeFlag = true;
 
-    // Methods needed for backward compatibility with controllers and services
+    public FrameworkLanguage() {
+    }
+
+    public FrameworkLanguage(Long id, String name, String description, String url, String currentVersion,
+            String ltsVersion, Boolean activeFlag) {
+        this.id = id;
+        this.name = name;
+        this.description = description;
+        this.url = url;
+        this.currentVersion = currentVersion;
+        this.ltsVersion = ltsVersion;
+        this.activeFlag = activeFlag;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
     public String getDescription() {
-        // This field was removed, returning null for now
-        return null;
+        return description;
     }
 
     public void setDescription(String description) {
-        // This field was removed, doing nothing for now
+        this.description = description;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
+
+    public String getCurrentVersion() {
+        return currentVersion;
+    }
+
+    public void setCurrentVersion(String currentVersion) {
+        this.currentVersion = currentVersion;
+    }
+
+    public String getLtsVersion() {
+        return ltsVersion;
+    }
+
+    public void setLtsVersion(String ltsVersion) {
+        this.ltsVersion = ltsVersion;
+    }
+
+    public Boolean getActiveFlag() {
+        return activeFlag;
+    }
+
+    public void setActiveFlag(Boolean activeFlag) {
+        this.activeFlag = activeFlag;
     }
 }

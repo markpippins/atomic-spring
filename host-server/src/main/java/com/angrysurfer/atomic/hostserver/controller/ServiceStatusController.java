@@ -32,8 +32,6 @@ import com.angrysurfer.atomic.hostserver.entity.Deployment;
 import com.angrysurfer.atomic.hostserver.repository.DeploymentRepository;
 import com.angrysurfer.atomic.hostserver.service.ServiceStatusCacheService;
 
-import lombok.RequiredArgsConstructor;
-
 /**
  * REST controller for real-time service status data.
  * Provides fast, cached data for the 3D visualizer.
@@ -42,7 +40,6 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping("/api/status")
 @CrossOrigin(origins = "*")
-@RequiredArgsConstructor
 public class ServiceStatusController {
 
     private static final Logger log = LoggerFactory.getLogger(ServiceStatusController.class);
@@ -53,6 +50,11 @@ public class ServiceStatusController {
     private final HttpClient httpClient = HttpClient.newBuilder()
             .connectTimeout(Duration.ofSeconds(3))
             .build();
+
+    public ServiceStatusController(ServiceStatusCacheService cacheService, DeploymentRepository deploymentRepository) {
+        this.cacheService = cacheService;
+        this.deploymentRepository = deploymentRepository;
+    }
 
     /**
      * Get all service statuses.

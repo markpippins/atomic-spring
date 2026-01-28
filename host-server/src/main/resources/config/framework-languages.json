@@ -58,5 +58,9 @@
     {
         "name": "Scala",
         "description": "Scala Programming Language"
+    },
+    {
+        "name": "None",
+        "description": "None / Unspecified"
     }
 ]

@@ -153,7 +153,7 @@
         "url": "https://flask.palletsprojects.com"
     },
     {
-        "name": "Gin",
+        "name": "Go",
         "description": "High-performance HTTP web framework for Go",
         "category": "GO_GIN",
         "language": "Go",

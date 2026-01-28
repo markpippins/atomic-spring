@@ -78,5 +78,9 @@
     {
         "name": "OTHER",
         "description": "Other libraries"
+    },
+    {
+        "name": "None",
+        "description": "None / Unspecified"
     }
 ]

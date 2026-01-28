@@ -18,17 +18,9 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Entity
 @Table(name = "frameworks")
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
 @JsonIgnoreProperties({ "services" })
 public class Framework {
 
@@ -42,8 +34,12 @@ public class Framework {
     @Column(length = 1000)
     private String description;
 
-    @Column(name = "vendor_id", nullable = false)
+    @Column(name = "vendor_id")
     private Long vendorId;
+
+    @ManyToOne
+    @JoinColumn(name = "vendor_id", referencedColumnName = "id", insertable = false, updatable = false)
+    private FrameworkVendor vendor;
 
     @Column(name = "category_id", nullable = false)
     private Long categoryId;
@@ -79,6 +75,158 @@ public class Framework {
 
     @OneToMany(mappedBy = "framework")
     private Set<Service> services = new HashSet<>();
+
+    public Framework() {
+    }
+
+    public Framework(Long id, String name, String description, Long vendorId, Long categoryId,
+            FrameworkCategory category, Long languageId, FrameworkLanguage language, String currentVersion,
+            String ltsVersion, String url, Boolean activeFlag, LocalDateTime createdAt, LocalDateTime updatedAt,
+            Set<Service> services) {
+        this.id = id;
+        this.name = name;
+        this.description = description;
+        this.vendorId = vendorId;
+        this.categoryId = categoryId;
+        this.category = category;
+        this.languageId = languageId;
+        this.language = language;
+        this.currentVersion = currentVersion;
+        this.ltsVersion = ltsVersion;
+        this.url = url;
+        this.activeFlag = activeFlag;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
+        this.services = services;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public Long getVendorId() {
+        return vendorId;
+    }
+
+    public void setVendorId(Long vendorId) {
+        this.vendorId = vendorId;
+    }
+
+    public FrameworkVendor getVendor() {
+        return vendor;
+    }
+
+    public void setVendor(FrameworkVendor vendor) {
+        this.vendor = vendor;
+    }
+
+    public Long getCategoryId() {
+        return categoryId;
+    }
+
+    public void setCategoryId(Long categoryId) {
+        this.categoryId = categoryId;
+    }
+
+    public FrameworkCategory getCategory() {
+        return category;
+    }
+
+    public void setCategory(FrameworkCategory category) {
+        this.category = category;
+    }
+
+    public Long getLanguageId() {
+        return languageId;
+    }
+
+    public void setLanguageId(Long languageId) {
+        this.languageId = languageId;
+    }
+
+    public FrameworkLanguage getLanguage() {
+        return language;
+    }
+
+    public void setLanguage(FrameworkLanguage language) {
+        this.language = language;
+    }
+
+    public String getCurrentVersion() {
+        return currentVersion;
+    }
+
+    public void setCurrentVersion(String currentVersion) {
+        this.currentVersion = currentVersion;
+    }
+
+    public String getLtsVersion() {
+        return ltsVersion;
+    }
+
+    public void setLtsVersion(String ltsVersion) {
+        this.ltsVersion = ltsVersion;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
+
+    public Boolean getActiveFlag() {
+        return activeFlag;
+    }
+
+    public void setActiveFlag(Boolean activeFlag) {
+        this.activeFlag = activeFlag;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
+    public Set<Service> getServices() {
+        return services;
+    }
+
+    public void setServices(Set<Service> services) {
+        this.services = services;
+    }
 
     @PrePersist
     protected void onCreate() {

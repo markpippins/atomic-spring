@@ -38,5 +38,9 @@
   {
     "name": "BACKGROUND_JOB",
     "description": "Background Job / Worker"
+  },
+  {
+    "name": "None",
+    "description": "None / Unspecified"
   }
 ]

@@ -21,14 +21,11 @@ import com.angrysurfer.atomic.hostserver.dto.ServiceStatus.HealthState;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import lombok.RequiredArgsConstructor;
-
 /**
  * Service for managing real-time service status in Redis.
  * Provides caching and pub/sub capabilities for the 3D visualizer.
  */
 @Service
-@RequiredArgsConstructor
 public class ServiceStatusCacheService {
 
     private static final Logger log = LoggerFactory.getLogger(ServiceStatusCacheService.class);
@@ -57,6 +54,14 @@ public class ServiceStatusCacheService {
 
     // Flag to track Redis availability
     private volatile boolean redisAvailable = true;
+
+    public ServiceStatusCacheService(RedisTemplate<String, Object> redisTemplate,
+            StringRedisTemplate stringRedisTemplate,
+            ObjectMapper objectMapper) {
+        this.redisTemplate = redisTemplate;
+        this.stringRedisTemplate = stringRedisTemplate;
+        this.objectMapper = objectMapper;
+    }
 
     /**
      * Update service status in Redis cache

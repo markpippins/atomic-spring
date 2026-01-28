@@ -8,19 +8,20 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
-import lombok.RequiredArgsConstructor;
-
 /**
  * Scheduled tasks for maintaining service status and Redis health.
  */
 @Service
 @EnableScheduling
-@RequiredArgsConstructor
 public class ServiceStatusScheduler {
 
     private static final Logger log = LoggerFactory.getLogger(ServiceStatusScheduler.class);
 
     private final ServiceStatusCacheService cacheService;
+
+    public ServiceStatusScheduler(ServiceStatusCacheService cacheService) {
+        this.cacheService = cacheService;
+    }
 
     /**
      * Check for stale services and mark them as offline.

@@ -16,21 +16,14 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 /**
  * Represents a library category for organizing libraries
- * Examples: UI Components, Utilities, ORM, Validation, Animation, State Management
+ * Examples: UI Components, Utilities, ORM, Validation, Animation, State
+ * Management
  */
 @Entity
 @Table(name = "library_categories")
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
 @JsonIgnoreProperties({ "libraries" })
 public class LibraryCategory {
 
@@ -56,6 +49,76 @@ public class LibraryCategory {
     @OneToMany(mappedBy = "category")
     private Set<Library> libraries = new HashSet<>();
 
+    public LibraryCategory() {
+    }
+
+    public LibraryCategory(Long id, String name, String description, Boolean activeFlag, LocalDateTime createdAt,
+            LocalDateTime updatedAt, Set<Library> libraries) {
+        this.id = id;
+        this.name = name;
+        this.description = description;
+        this.activeFlag = activeFlag;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
+        this.libraries = libraries;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public Boolean getActiveFlag() {
+        return activeFlag;
+    }
+
+    public void setActiveFlag(Boolean activeFlag) {
+        this.activeFlag = activeFlag;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
+    public Set<Library> getLibraries() {
+        return libraries;
+    }
+
+    public void setLibraries(Set<Library> libraries) {
+        this.libraries = libraries;
+    }
+
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
@@ -69,8 +132,10 @@ public class LibraryCategory {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof LibraryCategory)) return false;
+        if (this == o)
+            return true;
+        if (!(o instanceof LibraryCategory))
+            return false;
         LibraryCategory that = (LibraryCategory) o;
         return Objects.equals(id, that.id) &&
                 Objects.equals(name, that.name);

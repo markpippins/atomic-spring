@@ -29,8 +29,6 @@ import com.angrysurfer.atomic.hostserver.repository.ServerTypeRepository;
 import com.angrysurfer.atomic.hostserver.repository.ServiceRepository;
 import com.angrysurfer.atomic.hostserver.repository.ServiceTypeRepository;
 
-import lombok.RequiredArgsConstructor;
-
 /**
  * Service responsible for warming caches on application startup and
  * periodically.
@@ -38,7 +36,6 @@ import lombok.RequiredArgsConstructor;
  */
 @Service
 @EnableScheduling
-@RequiredArgsConstructor
 public class CacheWarmingService {
 
     private static final Logger log = LoggerFactory.getLogger(CacheWarmingService.class);
@@ -57,6 +54,28 @@ public class CacheWarmingService {
     private final DeploymentRepository deploymentRepository;
 
     private final CacheManager cacheManager;
+
+    public CacheWarmingService(FrameworkRepository frameworkRepository,
+            FrameworkCategoryRepository frameworkCategoryRepository,
+            FrameworkLanguageRepository frameworkLanguageRepository,
+            ServiceTypeRepository serviceTypeRepository,
+            ServerTypeRepository serverTypeRepository,
+            EnvironmentTypeRepository environmentTypeRepository,
+            LibraryCategoryRepository libraryCategoryRepository,
+            ServiceRepository serviceRepository,
+            DeploymentRepository deploymentRepository,
+            CacheManager cacheManager) {
+        this.frameworkRepository = frameworkRepository;
+        this.frameworkCategoryRepository = frameworkCategoryRepository;
+        this.frameworkLanguageRepository = frameworkLanguageRepository;
+        this.serviceTypeRepository = serviceTypeRepository;
+        this.serverTypeRepository = serverTypeRepository;
+        this.environmentTypeRepository = environmentTypeRepository;
+        this.libraryCategoryRepository = libraryCategoryRepository;
+        this.serviceRepository = serviceRepository;
+        this.deploymentRepository = deploymentRepository;
+        this.cacheManager = cacheManager;
+    }
 
     /**
      * Warm static lookup caches on application startup.

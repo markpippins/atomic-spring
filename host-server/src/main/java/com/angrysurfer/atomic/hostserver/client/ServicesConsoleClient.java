@@ -2,24 +2,27 @@ package com.angrysurfer.atomic.hostserver.client;
 
 import com.angrysurfer.atomic.hostserver.entity.*;
 import com.angrysurfer.atomic.hostserver.repository.*;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
- * Client for accessing services-console-backend data directly from the shared database.
+ * Client for accessing services-console-backend data directly from the shared
+ * database.
  *
- * NOTE: This client now accesses data directly from the database since both services
- * share the same database. This replaces the previous HTTP-based synchronization.
+ * NOTE: This client now accesses data directly from the database since both
+ * services
+ * share the same database. This replaces the previous HTTP-based
+ * synchronization.
  */
 @Service
-@Slf4j
 public class ServicesConsoleClient {
+
+    private static final Logger log = LoggerFactory.getLogger(ServicesConsoleClient.class);
 
     private final ServiceRepository serviceRepository;
     private final FrameworkRepository frameworkRepository;

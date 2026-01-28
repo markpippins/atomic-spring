@@ -3,8 +3,8 @@ package com.angrysurfer.atomic.hostserver.entity;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "categories")
-public class FrameworkCategory {
+@Table(name = "vendors")
+public class FrameworkVendor {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -13,15 +13,19 @@ public class FrameworkCategory {
     @Column(nullable = false)
     private String name;
 
+    @Column(length = 1000)
+    private String description;
+
     @Column(name = "active_flag")
     private Boolean activeFlag = true;
 
-    public FrameworkCategory() {
+    public FrameworkVendor() {
     }
 
-    public FrameworkCategory(Long id, String name, Boolean activeFlag) {
+    public FrameworkVendor(Long id, String name, String description, Boolean activeFlag) {
         this.id = id;
         this.name = name;
+        this.description = description;
         this.activeFlag = activeFlag;
     }
 
@@ -41,21 +45,19 @@ public class FrameworkCategory {
         this.name = name;
     }
 
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
     public Boolean getActiveFlag() {
         return activeFlag;
     }
 
     public void setActiveFlag(Boolean activeFlag) {
         this.activeFlag = activeFlag;
-    }
-
-    // Methods needed for backward compatibility with controllers and services
-    public String getDescription() {
-        // This field was removed, returning null for now
-        return null;
-    }
-
-    public void setDescription(String description) {
-        // This field was removed, doing nothing for now
     }
 }

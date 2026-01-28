@@ -13,17 +13,9 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Entity
 @Table(name = "service_configs")
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
 public class ServiceConfiguration {
 
     @Id
@@ -60,6 +52,113 @@ public class ServiceConfiguration {
 
     @Column
     private LocalDateTime updatedAt;
+
+    public ServiceConfiguration() {
+    }
+
+    public ServiceConfiguration(Long id, Long serviceId, Service service, Long configTypeId, String description,
+            String configKey, String configValue, Long environmentId, Boolean activeFlag, LocalDateTime createdAt,
+            LocalDateTime updatedAt) {
+        this.id = id;
+        this.serviceId = serviceId;
+        this.service = service;
+        this.configTypeId = configTypeId;
+        this.description = description;
+        this.configKey = configKey;
+        this.configValue = configValue;
+        this.environmentId = environmentId;
+        this.activeFlag = activeFlag;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Long getServiceId() {
+        return serviceId;
+    }
+
+    public void setServiceId(Long serviceId) {
+        this.serviceId = serviceId;
+    }
+
+    public Service getService() {
+        return service;
+    }
+
+    public void setService(Service service) {
+        this.service = service;
+    }
+
+    public Long getConfigTypeId() {
+        return configTypeId;
+    }
+
+    public void setConfigTypeId(Long configTypeId) {
+        this.configTypeId = configTypeId;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getConfigKey() {
+        return configKey;
+    }
+
+    public void setConfigKey(String configKey) {
+        this.configKey = configKey;
+    }
+
+    public String getConfigValue() {
+        return configValue;
+    }
+
+    public void setConfigValue(String configValue) {
+        this.configValue = configValue;
+    }
+
+    public Long getEnvironmentId() {
+        return environmentId;
+    }
+
+    public void setEnvironmentId(Long environmentId) {
+        this.environmentId = environmentId;
+    }
+
+    public Boolean getActiveFlag() {
+        return activeFlag;
+    }
+
+    public void setActiveFlag(Boolean activeFlag) {
+        this.activeFlag = activeFlag;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
+    }
 
     @PrePersist
     protected void onCreate() {
@@ -121,34 +220,5 @@ public class ServiceConfiguration {
 
     public void setIsSecret(Boolean isSecret) {
         // This field was removed, doing nothing for now
-    }
-
-    public Service getService() {
-        // This field was removed, returning null for now
-        return null;
-    }
-
-    public void setService(Service service) {
-        // This field was removed, doing nothing for now
-    }
-
-    public void setConfigTypeId(Long configTypeId) {
-        this.configTypeId = configTypeId;
-    }
-
-    public void setEnvironmentId(Long environmentId) {
-        this.environmentId = environmentId;
-    }
-
-    public void setConfigKey(String configKey) {
-        this.configKey = configKey;
-    }
-
-    public void setConfigValue(String configValue) {
-        this.configValue = configValue;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
     }
 }

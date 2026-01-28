@@ -14,5 +14,9 @@
   {
     "name": "CLOUD",
     "description": "Cloud Instance"
+  },
+  {
+    "name": "None",
+    "description": "None / Unspecified"
   }
 ]

@@ -20,17 +20,9 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Entity
 @Table(name = "services")
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
 @JsonIgnoreProperties({ "deployments", "serviceConfigs", "serviceDependenciesAsConsumer",
         "serviceDependenciesAsProvider", "parentService", "subModules" })
 public class Service {
@@ -117,6 +109,234 @@ public class Service {
     @OneToMany(mappedBy = "targetService")
     private Set<ServiceDependency> serviceDependenciesAsProvider = new HashSet<>();
 
+    public Service() {
+    }
+
+    public Service(Long id, String name, String description, Long frameworkId, Framework framework, Long serviceTypeId,
+            ServiceType type, Long componentOverrideId, VisualComponent componentOverride, Long parentServiceId,
+            Service parentService, Set<Service> subModules, Integer defaultPort, String apiBasePath,
+            String repositoryUrl, String version, String status, Boolean activeFlag, LocalDateTime createdAt,
+            LocalDateTime updatedAt, Set<Deployment> deployments, Set<ServiceConfiguration> serviceConfigs,
+            Set<ServiceDependency> serviceDependenciesAsConsumer,
+            Set<ServiceDependency> serviceDependenciesAsProvider) {
+        this.id = id;
+        this.name = name;
+        this.description = description;
+        this.frameworkId = frameworkId;
+        this.framework = framework;
+        this.serviceTypeId = serviceTypeId;
+        this.type = type;
+        this.componentOverrideId = componentOverrideId;
+        this.componentOverride = componentOverride;
+        this.parentServiceId = parentServiceId;
+        this.parentService = parentService;
+        this.subModules = subModules;
+        this.defaultPort = defaultPort;
+        this.apiBasePath = apiBasePath;
+        this.repositoryUrl = repositoryUrl;
+        this.version = version;
+        this.status = status;
+        this.activeFlag = activeFlag;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
+        this.deployments = deployments;
+        this.serviceConfigs = serviceConfigs;
+        this.serviceDependenciesAsConsumer = serviceDependenciesAsConsumer;
+        this.serviceDependenciesAsProvider = serviceDependenciesAsProvider;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public Long getFrameworkId() {
+        return frameworkId;
+    }
+
+    public void setFrameworkId(Long frameworkId) {
+        this.frameworkId = frameworkId;
+    }
+
+    public Framework getFramework() {
+        return framework;
+    }
+
+    public void setFramework(Framework framework) {
+        this.framework = framework;
+    }
+
+    public Long getServiceTypeId() {
+        return serviceTypeId;
+    }
+
+    public void setServiceTypeId(Long serviceTypeId) {
+        this.serviceTypeId = serviceTypeId;
+    }
+
+    public ServiceType getType() {
+        return type;
+    }
+
+    public void setType(ServiceType type) {
+        this.type = type;
+    }
+
+    public Long getComponentOverrideId() {
+        return componentOverrideId;
+    }
+
+    public void setComponentOverrideId(Long componentOverrideId) {
+        this.componentOverrideId = componentOverrideId;
+    }
+
+    public VisualComponent getComponentOverride() {
+        return componentOverride;
+    }
+
+    public void setComponentOverride(VisualComponent componentOverride) {
+        this.componentOverride = componentOverride;
+    }
+
+    public Long getParentServiceId() {
+        return parentServiceId;
+    }
+
+    public void setParentServiceId(Long parentServiceId) {
+        this.parentServiceId = parentServiceId;
+    }
+
+    public Service getParentService() {
+        return parentService;
+    }
+
+    public void setParentService(Service parentService) {
+        this.parentService = parentService;
+    }
+
+    public Set<Service> getSubModules() {
+        return subModules;
+    }
+
+    public void setSubModules(Set<Service> subModules) {
+        this.subModules = subModules;
+    }
+
+    public Integer getDefaultPort() {
+        return defaultPort;
+    }
+
+    public void setDefaultPort(Integer defaultPort) {
+        this.defaultPort = defaultPort;
+    }
+
+    public String getApiBasePath() {
+        return apiBasePath;
+    }
+
+    public void setApiBasePath(String apiBasePath) {
+        this.apiBasePath = apiBasePath;
+    }
+
+    public String getRepositoryUrl() {
+        return repositoryUrl;
+    }
+
+    public void setRepositoryUrl(String repositoryUrl) {
+        this.repositoryUrl = repositoryUrl;
+    }
+
+    public String getVersion() {
+        return version;
+    }
+
+    public void setVersion(String version) {
+        this.version = version;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public Boolean getActiveFlag() {
+        return activeFlag;
+    }
+
+    public void setActiveFlag(Boolean activeFlag) {
+        this.activeFlag = activeFlag;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
+    public Set<Deployment> getDeployments() {
+        return deployments;
+    }
+
+    public void setDeployments(Set<Deployment> deployments) {
+        this.deployments = deployments;
+    }
+
+    public Set<ServiceConfiguration> getServiceConfigs() {
+        return serviceConfigs;
+    }
+
+    public void setServiceConfigs(Set<ServiceConfiguration> serviceConfigs) {
+        this.serviceConfigs = serviceConfigs;
+    }
+
+    public Set<ServiceDependency> getServiceDependenciesAsConsumer() {
+        return serviceDependenciesAsConsumer;
+    }
+
+    public void setServiceDependenciesAsConsumer(Set<ServiceDependency> serviceDependenciesAsConsumer) {
+        this.serviceDependenciesAsConsumer = serviceDependenciesAsConsumer;
+    }
+
+    public Set<ServiceDependency> getServiceDependenciesAsProvider() {
+        return serviceDependenciesAsProvider;
+    }
+
+    public void setServiceDependenciesAsProvider(Set<ServiceDependency> serviceDependenciesAsProvider) {
+        this.serviceDependenciesAsProvider = serviceDependenciesAsProvider;
+    }
+
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
@@ -157,10 +377,6 @@ public class Service {
     public java.util.Set<Service> getDependencies() {
         // This field was removed, returning empty set for now
         return new java.util.HashSet<>();
-    }
-
-    public Long getId() {
-        return id;
     }
 
     public ServiceStatus getStatusEnum() {

@@ -14,5 +14,9 @@
   {
     "name": "TEST",
     "description": "Testing environment"
+  },
+  {
+    "name": "None",
+    "description": "None / Unspecified"
   }
 ]

@@ -15,17 +15,9 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Entity
 @Table(name = "deployments")
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
 @JsonIgnoreProperties({ "service.deployments", "service.configurations", "service.dependents", "server.deployments" })
 public class Deployment {
 
@@ -97,6 +89,214 @@ public class Deployment {
 
     @Column
     private LocalDateTime updatedAt;
+
+    public Deployment() {
+    }
+
+    public Deployment(Long id, Long serviceId, Service service, Long environmentId, Long serverId, Host server,
+            String version, LocalDateTime deployedAt, String status, Integer port, String contextPath,
+            String healthCheckUrl, String healthStatus, LocalDateTime lastHealthCheck, String processId,
+            String containerName, String deploymentPath, LocalDateTime startedAt, LocalDateTime stoppedAt,
+            Boolean activeFlag, LocalDateTime createdAt, LocalDateTime updatedAt) {
+        this.id = id;
+        this.serviceId = serviceId;
+        this.service = service;
+        this.environmentId = environmentId;
+        this.serverId = serverId;
+        this.server = server;
+        this.version = version;
+        this.deployedAt = deployedAt;
+        this.status = status;
+        this.port = port;
+        this.contextPath = contextPath;
+        this.healthCheckUrl = healthCheckUrl;
+        this.healthStatus = healthStatus;
+        this.lastHealthCheck = lastHealthCheck;
+        this.processId = processId;
+        this.containerName = containerName;
+        this.deploymentPath = deploymentPath;
+        this.startedAt = startedAt;
+        this.stoppedAt = stoppedAt;
+        this.activeFlag = activeFlag;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Long getServiceId() {
+        return serviceId;
+    }
+
+    public void setServiceId(Long serviceId) {
+        this.serviceId = serviceId;
+    }
+
+    public Service getService() {
+        return service;
+    }
+
+    public void setService(Service service) {
+        this.service = service;
+    }
+
+    public Long getEnvironmentId() {
+        return environmentId;
+    }
+
+    public void setEnvironmentId(Long environmentId) {
+        this.environmentId = environmentId;
+    }
+
+    public Long getServerId() {
+        return serverId;
+    }
+
+    public void setServerId(Long serverId) {
+        this.serverId = serverId;
+    }
+
+    public Host getServer() {
+        return server;
+    }
+
+    public void setServer(Host server) {
+        this.server = server;
+    }
+
+    public String getVersion() {
+        return version;
+    }
+
+    public void setVersion(String version) {
+        this.version = version;
+    }
+
+    public LocalDateTime getDeployedAt() {
+        return deployedAt;
+    }
+
+    public void setDeployedAt(LocalDateTime deployedAt) {
+        this.deployedAt = deployedAt;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public Integer getPort() {
+        return port;
+    }
+
+    public void setPort(Integer port) {
+        this.port = port;
+    }
+
+    public String getContextPath() {
+        return contextPath;
+    }
+
+    public void setContextPath(String contextPath) {
+        this.contextPath = contextPath;
+    }
+
+    public String getHealthCheckUrl() {
+        return healthCheckUrl;
+    }
+
+    public void setHealthCheckUrl(String healthCheckUrl) {
+        this.healthCheckUrl = healthCheckUrl;
+    }
+
+    public String getHealthStatus() {
+        return healthStatus;
+    }
+
+    public void setHealthStatus(String healthStatus) {
+        this.healthStatus = healthStatus;
+    }
+
+    public LocalDateTime getLastHealthCheck() {
+        return lastHealthCheck;
+    }
+
+    public void setLastHealthCheck(LocalDateTime lastHealthCheck) {
+        this.lastHealthCheck = lastHealthCheck;
+    }
+
+    public String getProcessId() {
+        return processId;
+    }
+
+    public void setProcessId(String processId) {
+        this.processId = processId;
+    }
+
+    public String getContainerName() {
+        return containerName;
+    }
+
+    public void setContainerName(String containerName) {
+        this.containerName = containerName;
+    }
+
+    public String getDeploymentPath() {
+        return deploymentPath;
+    }
+
+    public void setDeploymentPath(String deploymentPath) {
+        this.deploymentPath = deploymentPath;
+    }
+
+    public LocalDateTime getStartedAt() {
+        return startedAt;
+    }
+
+    public void setStartedAt(LocalDateTime startedAt) {
+        this.startedAt = startedAt;
+    }
+
+    public LocalDateTime getStoppedAt() {
+        return stoppedAt;
+    }
+
+    public void setStoppedAt(LocalDateTime stoppedAt) {
+        this.stoppedAt = stoppedAt;
+    }
+
+    public Boolean getActiveFlag() {
+        return activeFlag;
+    }
+
+    public void setActiveFlag(Boolean activeFlag) {
+        this.activeFlag = activeFlag;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
+    }
 
     @PrePersist
     protected void onCreate() {
@@ -178,26 +378,6 @@ public class Deployment {
 
     public enum DeploymentEnvironment {
         DEVELOPMENT, STAGING, PRODUCTION, TEST
-    }
-
-    public void setStartedAt(LocalDateTime startedAt) {
-        this.startedAt = startedAt;
-    }
-
-    public void setLastHealthCheck(LocalDateTime lastHealthCheck) {
-        this.lastHealthCheck = lastHealthCheck;
-    }
-
-    public Integer getPort() {
-        return port;
-    }
-
-    public String getContextPath() {
-        return contextPath;
-    }
-
-    public void setHealthCheckUrl(String healthCheckUrl) {
-        this.healthCheckUrl = healthCheckUrl;
     }
 
     public enum HealthStatus {

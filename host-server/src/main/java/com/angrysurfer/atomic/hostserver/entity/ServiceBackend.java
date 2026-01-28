@@ -15,15 +15,11 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 /**
  * Represents a backend connection between service instances.
  * 
- * Example: A file-service instance (deployment) connects to one or more 
+ * Example: A file-service instance (deployment) connects to one or more
  * file-system-server instances (backend deployments) for storage.
  * 
  * Supports multiple backends per service for:
@@ -34,10 +30,6 @@ import lombok.Setter;
  */
 @Entity
 @Table(name = "service_backends")
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
 public class ServiceBackend {
 
     @Id
@@ -65,23 +57,6 @@ public class ServiceBackend {
     @ManyToOne
     @JoinColumn(name = "backend_deployment_id", referencedColumnName = "id", insertable = false, updatable = false)
     private Deployment backendDeployment;
-
-    // Getter and setter methods for the new fields
-    public Long getServiceDeploymentId() {
-        return serviceDeploymentId;
-    }
-
-    public void setServiceDeploymentId(Long serviceDeploymentId) {
-        this.serviceDeploymentId = serviceDeploymentId;
-    }
-
-    public Long getBackendDeploymentId() {
-        return backendDeploymentId;
-    }
-
-    public void setBackendDeploymentId(Long backendDeploymentId) {
-        this.backendDeploymentId = backendDeploymentId;
-    }
 
     /**
      * Role of this backend in the service architecture
@@ -128,6 +103,131 @@ public class ServiceBackend {
     @Column
     private LocalDateTime updatedAt;
 
+    public ServiceBackend() {
+    }
+
+    public ServiceBackend(Long id, Long serviceDeploymentId, Deployment serviceDeployment, Long backendDeploymentId,
+            Deployment backendDeployment, BackendRole role, Integer priority, String routingKey, Integer weight,
+            Boolean isActive, String description, LocalDateTime createdAt, LocalDateTime updatedAt) {
+        this.id = id;
+        this.serviceDeploymentId = serviceDeploymentId;
+        this.serviceDeployment = serviceDeployment;
+        this.backendDeploymentId = backendDeploymentId;
+        this.backendDeployment = backendDeployment;
+        this.role = role;
+        this.priority = priority;
+        this.routingKey = routingKey;
+        this.weight = weight;
+        this.isActive = isActive;
+        this.description = description;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Long getServiceDeploymentId() {
+        return serviceDeploymentId;
+    }
+
+    public void setServiceDeploymentId(Long serviceDeploymentId) {
+        this.serviceDeploymentId = serviceDeploymentId;
+    }
+
+    public Deployment getServiceDeployment() {
+        return serviceDeployment;
+    }
+
+    public void setServiceDeployment(Deployment serviceDeployment) {
+        this.serviceDeployment = serviceDeployment;
+    }
+
+    public Long getBackendDeploymentId() {
+        return backendDeploymentId;
+    }
+
+    public void setBackendDeploymentId(Long backendDeploymentId) {
+        this.backendDeploymentId = backendDeploymentId;
+    }
+
+    public Deployment getBackendDeployment() {
+        return backendDeployment;
+    }
+
+    public void setBackendDeployment(Deployment backendDeployment) {
+        this.backendDeployment = backendDeployment;
+    }
+
+    public BackendRole getRole() {
+        return role;
+    }
+
+    public void setRole(BackendRole role) {
+        this.role = role;
+    }
+
+    public Integer getPriority() {
+        return priority;
+    }
+
+    public void setPriority(Integer priority) {
+        this.priority = priority;
+    }
+
+    public String getRoutingKey() {
+        return routingKey;
+    }
+
+    public void setRoutingKey(String routingKey) {
+        this.routingKey = routingKey;
+    }
+
+    public Integer getWeight() {
+        return weight;
+    }
+
+    public void setWeight(Integer weight) {
+        this.weight = weight;
+    }
+
+    public Boolean getIsActive() {
+        return isActive;
+    }
+
+    public void setIsActive(Boolean isActive) {
+        this.isActive = isActive;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
@@ -141,8 +241,10 @@ public class ServiceBackend {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof ServiceBackend)) return false;
+        if (this == o)
+            return true;
+        if (!(o instanceof ServiceBackend))
+            return false;
         ServiceBackend that = (ServiceBackend) o;
         return Objects.equals(id, that.id);
     }
@@ -160,27 +262,27 @@ public class ServiceBackend {
          * Primary backend - main data source
          */
         PRIMARY,
-        
+
         /**
          * Backup backend - used when primary fails
          */
         BACKUP,
-        
+
         /**
          * Archive backend - cold storage for old data
          */
         ARCHIVE,
-        
+
         /**
          * Cache backend - hot cache layer
          */
         CACHE,
-        
+
         /**
          * Shard backend - handles a partition of data
          */
         SHARD,
-        
+
         /**
          * Read replica - handles read-only queries
          */
