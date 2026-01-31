@@ -1,5 +1,9 @@
 package com.angrysurfer.atomic.broker.heartbeat;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -16,18 +20,16 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
 import jakarta.annotation.PreDestroy;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
- * Shared heartbeat client for registering Spring services with the host-server.
+ * Shared heartbeat client for registering Spring services with the
+ * service-registry.
  * 
  * Each service module that includes broker-service can enable this by setting:
  * host.server.registration.enabled=true
  * 
  * Required configuration properties:
- * - host.server.url: Base URL of the host-server (default:
+ * - host.server.url: Base URL of the service-registry (default:
  * http://localhost:8085)
  * - service.name: Unique name for this service (required)
  * - server.port: Port this service runs on (default: 8080)
@@ -71,11 +73,11 @@ public class HostServerHeartbeatClient {
     }
 
     /**
-     * Register with host-server when application is ready
+     * Register with service-registry when application is ready
      */
     @EventListener(ApplicationReadyEvent.class)
     public void onApplicationReady() {
-        LOG.info("Starting host-server registration for service: {}", serviceName);
+        LOG.info("Starting service-registry registration for service: {}", serviceName);
         registerService();
     }
 
@@ -88,7 +90,7 @@ public class HostServerHeartbeatClient {
     }
 
     /**
-     * Register this service with the host-server registry
+     * Register this service with the service-registry registry
      */
     private void registerService() {
         String endpoint = String.format("http://%s:%d", serviceHost, servicePort);
@@ -116,18 +118,19 @@ public class HostServerHeartbeatClient {
 
             if (response.getStatusCode().is2xxSuccessful()) {
                 registered = true;
-                LOG.info("Successfully registered {} with host-server at {}", serviceName, hostServerUrl);
+                LOG.info("Successfully registered {} with service-registry at {}", serviceName, hostServerUrl);
             } else {
-                LOG.warn("Failed to register {} with host-server. Status: {}", serviceName, response.getStatusCode());
+                LOG.warn("Failed to register {} with service-registry. Status: {}", serviceName,
+                        response.getStatusCode());
             }
         } catch (Exception e) {
-            LOG.warn("Failed to register {} with host-server: {}", serviceName, e.getMessage());
+            LOG.warn("Failed to register {} with service-registry: {}", serviceName, e.getMessage());
             // Don't fail startup if registration fails - heartbeat will retry
         }
     }
 
     /**
-     * Send periodic heartbeat to maintain active status in host-server.
+     * Send periodic heartbeat to maintain active status in service-registry.
      * Runs every 30 seconds by default (configurable via heartbeat.interval.ms)
      */
     @Scheduled(fixedRateString = "${heartbeat.interval.ms:30000}", initialDelay = 5000)
@@ -159,7 +162,7 @@ public class HostServerHeartbeatClient {
     }
 
     /**
-     * Check if this client is currently registered with the host-server
+     * Check if this client is currently registered with the service-registry
      */
     public boolean isRegistered() {
         return registered;

@@ -4,7 +4,7 @@
 
 ```bash
 # Start the service
-cd spring/host-server
+cd spring/service-registry
 mvn spring-boot:run
 
 # Or use scripts

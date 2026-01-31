@@ -68,7 +68,7 @@ public class HostServerRegistrationService {
             return;
         }
 
-        log.info("Starting host-server registration service");
+        log.info("Starting service-registry registration service");
 
         registerService();
 
@@ -112,7 +112,7 @@ public class HostServerRegistrationService {
         List<Map<String, Object>> hostedServices = getHostedServices();
         if (!hostedServices.isEmpty()) {
             registration.put("hostedServices", hostedServices);
-            log.info("Registering {} hosted services with host-server", hostedServices.size());
+            log.info("Registering {} hosted services with service-registry", hostedServices.size());
         }
 
         try {
@@ -126,13 +126,13 @@ public class HostServerRegistrationService {
                     Map.class);
 
             if (response.getStatusCode().is2xxSuccessful()) {
-                log.info("Successfully registered with host-server at {}", hostServerUrl);
+                log.info("Successfully registered with service-registry at {}", hostServerUrl);
                 log.info("Service: {} on port {}", serviceName, port);
             } else {
-                log.warn("Failed to register with host-server. Status: {}", response.getStatusCode());
+                log.warn("Failed to register with service-registry. Status: {}", response.getStatusCode());
             }
         } catch (Exception e) {
-            log.error("Error registering with host-server: {}", e.getMessage());
+            log.error("Error registering with service-registry: {}", e.getMessage());
         }
     }
 
@@ -177,7 +177,7 @@ public class HostServerRegistrationService {
                 log.warn("Heartbeat failed. Status: {}", response.getStatusCode());
             }
         } catch (org.springframework.web.client.HttpClientErrorException.NotFound e) {
-            log.warn("Service not found on host-server, re-registering...");
+            log.warn("Service not found on service-registry, re-registering...");
             registerService();
         } catch (Exception e) {
             log.error("Error sending heartbeat: {}", e.getMessage());

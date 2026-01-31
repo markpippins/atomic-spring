@@ -149,7 +149,7 @@
 │  └─────────────────┘  └─────────────────┘  └─────────────┘ │
 │                                                               │
 │  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────┐ │
-│  │  file-service   │  │  note-service   │  │ host-server │ │
+│  │  file-service   │  │  note-service   │  │ service-registry │ │
 │  │   Port: 4040    │  │   Port: 8084    │  │ Port: 8085  │ │
 │  │   Status: ✓     │  │   Status: ✓     │  │ Status: ✓   │ │
 │  │   Health: ✓     │  │   Health: ✓     │  │ Health: ✓   │ │

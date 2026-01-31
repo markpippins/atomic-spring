@@ -4,7 +4,8 @@ import java.util.Optional;
 
 /**
  * Interface for discovering services from the registry.
- * Implementations can discover services from host-server, Consul, Eureka, etc.
+ * Implementations can discover services from service-registry, Consul, Eureka,
+ * etc.
  */
 public interface ServiceDiscoveryClient {
 

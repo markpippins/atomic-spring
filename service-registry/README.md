@@ -196,7 +196,7 @@ DELETE /api/configurations/{id}                                 - Delete config
 ### Standalone
 
 ```bash
-cd spring/host-server
+cd spring/service-registry
 ./mvnw spring-boot:run
 ```
 
@@ -346,7 +346,7 @@ The recommended approach is to fix the database schema to ensure column types ma
    ```bash
    # From the project root
    cd /path/to/project
-   mvn spring-boot:run -pl host-server
+   mvn spring-boot:run -pl service-registry
    ```
 
 3. The application.properties is configured to use `ddl-auto=validate` mode by default, which ensures the schema matches the entity definitions.

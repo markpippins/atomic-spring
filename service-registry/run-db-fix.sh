@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "Running database schema fix for host-server..."
+echo "Running database schema fix for service-registry..."
 
 # Check if mysql client is available
 if ! command -v mysql &> /dev/null; then

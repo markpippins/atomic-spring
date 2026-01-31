@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "Fixing database schema for host-server..."
+echo "Fixing database schema for service-registry..."
 
 # First, let's temporarily change ddl-auto to update to fix the schema
 echo "Temporarily changing ddl-auto to update..."

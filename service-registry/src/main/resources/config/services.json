@@ -132,13 +132,13 @@
     "dependencies": []
   },
   {
-    "name": "host-server",
+    "name": "service-registry",
     "description": "Spring Boot host server for service registry and platform management",
     "framework": "Spring Boot",
     "type": "REST_API",
     "defaultPort": 8085,
     "apiBasePath": "/api",
-    "repositoryUrl": "https://github.com/yourorg/host-server",
+    "repositoryUrl": "https://github.com/yourorg/service-registry",
     "status": "ACTIVE",
     "version": "1.0.0",
     "dependencies": []

@@ -182,9 +182,9 @@ The system initializes with real data from the Atomic Platform:
 
 ```bash
 # From spring directory
-mvn spring-boot:run -pl host-server
+mvn spring-boot:run -pl service-registry
 
-# Or from host-server directory
+# Or from service-registry directory
 ./start.sh   # Linux/Mac
 start.bat    # Windows
 ```
@@ -245,7 +245,7 @@ GET /api/services/framework/{springBootId}
 
 ### 1. Broker Gateway Integration
 - Auto-register services with broker-gateway
-- Sync service registry with host-server
+- Sync service registry with service-registry
 - Dynamic routing based on deployments
 
 ### 2. CI/CD Integration

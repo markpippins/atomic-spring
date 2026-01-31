@@ -331,13 +331,13 @@ mvn spring-boot:run
 ### Production
 ```bash
 mvn clean package
-java -jar target/host-server-1.0.0-SNAPSHOT.jar
+java -jar target/service-registry-1.0.0-SNAPSHOT.jar
 ```
 
 ### Docker
 ```dockerfile
 FROM openjdk:21-jdk-slim
-COPY target/host-server-1.0.0-SNAPSHOT.jar app.jar
+COPY target/service-registry-1.0.0-SNAPSHOT.jar app.jar
 ENTRYPOINT ["java", "-jar", "/app.jar"]
 ```
 

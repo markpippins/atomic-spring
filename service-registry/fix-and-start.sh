@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "Starting host-server to fix database schema..."
+echo "Starting service-registry to fix database schema..."
 
 # Start the application to update the schema
 echo "Starting application with ddl-auto=update to fix schema..."

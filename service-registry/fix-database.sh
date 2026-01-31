@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "Fixing database schema for host-server..."
+echo "Fixing database schema for service-registry..."
 
 # Prompt for MySQL password
 read -s -p "Enter MySQL root password: " MYSQL_ROOT_PASSWORD

@@ -359,9 +359,9 @@ Create `logback-spring.xml`:
     </appender>
     
     <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>logs/host-server.log</file>
+        <file>logs/service-registry.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>logs/host-server-%d{yyyy-MM-dd}.log</fileNamePattern>
+            <fileNamePattern>logs/service-registry-%d{yyyy-MM-dd}.log</fileNamePattern>
             <maxHistory>30</maxHistory>
         </rollingPolicy>
         <encoder class="net.logstash.logback.encoder.LogstashEncoder"/>
@@ -448,7 +448,7 @@ RUN ./mvnw clean package -DskipTests
 
 FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
-COPY --from=build /app/target/host-server-*.jar app.jar
+COPY --from=build /app/target/service-registry-*.jar app.jar
 EXPOSE 8085
 ENTRYPOINT ["java", "-jar", "app.jar"]
 ```
@@ -475,7 +475,7 @@ services:
     ports:
       - "6379:6379"
   
-  host-server:
+  service-registry:
     build: .
     ports:
       - "8085:8085"
@@ -500,32 +500,32 @@ Create `k8s/deployment.yaml`:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: host-server
+  name: service-registry
 spec:
   replicas: 3
   selector:
     matchLabels:
-      app: host-server
+      app: service-registry
   template:
     metadata:
       labels:
-        app: host-server
+        app: service-registry
     spec:
       containers:
-      - name: host-server
-        image: your-registry/host-server:latest
+      - name: service-registry
+        image: your-registry/service-registry:latest
         ports:
         - containerPort: 8085
         env:
         - name: SPRING_DATASOURCE_URL
           valueFrom:
             secretKeyRef:
-              name: host-server-secrets
+              name: service-registry-secrets
               key: database-url
         - name: SPRING_DATASOURCE_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: host-server-secrets
+              name: service-registry-secrets
               key: database-password
         livenessProbe:
           httpGet:
@@ -543,10 +543,10 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: host-server
+  name: service-registry
 spec:
   selector:
-    app: host-server
+    app: service-registry
   ports:
   - port: 8085
     targetPort: 8085
@@ -581,19 +581,19 @@ jobs:
     
     - name: Build with Maven
       run: mvn clean package -DskipTests
-      working-directory: spring/host-server
+      working-directory: spring/service-registry
     
     - name: Build Docker image
-      run: docker build -t your-registry/host-server:${{ github.sha }} .
-      working-directory: spring/host-server
+      run: docker build -t your-registry/service-registry:${{ github.sha }} .
+      working-directory: spring/service-registry
     
     - name: Push to registry
-      run: docker push your-registry/host-server:${{ github.sha }}
+      run: docker push your-registry/service-registry:${{ github.sha }}
     
     - name: Deploy to Kubernetes
       run: |
-        kubectl set image deployment/host-server \
-          host-server=your-registry/host-server:${{ github.sha }}
+        kubectl set image deployment/service-registry \
+          service-registry=your-registry/service-registry:${{ github.sha }}
 ```
 
 ## Checklist
