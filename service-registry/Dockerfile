@@ -17,7 +17,7 @@ COPY src src
 RUN ./mvnw clean package -DskipTests
 
 # Expose port
-EXPOSE 8090
+EXPOSE 8085
 
 # Run the application
-CMD ["java", "-jar", "target/*.jar", "--server.port=8090"]
+CMD ["java", "-jar", "target/*.jar", "--server.port=8085"]

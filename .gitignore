@@ -842,3 +842,5 @@ host-server/app_start_fixed.log
 host-server/app_start_fixed2.log
 host-server/app_start.log
 dependencies-updated.txt
+host-server/DIAGRAMS.md
+.gitignore
