@@ -135,9 +135,31 @@ public class ServiceController {
             }
         }
 
-        // Update the service
-        service.setId(id);
-        Service updatedService = serviceRepository.save(service);
+        // Merge the incoming data with the existing entity
+        existingService.setName(service.getName());
+        existingService.setDescription(service.getDescription());
+        existingService.setDefaultPort(service.getDefaultPort());
+        existingService.setApiBasePath(service.getApiBasePath());
+        existingService.setRepositoryUrl(service.getRepositoryUrl());
+        existingService.setVersion(service.getVersion());
+        existingService.setStatus(service.getStatus());
+        existingService.setActiveFlag(service.getActiveFlag());
+        
+        // Preserve existing relationships if not explicitly provided in the request
+        if (service.getFramework() != null) {
+            existingService.setFramework(service.getFramework());
+        }
+        if (service.getType() != null) {
+            existingService.setType(service.getType());
+        }
+        if (service.getParentService() != null) {
+            existingService.setParentService(service.getParentService());
+        }
+        if (service.getComponentOverride() != null) {
+            existingService.setComponentOverride(service.getComponentOverride());
+        }
+
+        Service updatedService = serviceRepository.save(existingService);
         log.info("Successfully updated service with ID: {}", id);
         return ResponseEntity.ok(updatedService);
     }

@@ -24,7 +24,7 @@ import jakarta.persistence.Table;
 @Entity
 @Table(name = "services")
 @JsonIgnoreProperties({ "deployments", "serviceConfigs", "serviceDependenciesAsConsumer",
-        "serviceDependenciesAsProvider", "parentService", "subModules" })
+        "serviceDependenciesAsProvider", "subModules" })
 public class Service {
 
     @Id
@@ -261,7 +261,10 @@ public class Service {
     }
 
     public void setFrameworkId(Long frameworkId) {
-        // No-op for backward compatibility
+        if (frameworkId != null) {
+            this.framework = new Framework();
+            this.framework.setId(frameworkId);
+        }
     }
 
     public Long getServiceTypeId() {
@@ -269,7 +272,23 @@ public class Service {
     }
 
     public void setServiceTypeId(Long serviceTypeId) {
-        // No-op for backward compatibility
+        if (serviceTypeId != null) {
+            this.type = new ServiceType();
+            this.type.setId(serviceTypeId);
+        }
+    }
+    
+    public Long getParentServiceId() {
+        return parentService != null ? parentService.getId() : null;
+    }
+
+    public void setParentServiceId(Long parentServiceId) {
+        if (parentServiceId != null) {
+            this.parentService = new Service();
+            this.parentService.setId(parentServiceId);
+        } else {
+            this.parentService = null;
+        }
     }
 
     public String getHealthCheckPath() {
