@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -25,21 +26,16 @@ public class Deployment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "service_id", nullable = false)
-    private Long serviceId;
-
-    @ManyToOne
-    @JoinColumn(name = "service_id", referencedColumnName = "id", insertable = false, updatable = false)
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "service_id")
     private Service service;
 
-    @Column(name = "environment_id", nullable = false)
-    private Long environmentId;
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "environment_id")
+    private EnvironmentType environment;
 
-    @Column(name = "server_id", nullable = false)
-    private Long serverId;
-
-    @ManyToOne
-    @JoinColumn(name = "server_id", referencedColumnName = "id", insertable = false, updatable = false)
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "server_id")
     private Host server;
 
     @Column
@@ -93,49 +89,12 @@ public class Deployment {
     public Deployment() {
     }
 
-    public Deployment(Long id, Long serviceId, Service service, Long environmentId, Long serverId, Host server,
-            String version, LocalDateTime deployedAt, String status, Integer port, String contextPath,
-            String healthCheckUrl, String healthStatus, LocalDateTime lastHealthCheck, String processId,
-            String containerName, String deploymentPath, LocalDateTime startedAt, LocalDateTime stoppedAt,
-            Boolean activeFlag, LocalDateTime createdAt, LocalDateTime updatedAt) {
-        this.id = id;
-        this.serviceId = serviceId;
-        this.service = service;
-        this.environmentId = environmentId;
-        this.serverId = serverId;
-        this.server = server;
-        this.version = version;
-        this.deployedAt = deployedAt;
-        this.status = status;
-        this.port = port;
-        this.contextPath = contextPath;
-        this.healthCheckUrl = healthCheckUrl;
-        this.healthStatus = healthStatus;
-        this.lastHealthCheck = lastHealthCheck;
-        this.processId = processId;
-        this.containerName = containerName;
-        this.deploymentPath = deploymentPath;
-        this.startedAt = startedAt;
-        this.stoppedAt = stoppedAt;
-        this.activeFlag = activeFlag;
-        this.createdAt = createdAt;
-        this.updatedAt = updatedAt;
-    }
-
     public Long getId() {
         return id;
     }
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public Long getServiceId() {
-        return serviceId;
-    }
-
-    public void setServiceId(Long serviceId) {
-        this.serviceId = serviceId;
     }
 
     public Service getService() {
@@ -146,20 +105,12 @@ public class Deployment {
         this.service = service;
     }
 
-    public Long getEnvironmentId() {
-        return environmentId;
+    public EnvironmentType getEnvironment() {
+        return environment;
     }
 
-    public void setEnvironmentId(Long environmentId) {
-        this.environmentId = environmentId;
-    }
-
-    public Long getServerId() {
-        return serverId;
-    }
-
-    public void setServerId(Long serverId) {
-        this.serverId = serverId;
+    public void setEnvironment(EnvironmentType environment) {
+        this.environment = environment;
     }
 
     public Host getServer() {
@@ -298,6 +249,31 @@ public class Deployment {
         this.updatedAt = updatedAt;
     }
 
+    // Backward-compatible ID accessors
+    public Long getServiceId() {
+        return service != null ? service.getId() : null;
+    }
+
+    public void setServiceId(Long serviceId) {
+        // No-op for backward compatibility
+    }
+
+    public Long getServerId() {
+        return server != null ? server.getId() : null;
+    }
+
+    public void setServerId(Long serverId) {
+        // No-op for backward compatibility
+    }
+
+    public Long getEnvironmentId() {
+        return environment != null ? environment.getId() : null;
+    }
+
+    public void setEnvironmentId(Long environmentId) {
+        // No-op for backward compatibility
+    }
+
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
@@ -324,33 +300,11 @@ public class Deployment {
         return Objects.hash(id);
     }
 
-    // Helper method to get environment as string for JSON serialization
-    @com.fasterxml.jackson.annotation.JsonProperty("environment")
-    public String getEnvironment() {
-        return getEnvironmentEnum().name();
+    @JsonProperty("environmentName")
+    public String getEnvironmentName() {
+        return environment != null ? environment.getName() : null;
     }
 
-    // Helper method to get environment as enum
-    public DeploymentEnvironment getEnvironmentEnum() {
-        if (environmentId == null)
-            return DeploymentEnvironment.DEVELOPMENT;
-        // Map environment IDs to enum values
-        // This is a simplified mapping - in production you'd query the environment type
-        switch (environmentId.intValue()) {
-            case 1:
-                return DeploymentEnvironment.DEVELOPMENT;
-            case 2:
-                return DeploymentEnvironment.STAGING;
-            case 3:
-                return DeploymentEnvironment.PRODUCTION;
-            case 4:
-                return DeploymentEnvironment.TEST;
-            default:
-                return DeploymentEnvironment.DEVELOPMENT;
-        }
-    }
-
-    // Helper method to get status as enum
     public DeploymentStatus getStatusEnum() {
         if (status == null)
             return DeploymentStatus.UNKNOWN;
@@ -361,7 +315,6 @@ public class Deployment {
         }
     }
 
-    // Helper method to get health status as enum
     public HealthStatus getHealthStatusEnum() {
         if (healthStatus == null)
             return HealthStatus.UNKNOWN;
@@ -374,10 +327,6 @@ public class Deployment {
 
     public enum DeploymentStatus {
         RUNNING, STOPPED, STARTING, STOPPING, FAILED, UNKNOWN
-    }
-
-    public enum DeploymentEnvironment {
-        DEVELOPMENT, STAGING, PRODUCTION, TEST
     }
 
     public enum HealthStatus {

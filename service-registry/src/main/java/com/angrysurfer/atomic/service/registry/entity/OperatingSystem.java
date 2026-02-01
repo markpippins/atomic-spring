@@ -27,7 +27,7 @@ public class OperatingSystem {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String name;
 
     @Column(name = "active_flag")
@@ -35,6 +35,9 @@ public class OperatingSystem {
 
     @Column
     private String version;
+
+    @Column
+    private String architecture;
 
     @Column(name = "lts_flag")
     private Boolean ltsFlag = false;
@@ -57,12 +60,13 @@ public class OperatingSystem {
     public OperatingSystem() {
     }
 
-    public OperatingSystem(Long id, String name, Boolean activeFlag, String version, Boolean ltsFlag,
+    public OperatingSystem(Long id, String name, Boolean activeFlag, String version, String architecture, Boolean ltsFlag,
             String description, String family, LocalDateTime createdAt, LocalDateTime updatedAt, Set<Host> servers) {
         this.id = id;
         this.name = name;
         this.activeFlag = activeFlag;
         this.version = version;
+        this.architecture = architecture;
         this.ltsFlag = ltsFlag;
         this.description = description;
         this.family = family;
@@ -101,6 +105,14 @@ public class OperatingSystem {
 
     public void setVersion(String version) {
         this.version = version;
+    }
+
+    public String getArchitecture() {
+        return architecture;
+    }
+
+    public void setArchitecture(String architecture) {
+        this.architecture = architecture;
     }
 
     public Boolean getLtsFlag() {

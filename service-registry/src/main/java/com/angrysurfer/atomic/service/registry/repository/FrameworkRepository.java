@@ -8,15 +8,20 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import com.angrysurfer.atomic.service.registry.entity.Framework;
+import com.angrysurfer.atomic.service.registry.entity.FrameworkCategory;
+import com.angrysurfer.atomic.service.registry.entity.FrameworkLanguage;
 
 @Repository
 public interface FrameworkRepository extends JpaRepository<Framework, Long> {
-    // Note: Not cached because this is used for existence checks before inserts
     Optional<Framework> findByName(String name);
 
-    @Cacheable(value = "frameworksByCategory", key = "#categoryId")
-    List<Framework> findByCategoryId(Long categoryId);
+    @Cacheable(value = "frameworksByCategory", key = "#category.id")
+    List<Framework> findByCategory(FrameworkCategory category);
 
-    @Cacheable(value = "frameworksByLanguage", key = "#languageId")
-    List<Framework> findByLanguageId(Long languageId);
+    List<Framework> findByCategory_Id(Long categoryId);
+
+    @Cacheable(value = "frameworksByLanguage", key = "#language.id")
+    List<Framework> findByLanguage(FrameworkLanguage language);
+
+    List<Framework> findByLanguage_Id(Long languageId);
 }

@@ -25,24 +25,18 @@ public class Library {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String name;
 
     @Column(length = 1000)
     private String description;
 
-    @Column(name = "category_id")
-    private Long categoryId;
-
     @ManyToOne
-    @JoinColumn(name = "category_id", referencedColumnName = "id", insertable = false, updatable = false)
+    @JoinColumn(name = "category_id")
     private LibraryCategory category;
 
-    @Column(name = "language_id")
-    private Long languageId;
-
     @ManyToOne
-    @JoinColumn(name = "language_id", referencedColumnName = "id", insertable = false, updatable = false)
+    @JoinColumn(name = "language_id")
     private FrameworkLanguage language;
 
     @Column(name = "current_version")
@@ -78,29 +72,6 @@ public class Library {
     public Library() {
     }
 
-    public Library(Long id, String name, String description, Long categoryId, LibraryCategory category, Long languageId,
-            FrameworkLanguage language, String currentVersion, String packageName, String packageManager, String url,
-            String repositoryUrl, String license, Boolean activeFlag, LocalDateTime createdAt, LocalDateTime updatedAt,
-            Set<ServiceLibrary> serviceLibraries) {
-        this.id = id;
-        this.name = name;
-        this.description = description;
-        this.categoryId = categoryId;
-        this.category = category;
-        this.languageId = languageId;
-        this.language = language;
-        this.currentVersion = currentVersion;
-        this.packageName = packageName;
-        this.packageManager = packageManager;
-        this.url = url;
-        this.repositoryUrl = repositoryUrl;
-        this.license = license;
-        this.activeFlag = activeFlag;
-        this.createdAt = createdAt;
-        this.updatedAt = updatedAt;
-        this.serviceLibraries = serviceLibraries;
-    }
-
     public Long getId() {
         return id;
     }
@@ -121,12 +92,8 @@ public class Library {
         return description;
     }
 
-    public Long getCategoryId() {
-        return categoryId;
-    }
-
-    public void setCategoryId(Long categoryId) {
-        this.categoryId = categoryId;
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public LibraryCategory getCategory() {
@@ -135,14 +102,6 @@ public class Library {
 
     public void setCategory(LibraryCategory category) {
         this.category = category;
-    }
-
-    public Long getLanguageId() {
-        return languageId;
-    }
-
-    public void setLanguageId(Long languageId) {
-        this.languageId = languageId;
     }
 
     public FrameworkLanguage getLanguage() {
@@ -157,24 +116,48 @@ public class Library {
         return currentVersion;
     }
 
+    public void setCurrentVersion(String currentVersion) {
+        this.currentVersion = currentVersion;
+    }
+
     public String getPackageName() {
         return packageName;
+    }
+
+    public void setPackageName(String packageName) {
+        this.packageName = packageName;
     }
 
     public String getPackageManager() {
         return packageManager;
     }
 
+    public void setPackageManager(String packageManager) {
+        this.packageManager = packageManager;
+    }
+
     public String getUrl() {
         return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
     }
 
     public String getRepositoryUrl() {
         return repositoryUrl;
     }
 
+    public void setRepositoryUrl(String repositoryUrl) {
+        this.repositoryUrl = repositoryUrl;
+    }
+
     public String getLicense() {
         return license;
+    }
+
+    public void setLicense(String license) {
+        this.license = license;
     }
 
     public Boolean getActiveFlag() {
@@ -218,34 +201,6 @@ public class Library {
     @PreUpdate
     protected void onUpdate() {
         updatedAt = LocalDateTime.now();
-    }
-
-    public void setPackageName(String packageName) {
-        this.packageName = packageName;
-    }
-
-    public void setPackageManager(String packageManager) {
-        this.packageManager = packageManager;
-    }
-
-    public void setUrl(String url) {
-        this.url = url;
-    }
-
-    public void setRepositoryUrl(String repositoryUrl) {
-        this.repositoryUrl = repositoryUrl;
-    }
-
-    public void setLicense(String license) {
-        this.license = license;
-    }
-
-    public void setCurrentVersion(String currentVersion) {
-        this.currentVersion = currentVersion;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
     }
 
     @Override

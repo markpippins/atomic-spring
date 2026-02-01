@@ -1,30 +1,36 @@
 package com.angrysurfer.atomic.service.registry.repository;
 
-import com.angrysurfer.atomic.service.registry.entity.Service;
+import java.util.List;
+import java.util.Optional;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
-import java.util.Optional;
-
+import com.angrysurfer.atomic.service.registry.entity.Framework;
+import com.angrysurfer.atomic.service.registry.entity.Service;
 import com.angrysurfer.atomic.service.registry.entity.ServiceType;
 
 @Repository
 public interface ServiceRepository extends JpaRepository<Service, Long> {
     Optional<Service> findByName(String name);
 
-    List<Service> findByFrameworkId(Long frameworkId);
+    List<Service> findByFramework(Framework framework);
+
+    List<Service> findByFramework_Id(Long frameworkId);
 
     List<Service> findByType(ServiceType type);
+
+    List<Service> findByType_Id(Long serviceTypeId);
 
     List<Service> findByStatus(String status);
 
     @Query("SELECT s FROM Service s JOIN s.serviceDependenciesAsConsumer d WHERE d.id = :serviceId")
     List<Service> findDependents(Long serviceId);
 
-    // Sub-module relationship queries
-    List<Service> findByParentServiceId(Long parentServiceId);
+    List<Service> findByParentService(Service parentService);
 
-    List<Service> findByParentServiceIdIsNull();
+    List<Service> findByParentService_Id(Long parentServiceId);
+
+    List<Service> findByParentServiceIsNull();
 }

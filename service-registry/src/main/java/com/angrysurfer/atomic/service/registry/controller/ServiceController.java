@@ -66,7 +66,7 @@ public class ServiceController {
     @GetMapping("/framework/{frameworkId}")
     public List<Service> getServicesByFramework(@PathVariable Long frameworkId) {
         log.info("Fetching services by framework ID: {}", frameworkId);
-        return serviceRepository.findByFrameworkId(frameworkId);
+        return serviceRepository.findByFramework_Id(frameworkId);
     }
 
     @GetMapping("/{id}/dependencies")
@@ -88,14 +88,14 @@ public class ServiceController {
     @GetMapping("/{id}/sub-modules")
     public ResponseEntity<List<Service>> getSubModules(@PathVariable Long id) {
         log.info("Fetching sub-modules for service: {}", id);
-        List<Service> subModules = serviceRepository.findByParentServiceId(id);
+        List<Service> subModules = serviceRepository.findByParentService_Id(id);
         return ResponseEntity.ok(subModules);
     }
 
     @GetMapping("/standalone")
     public List<Service> getStandaloneServices() {
-        log.info("Fetching standalone/parent services (parentServiceId is null)");
-        return serviceRepository.findByParentServiceIdIsNull();
+        log.info("Fetching standalone/parent services (parentService is null)");
+        return serviceRepository.findByParentServiceIsNull();
     }
 
     @PostMapping

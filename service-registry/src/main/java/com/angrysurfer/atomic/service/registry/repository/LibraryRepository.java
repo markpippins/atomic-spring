@@ -1,11 +1,14 @@
 package com.angrysurfer.atomic.service.registry.repository;
 
-import com.angrysurfer.atomic.service.registry.entity.Library;
+import java.util.List;
+import java.util.Optional;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
-import java.util.Optional;
+import com.angrysurfer.atomic.service.registry.entity.FrameworkLanguage;
+import com.angrysurfer.atomic.service.registry.entity.Library;
+import com.angrysurfer.atomic.service.registry.entity.LibraryCategory;
 
 @Repository
 public interface LibraryRepository extends JpaRepository<Library, Long> {
@@ -13,9 +16,13 @@ public interface LibraryRepository extends JpaRepository<Library, Long> {
 
     Optional<Library> findByPackageName(String packageName);
 
-    List<Library> findByCategoryId(Long categoryId);
+    List<Library> findByCategory(LibraryCategory category);
 
-    List<Library> findByLanguageId(Long languageId);
+    List<Library> findByCategory_Id(Long categoryId);
+
+    List<Library> findByLanguage(FrameworkLanguage language);
+
+    List<Library> findByLanguage_Id(Long languageId);
 
     List<Library> findByPackageManager(String packageManager);
 }

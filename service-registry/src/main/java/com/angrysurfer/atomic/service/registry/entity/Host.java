@@ -29,31 +29,22 @@ public class Host {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String hostname;
 
     @Column(name = "ip_address", nullable = false)
     private String ipAddress;
 
-    @Column(name = "server_type_id", nullable = false)
-    private Long serverTypeId;
-
-    @ManyToOne
-    @JoinColumn(name = "server_type_id", referencedColumnName = "id", insertable = false, updatable = false)
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "server_type_id")
     private ServerType type;
 
-    @Column(name = "environment_type_id", nullable = false)
-    private Long environmentTypeId;
-
-    @ManyToOne
-    @JoinColumn(name = "environment_type_id", referencedColumnName = "id", insertable = false, updatable = false)
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "environment_type_id")
     private EnvironmentType environmentType;
 
-    @Column(name = "operating_system_id", nullable = false)
-    private Long operatingSystemId;
-
-    @ManyToOne
-    @JoinColumn(name = "operating_system_id", referencedColumnName = "id", insertable = false, updatable = false)
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "operating_system_id")
     private OperatingSystem operatingSystem;
 
     @Column(name = "cpu_cores")
@@ -92,32 +83,6 @@ public class Host {
     public Host() {
     }
 
-    public Host(Long id, String hostname, String ipAddress, Long serverTypeId, ServerType type, Long environmentTypeId,
-            EnvironmentType environmentType, Long operatingSystemId, OperatingSystem operatingSystem, Integer cpuCores,
-            String memory, String disk, String status, String region, String cloudProvider, String description,
-            Boolean activeFlag, LocalDateTime createdAt, LocalDateTime updatedAt, Set<Deployment> deployments) {
-        this.id = id;
-        this.hostname = hostname;
-        this.ipAddress = ipAddress;
-        this.serverTypeId = serverTypeId;
-        this.type = type;
-        this.environmentTypeId = environmentTypeId;
-        this.environmentType = environmentType;
-        this.operatingSystemId = operatingSystemId;
-        this.operatingSystem = operatingSystem;
-        this.cpuCores = cpuCores;
-        this.memory = memory;
-        this.disk = disk;
-        this.status = status;
-        this.region = region;
-        this.cloudProvider = cloudProvider;
-        this.description = description;
-        this.activeFlag = activeFlag;
-        this.createdAt = createdAt;
-        this.updatedAt = updatedAt;
-        this.deployments = deployments;
-    }
-
     public Long getId() {
         return id;
     }
@@ -142,14 +107,6 @@ public class Host {
         this.ipAddress = ipAddress;
     }
 
-    public Long getServerTypeId() {
-        return serverTypeId;
-    }
-
-    public void setServerTypeId(Long serverTypeId) {
-        this.serverTypeId = serverTypeId;
-    }
-
     public ServerType getType() {
         return type;
     }
@@ -158,28 +115,12 @@ public class Host {
         this.type = type;
     }
 
-    public Long getEnvironmentTypeId() {
-        return environmentTypeId;
-    }
-
-    public void setEnvironmentTypeId(Long environmentTypeId) {
-        this.environmentTypeId = environmentTypeId;
-    }
-
     public EnvironmentType getEnvironmentType() {
         return environmentType;
     }
 
     public void setEnvironmentType(EnvironmentType environmentType) {
         this.environmentType = environmentType;
-    }
-
-    public Long getOperatingSystemId() {
-        return operatingSystemId;
-    }
-
-    public void setOperatingSystemId(Long operatingSystemId) {
-        this.operatingSystemId = operatingSystemId;
     }
 
     public OperatingSystem getOperatingSystem() {
@@ -276,6 +217,19 @@ public class Host {
 
     public void setDeployments(Set<Deployment> deployments) {
         this.deployments = deployments;
+    }
+
+    // Backward-compatible ID accessors
+    public Long getServerTypeId() {
+        return type != null ? type.getId() : null;
+    }
+
+    public Long getEnvironmentTypeId() {
+        return environmentType != null ? environmentType.getId() : null;
+    }
+
+    public Long getOperatingSystemId() {
+        return operatingSystem != null ? operatingSystem.getId() : null;
     }
 
     @PrePersist

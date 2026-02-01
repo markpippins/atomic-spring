@@ -58,12 +58,12 @@ public class DeploymentController {
     @GetMapping("/service/{serviceId}")
     public List<Deployment> getDeploymentsByService(@PathVariable Long serviceId) {
         log.info("Fetching deployments for service: {}", serviceId);
-        return deploymentRepository.findByServiceId(serviceId);
+        return deploymentRepository.findByService_Id(serviceId);
     }
 
     @PostMapping
     public ResponseEntity<Deployment> createDeployment(@RequestBody Deployment deployment) {
-        log.info("Creating new deployment for service ID: {}", deployment.getServiceId());
+        log.info("Creating new deployment");
 
         // Set active flag
         deployment.setActiveFlag(true);
@@ -72,26 +72,28 @@ public class DeploymentController {
         log.info("Successfully created deployment with ID: {}", savedDeployment.getId());
 
         // Check if this service has sub-modules and deploy them automatically
-        List<Service> subModules = serviceRepository.findByParentServiceId(deployment.getServiceId());
-        if (!subModules.isEmpty()) {
-            log.info("Service {} has {} sub-modules, creating deployments for them", deployment.getServiceId(),
-                    subModules.size());
-            for (Service subModule : subModules) {
-                Deployment subDeployment = new Deployment();
-                subDeployment.setServiceId(subModule.getId());
-                subDeployment.setServerId(deployment.getServerId());
-                subDeployment.setEnvironmentId(deployment.getEnvironmentId());
-                subDeployment.setVersion(deployment.getVersion());
-                subDeployment.setStatus(deployment.getStatus());
-                subDeployment.setPort(deployment.getPort()); // Sub-modules share the same port (bundled)
-                subDeployment.setContextPath(deployment.getContextPath());
-                subDeployment.setHealthCheckUrl(deployment.getHealthCheckUrl());
-                subDeployment.setHealthStatus(deployment.getHealthStatus());
-                subDeployment.setActiveFlag(true);
+        if (deployment.getService() != null) {
+            List<Service> subModules = serviceRepository.findByParentService_Id(deployment.getService().getId());
+            if (!subModules.isEmpty()) {
+                log.info("Service {} has {} sub-modules, creating deployments for them", deployment.getService().getId(),
+                        subModules.size());
+                for (Service subModule : subModules) {
+                    Deployment subDeployment = new Deployment();
+                    subDeployment.setService(subModule);
+                    subDeployment.setServer(deployment.getServer());
+                    subDeployment.setEnvironment(deployment.getEnvironment());
+                    subDeployment.setVersion(deployment.getVersion());
+                    subDeployment.setStatus(deployment.getStatus());
+                    subDeployment.setPort(deployment.getPort()); // Sub-modules share the same port (bundled)
+                    subDeployment.setContextPath(deployment.getContextPath());
+                    subDeployment.setHealthCheckUrl(deployment.getHealthCheckUrl());
+                    subDeployment.setHealthStatus(deployment.getHealthStatus());
+                    subDeployment.setActiveFlag(true);
 
-                Deployment savedSubDeployment = deploymentRepository.save(subDeployment);
-                log.info("Created sub-module deployment for service {} with ID: {}", subModule.getName(),
-                        savedSubDeployment.getId());
+                    Deployment savedSubDeployment = deploymentRepository.save(subDeployment);
+                    log.info("Created sub-module deployment for service {} with ID: {}", subModule.getName(),
+                            savedSubDeployment.getId());
+                }
             }
         }
 
@@ -162,18 +164,20 @@ public class DeploymentController {
         Deployment deployment = deploymentOpt.get();
 
         // Check if this service has sub-modules and delete their deployments
-        List<Service> subModules = serviceRepository.findByParentServiceId(deployment.getServiceId());
-        if (!subModules.isEmpty()) {
-            log.info("Service {} has {} sub-modules, deleting their deployments", deployment.getServiceId(),
-                    subModules.size());
-            for (Service subModule : subModules) {
-                List<Deployment> subDeployments = deploymentRepository.findByServiceId(subModule.getId());
-                for (Deployment subDeployment : subDeployments) {
-                    // Only delete sub-deployments on the same server
-                    if (subDeployment.getServerId().equals(deployment.getServerId())) {
-                        deploymentRepository.deleteById(subDeployment.getId());
-                        log.info("Deleted sub-module deployment for service {} with ID: {}", subModule.getName(),
-                                subDeployment.getId());
+        if (deployment.getService() != null) {
+            List<Service> subModules = serviceRepository.findByParentService_Id(deployment.getService().getId());
+            if (!subModules.isEmpty()) {
+                log.info("Service {} has {} sub-modules, deleting their deployments", deployment.getService().getId(),
+                        subModules.size());
+                for (Service subModule : subModules) {
+                    List<Deployment> subDeployments = deploymentRepository.findByService_Id(subModule.getId());
+                    for (Deployment subDeployment : subDeployments) {
+                        // Only delete sub-deployments on the same server
+                        if (subDeployment.getServer() != null && subDeployment.getServer().equals(deployment.getServer())) {
+                            deploymentRepository.deleteById(subDeployment.getId());
+                            log.info("Deleted sub-module deployment for service {} with ID: {}", subModule.getName(),
+                                    subDeployment.getId());
+                        }
                     }
                 }
             }

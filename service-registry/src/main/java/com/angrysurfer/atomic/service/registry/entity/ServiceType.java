@@ -1,6 +1,9 @@
 package com.angrysurfer.atomic.service.registry.entity;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
@@ -15,28 +18,27 @@ public class ServiceType {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String name;
+
+    @Column(length = 1000)
+    private String description;
 
     @Column(name = "active_flag")
     private Boolean activeFlag = true;
 
-    @Column(name = "default_component_id")
-    private Long defaultComponentId;
-
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "default_component_id", referencedColumnName = "id", insertable = false, updatable = false)
+    @JoinColumn(name = "default_component_id")
     private VisualComponent defaultComponent;
 
     public ServiceType() {
     }
 
-    public ServiceType(Long id, String name, Boolean activeFlag, Long defaultComponentId,
-            VisualComponent defaultComponent) {
+    public ServiceType(Long id, String name, String description, Boolean activeFlag, VisualComponent defaultComponent) {
         this.id = id;
         this.name = name;
+        this.description = description;
         this.activeFlag = activeFlag;
-        this.defaultComponentId = defaultComponentId;
         this.defaultComponent = defaultComponent;
     }
 
@@ -56,6 +58,14 @@ public class ServiceType {
         this.name = name;
     }
 
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
     public Boolean getActiveFlag() {
         return activeFlag;
     }
@@ -64,29 +74,11 @@ public class ServiceType {
         this.activeFlag = activeFlag;
     }
 
-    public Long getDefaultComponentId() {
-        return defaultComponentId;
-    }
-
-    public void setDefaultComponentId(Long defaultComponentId) {
-        this.defaultComponentId = defaultComponentId;
-    }
-
     public VisualComponent getDefaultComponent() {
         return defaultComponent;
     }
 
     public void setDefaultComponent(VisualComponent defaultComponent) {
         this.defaultComponent = defaultComponent;
-    }
-
-    // Methods needed for backward compatibility with controllers and services
-    public String getDescription() {
-        // This field was removed, returning null for now
-        return null;
-    }
-
-    public void setDescription(String description) {
-        // This field was removed, doing nothing for now
     }
 }

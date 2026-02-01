@@ -1,16 +1,36 @@
 package com.angrysurfer.atomic.service.registry.repository;
 
-import com.angrysurfer.atomic.service.registry.entity.Deployment;
+import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
+import com.angrysurfer.atomic.service.registry.entity.Deployment;
+import com.angrysurfer.atomic.service.registry.entity.EnvironmentType;
+import com.angrysurfer.atomic.service.registry.entity.Host;
+import com.angrysurfer.atomic.service.registry.entity.Service;
 
 @Repository
 public interface DeploymentRepository extends JpaRepository<Deployment, Long> {
-    List<Deployment> findByServiceId(Long serviceId);
-    List<Deployment> findByServerId(Long serverId);
+    List<Deployment> findByService(Service service);
+    List<Deployment> findByService_Id(Long serviceId);
+    List<Deployment> findByServer(Host server);
+    List<Deployment> findByServer_Id(Long serverId);
     List<Deployment> findByStatus(String status);
-    List<Deployment> findByEnvironmentId(Long environmentId);
-    List<Deployment> findByServiceIdAndEnvironmentId(Long serviceId, Long environmentId);
+    List<Deployment> findByEnvironment(EnvironmentType environment);
+    List<Deployment> findByEnvironment_Id(Long environmentId);
+    List<Deployment> findByServiceAndEnvironment(Service service, EnvironmentType environment);
+
+    // Backward-compatible aliases
+    default List<Deployment> findByServiceId(Long serviceId) {
+        return findByService_Id(serviceId);
+    }
+
+    default List<Deployment> findByServerId(Long serverId) {
+        return findByServer_Id(serverId);
+    }
+
+    default List<Deployment> findByEnvironmentId(Long environmentId) {
+        return findByEnvironment_Id(environmentId);
+    }
 }

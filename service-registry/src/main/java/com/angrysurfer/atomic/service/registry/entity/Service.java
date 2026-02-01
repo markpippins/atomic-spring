@@ -20,7 +20,6 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
-import jakarta.persistence.Transient;
 
 @Entity
 @Table(name = "services")
@@ -32,44 +31,28 @@ public class Service {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String name;
 
     @Column(length = 1000)
     private String description;
 
-    @Column(name = "framework_id", nullable = false)
-    private Long frameworkId;
-
-    @ManyToOne
-    @JoinColumn(name = "framework_id", referencedColumnName = "id", insertable = false, updatable = false)
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "framework_id")
     private Framework framework;
 
-    @Column(name = "service_type_id", nullable = false)
-    private Long serviceTypeId;
-
-    @ManyToOne
-    @JoinColumn(name = "service_type_id", referencedColumnName = "id", insertable = false, updatable = false)
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "service_type_id")
     private ServiceType type;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "component_override_id", referencedColumnName = "id", nullable = true)
     private VisualComponent componentOverride;
 
-    // Temporary field to maintain backward compatibility
-    @Transient
-    private Long componentOverrideId;
-
-    // Parent service ID - null if this is a standalone/parent service
-    @Column(name = "parent_service_id")
-    private Long parentServiceId;
-
-    // Parent service relationship
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "parent_service_id", referencedColumnName = "id", insertable = false, updatable = false)
+    @JoinColumn(name = "parent_service_id")
     private Service parentService;
 
-    // Child sub-module services
     @OneToMany(mappedBy = "parentService", fetch = FetchType.LAZY)
     private Set<Service> subModules = new HashSet<>();
 
@@ -100,11 +83,9 @@ public class Service {
     @OneToMany(mappedBy = "service", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Deployment> deployments = new HashSet<>();
 
-    // This would need to be mapped to the ServiceConfig entity
     @OneToMany(mappedBy = "service")
     private Set<ServiceConfiguration> serviceConfigs = new HashSet<>();
 
-    // For service dependencies - we'll need to create a separate entity for this
     @OneToMany(mappedBy = "service")
     private Set<ServiceDependency> serviceDependenciesAsConsumer = new HashSet<>();
 
@@ -112,47 +93,6 @@ public class Service {
     private Set<ServiceDependency> serviceDependenciesAsProvider = new HashSet<>();
 
     public Service() {
-    }
-
-    public Service(Long id, String name, String description, Long frameworkId, Framework framework, Long serviceTypeId,
-            ServiceType type, Long componentOverrideId, VisualComponent componentOverride, Long parentServiceId,
-            Service parentService, Set<Service> subModules, Integer defaultPort, String apiBasePath,
-            String repositoryUrl, String version, String status, Boolean activeFlag, LocalDateTime createdAt,
-            LocalDateTime updatedAt, Set<Deployment> deployments, Set<ServiceConfiguration> serviceConfigs,
-            Set<ServiceDependency> serviceDependenciesAsConsumer,
-            Set<ServiceDependency> serviceDependenciesAsProvider) {
-        this.id = id;
-        this.name = name;
-        this.description = description;
-        this.frameworkId = frameworkId;
-        this.framework = framework;
-        this.serviceTypeId = serviceTypeId;
-        this.type = type;
-        if (componentOverrideId != null) {
-            if (componentOverride == null) {
-                this.componentOverride = new VisualComponent();
-                this.componentOverride.setId(componentOverrideId);
-            } else {
-                this.componentOverride = componentOverride;
-            }
-        } else {
-            this.componentOverride = componentOverride;
-        }
-        this.parentServiceId = parentServiceId;
-        this.parentService = parentService;
-        this.subModules = subModules;
-        this.defaultPort = defaultPort;
-        this.apiBasePath = apiBasePath;
-        this.repositoryUrl = repositoryUrl;
-        this.version = version;
-        this.status = status;
-        this.activeFlag = activeFlag;
-        this.createdAt = createdAt;
-        this.updatedAt = updatedAt;
-        this.deployments = deployments;
-        this.serviceConfigs = serviceConfigs;
-        this.serviceDependenciesAsConsumer = serviceDependenciesAsConsumer;
-        this.serviceDependenciesAsProvider = serviceDependenciesAsProvider;
     }
 
     public Long getId() {
@@ -179,28 +119,12 @@ public class Service {
         this.description = description;
     }
 
-    public Long getFrameworkId() {
-        return frameworkId;
-    }
-
-    public void setFrameworkId(Long frameworkId) {
-        this.frameworkId = frameworkId;
-    }
-
     public Framework getFramework() {
         return framework;
     }
 
     public void setFramework(Framework framework) {
         this.framework = framework;
-    }
-
-    public Long getServiceTypeId() {
-        return serviceTypeId;
-    }
-
-    public void setServiceTypeId(Long serviceTypeId) {
-        this.serviceTypeId = serviceTypeId;
     }
 
     public ServiceType getType() {
@@ -211,35 +135,12 @@ public class Service {
         this.type = type;
     }
 
-    public Long getComponentOverrideId() {
-        return componentOverride != null ? componentOverride.getId() : null;
-    }
-
-    public void setComponentOverrideId(Long componentOverrideId) {
-        if (componentOverrideId != null) {
-            if (this.componentOverride == null) {
-                this.componentOverride = new VisualComponent();
-            }
-            this.componentOverride.setId(componentOverrideId);
-        } else {
-            this.componentOverride = null;
-        }
-    }
-
     public VisualComponent getComponentOverride() {
         return componentOverride;
     }
 
     public void setComponentOverride(VisualComponent componentOverride) {
         this.componentOverride = componentOverride;
-    }
-
-    public Long getParentServiceId() {
-        return parentServiceId;
-    }
-
-    public void setParentServiceId(Long parentServiceId) {
-        this.parentServiceId = parentServiceId;
     }
 
     public Service getParentService() {
@@ -354,6 +255,31 @@ public class Service {
         this.serviceDependenciesAsProvider = serviceDependenciesAsProvider;
     }
 
+    // Backward-compatible ID accessors
+    public Long getFrameworkId() {
+        return framework != null ? framework.getId() : null;
+    }
+
+    public void setFrameworkId(Long frameworkId) {
+        // No-op for backward compatibility
+    }
+
+    public Long getServiceTypeId() {
+        return type != null ? type.getId() : null;
+    }
+
+    public void setServiceTypeId(Long serviceTypeId) {
+        // No-op for backward compatibility
+    }
+
+    public String getHealthCheckPath() {
+        return apiBasePath != null ? apiBasePath + "/actuator/health" : null;
+    }
+
+    public void setHealthCheckPath(String healthCheckPath) {
+        // No-op for backward compatibility
+    }
+
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
@@ -379,28 +305,5 @@ public class Service {
     @Override
     public int hashCode() {
         return Objects.hash(id, name);
-    }
-
-    // Methods needed for backward compatibility with controllers and services
-    public String getHealthCheckPath() {
-        // This field was removed, returning null for now
-        return null;
-    }
-
-    public void setHealthCheckPath(String healthCheckPath) {
-        // This field was removed, doing nothing for now
-    }
-
-    public java.util.Set<Service> getDependencies() {
-        // This field was removed, returning empty set for now
-        return new java.util.HashSet<>();
-    }
-
-    public ServiceStatus getStatusEnum() {
-        return ServiceStatus.valueOf(this.status);
-    }
-
-    public enum ServiceStatus {
-        ACTIVE, DEPRECATED, ARCHIVED, PLANNED
     }
 }

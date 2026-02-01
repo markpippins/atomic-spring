@@ -28,31 +28,22 @@ public class Framework {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String name;
 
     @Column(length = 1000)
     private String description;
 
-    @Column(name = "vendor_id")
-    private Long vendorId;
-
     @ManyToOne
-    @JoinColumn(name = "vendor_id", referencedColumnName = "id", insertable = false, updatable = false)
+    @JoinColumn(name = "vendor_id")
     private FrameworkVendor vendor;
 
-    @Column(name = "category_id", nullable = false)
-    private Long categoryId;
-
-    @ManyToOne
-    @JoinColumn(name = "category_id", referencedColumnName = "id", insertable = false, updatable = false)
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "category_id")
     private FrameworkCategory category;
 
-    @Column(name = "language_id", nullable = false)
-    private Long languageId;
-
-    @ManyToOne
-    @JoinColumn(name = "language_id", referencedColumnName = "id", insertable = false, updatable = false)
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "language_id")
     private FrameworkLanguage language;
 
     @Column(name = "current_version")
@@ -67,6 +58,9 @@ public class Framework {
     @Column(name = "active_flag")
     private Boolean activeFlag = true;
 
+    @Column(name = "supports_broker_pattern")
+    private Boolean supportsBrokerPattern = false;
+
     @Column
     private LocalDateTime createdAt;
 
@@ -77,27 +71,6 @@ public class Framework {
     private Set<Service> services = new HashSet<>();
 
     public Framework() {
-    }
-
-    public Framework(Long id, String name, String description, Long vendorId, Long categoryId,
-            FrameworkCategory category, Long languageId, FrameworkLanguage language, String currentVersion,
-            String ltsVersion, String url, Boolean activeFlag, LocalDateTime createdAt, LocalDateTime updatedAt,
-            Set<Service> services) {
-        this.id = id;
-        this.name = name;
-        this.description = description;
-        this.vendorId = vendorId;
-        this.categoryId = categoryId;
-        this.category = category;
-        this.languageId = languageId;
-        this.language = language;
-        this.currentVersion = currentVersion;
-        this.ltsVersion = ltsVersion;
-        this.url = url;
-        this.activeFlag = activeFlag;
-        this.createdAt = createdAt;
-        this.updatedAt = updatedAt;
-        this.services = services;
     }
 
     public Long getId() {
@@ -124,14 +97,6 @@ public class Framework {
         this.description = description;
     }
 
-    public Long getVendorId() {
-        return vendorId;
-    }
-
-    public void setVendorId(Long vendorId) {
-        this.vendorId = vendorId;
-    }
-
     public FrameworkVendor getVendor() {
         return vendor;
     }
@@ -140,28 +105,12 @@ public class Framework {
         this.vendor = vendor;
     }
 
-    public Long getCategoryId() {
-        return categoryId;
-    }
-
-    public void setCategoryId(Long categoryId) {
-        this.categoryId = categoryId;
-    }
-
     public FrameworkCategory getCategory() {
         return category;
     }
 
     public void setCategory(FrameworkCategory category) {
         this.category = category;
-    }
-
-    public Long getLanguageId() {
-        return languageId;
-    }
-
-    public void setLanguageId(Long languageId) {
-        this.languageId = languageId;
     }
 
     public FrameworkLanguage getLanguage() {
@@ -204,6 +153,14 @@ public class Framework {
         this.activeFlag = activeFlag;
     }
 
+    public Boolean getSupportsBrokerPattern() {
+        return supportsBrokerPattern;
+    }
+
+    public void setSupportsBrokerPattern(Boolean supportsBrokerPattern) {
+        this.supportsBrokerPattern = supportsBrokerPattern;
+    }
+
     public LocalDateTime getCreatedAt() {
         return createdAt;
     }
@@ -226,6 +183,43 @@ public class Framework {
 
     public void setServices(Set<Service> services) {
         this.services = services;
+    }
+
+    // Backward-compatible ID accessors
+    public Long getVendorId() {
+        return vendor != null ? vendor.getId() : null;
+    }
+
+    public void setVendorId(Long vendorId) {
+        // No-op for backward compatibility
+    }
+
+    public Long getCategoryId() {
+        return category != null ? category.getId() : null;
+    }
+
+    public void setCategoryId(Long categoryId) {
+        // No-op for backward compatibility
+    }
+
+    public Long getLanguageId() {
+        return language != null ? language.getId() : null;
+    }
+
+    public void setLanguageId(Long languageId) {
+        // No-op for backward compatibility
+    }
+
+    public String getLatestVersion() {
+        return currentVersion;
+    }
+
+    public String getDocumentationUrl() {
+        return url;
+    }
+
+    public String getRepositoryUrl() {
+        return url;
     }
 
     @PrePersist
@@ -253,42 +247,5 @@ public class Framework {
     @Override
     public int hashCode() {
         return Objects.hash(id, name);
-    }
-
-    // Methods needed for backward compatibility with controllers and services
-    public String getLatestVersion() {
-        // This field was removed, returning null for now
-        return null;
-    }
-
-    public void setLatestVersion(String latestVersion) {
-        // This field was removed, doing nothing for now
-    }
-
-    public String getDocumentationUrl() {
-        // This field was removed, returning null for now
-        return null;
-    }
-
-    public void setDocumentationUrl(String documentationUrl) {
-        // This field was removed, doing nothing for now
-    }
-
-    public String getRepositoryUrl() {
-        // This field was removed, returning null for now
-        return null;
-    }
-
-    public void setRepositoryUrl(String repositoryUrl) {
-        // This field was removed, doing nothing for now
-    }
-
-    public Boolean getSupportsBrokerPattern() {
-        // This field was removed, returning false for now
-        return false;
-    }
-
-    public void setSupportsBrokerPattern(Boolean supportsBrokerPattern) {
-        // This field was removed, doing nothing for now
     }
 }

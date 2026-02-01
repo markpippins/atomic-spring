@@ -1,14 +1,23 @@
 package com.angrysurfer.atomic.service.registry.controller;
 
-import com.angrysurfer.atomic.service.registry.entity.Library;
-import com.angrysurfer.atomic.service.registry.repository.LibraryRepository;
+import java.util.List;
+import java.util.Optional;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
-import java.util.Optional;
+import com.angrysurfer.atomic.service.registry.entity.Library;
+import com.angrysurfer.atomic.service.registry.repository.LibraryRepository;
 
 @RestController
 @RequestMapping("/api/libraries")
@@ -48,13 +57,13 @@ public class LibraryController {
     @GetMapping("/category/{categoryId}")
     public List<Library> getLibrariesByCategory(@PathVariable Long categoryId) {
         log.info("Fetching libraries by category ID: {}", categoryId);
-        return libraryRepository.findByCategoryId(categoryId);
+        return libraryRepository.findByCategory_Id(categoryId);
     }
 
     @GetMapping("/language/{languageId}")
     public List<Library> getLibrariesByLanguage(@PathVariable Long languageId) {
         log.info("Fetching libraries by language ID: {}", languageId);
-        return libraryRepository.findByLanguageId(languageId);
+        return libraryRepository.findByLanguage_Id(languageId);
     }
 
     @GetMapping("/package-manager/{packageManager}")
