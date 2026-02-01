@@ -1505,3 +1505,6 @@ service-broker/export-service/target/classes/sql/get-models.sql
 service-broker/export-service/target/classes/sql/get-users.sql
 service-broker/broker-gateway/target/classes/com/angrysurfer/atomic/broker/gateway/ServiceRegistryRegistrationService.class
 service-broker/note-service/target/classes/com/angrysurfer/atomic/note/.gitkeep
+service-registry/compile_log2.txt
+service-registry/compile_log.txt
+.gitignore
