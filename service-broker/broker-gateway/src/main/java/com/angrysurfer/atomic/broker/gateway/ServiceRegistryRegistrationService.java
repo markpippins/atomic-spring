@@ -27,11 +27,11 @@ import com.angrysurfer.atomic.broker.api.ServiceRegistration;
 import com.angrysurfer.atomic.registry.service.RegistryService;
 
 @Component
-public class HostServerRegistrationService {
+public class ServiceRegistryRegistrationService {
 
-    private static final Logger log = LoggerFactory.getLogger(HostServerRegistrationService.class);
+    private static final Logger log = LoggerFactory.getLogger(ServiceRegistryRegistrationService.class);
 
-    @Value("${host.server.url:http://localhost:8085}")
+    @Value("${service.registry.url:http://localhost:8085}")
     private String hostServerUrl;
 
     @Value("${server.port:8080}")
@@ -43,17 +43,17 @@ public class HostServerRegistrationService {
     @Value("${service.host:localhost}")
     private String serviceHost;
 
-    @Value("${host.server.registration.enabled:true}")
+    @Value("${service.registry.registration.enabled:true}")
     private boolean registrationEnabled;
 
-    @Value("${host.server.heartbeat.interval.seconds:30}")
+    @Value("${service.registry.heartbeat.interval.seconds:30}")
     private int heartbeatInterval;
 
     private ScheduledExecutorService scheduler;
     private final RestTemplate restTemplate;
     private final RegistryService registryService;
 
-    public HostServerRegistrationService(
+    public ServiceRegistryRegistrationService(
             @Qualifier("gatewayRestTemplate") RestTemplate restTemplate,
             RegistryService registryService) {
         this.restTemplate = restTemplate;
@@ -64,7 +64,7 @@ public class HostServerRegistrationService {
     @Order(100) // Run after BrokerAutoRegistration populates the in-memory registry
     public void onStart() {
         if (!registrationEnabled) {
-            log.info("Host-server registration is disabled");
+            log.info("Service-Registry registration is disabled");
             return;
         }
 
@@ -79,7 +79,7 @@ public class HostServerRegistrationService {
                 heartbeatInterval,
                 TimeUnit.SECONDS);
 
-        log.info("Host-server registration service started. Heartbeat interval: {}s", heartbeatInterval);
+        log.info("Service-Registry registration service started. Heartbeat interval: {}s", heartbeatInterval);
     }
 
     @EventListener(ContextClosedEvent.class)
@@ -87,7 +87,7 @@ public class HostServerRegistrationService {
         if (scheduler != null) {
             scheduler.shutdown();
         }
-        log.info("Host-server registration service stopped");
+        log.info("Service-Registry registration service stopped");
     }
 
     private void registerService() {

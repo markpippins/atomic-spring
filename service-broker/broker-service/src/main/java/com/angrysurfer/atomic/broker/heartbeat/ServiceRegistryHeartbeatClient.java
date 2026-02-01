@@ -26,10 +26,10 @@ import jakarta.annotation.PreDestroy;
  * service-registry.
  * 
  * Each service module that includes broker-service can enable this by setting:
- * host.server.registration.enabled=true
+ * service.registry.registration.enabled=true
  * 
  * Required configuration properties:
- * - host.server.url: Base URL of the service-registry (default:
+ * - service.registry.url: Base URL of the service-registry (default:
  * http://localhost:8085)
  * - service.name: Unique name for this service (required)
  * - server.port: Port this service runs on (default: 8080)
@@ -39,12 +39,12 @@ import jakarta.annotation.PreDestroy;
  */
 @Component
 @EnableScheduling
-@ConditionalOnProperty(name = "host.server.registration.enabled", havingValue = "true")
-public class HostServerHeartbeatClient {
+@ConditionalOnProperty(name = "service.registry.registration.enabled", havingValue = "true")
+public class ServiceRegistryHeartbeatClient {
 
-    private static final Logger LOG = LoggerFactory.getLogger(HostServerHeartbeatClient.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ServiceRegistryHeartbeatClient.class);
 
-    @Value("${host.server.url:http://localhost:8085}")
+    @Value("${service.registry.url:http://localhost:8085}")
     private String hostServerUrl;
 
     @Value("${service.name}")
@@ -68,7 +68,7 @@ public class HostServerHeartbeatClient {
     private final RestTemplate restTemplate;
     private volatile boolean registered = false;
 
-    public HostServerHeartbeatClient() {
+    public ServiceRegistryHeartbeatClient() {
         this.restTemplate = new RestTemplate();
     }
 
