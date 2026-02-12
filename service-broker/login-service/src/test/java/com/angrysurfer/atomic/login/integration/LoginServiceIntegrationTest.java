@@ -29,16 +29,26 @@ class LoginServiceIntegrationTest {
     @Mock
     private ValueOperations<String, Object> valueOperations;
 
+    @Mock
+    private com.angrysurfer.atomic.login.client.UserAccessClient userAccessClient;
+
     private LoginService loginService;
 
     @BeforeEach
     void setUp() {
         when(redisTemplate.opsForValue()).thenReturn(valueOperations);
-        loginService = new LoginService(redisTemplate);
+        loginService = new LoginService(redisTemplate, userAccessClient);
     }
 
     @Test
     void login_WithValidUser_ShouldReturnToken() {
+        // Given
+        UserRegistrationDTO mockUser = new UserRegistrationDTO();
+        mockUser.setId("1");
+        mockUser.setAvatarUrl("http://avatar.url");
+        mockUser.setAdmin(false);
+        when(userAccessClient.validateUser(any())).thenReturn(mockUser);
+
         // When
         var result = loginService.login("testuser", "password123");
 
@@ -53,6 +63,12 @@ class LoginServiceIntegrationTest {
 
     @Test
     void login_WithInvalidCredentials_ShouldReturnFailure() {
+        // Given
+        feign.Request request = feign.Request.create(feign.Request.HttpMethod.GET, "url",
+                java.util.Collections.emptyMap(), null, null, null);
+        when(userAccessClient.validateUser(any()))
+                .thenThrow(new feign.FeignException.Unauthorized("Unauthorized", request, null, null));
+
         // When
         var result = loginService.login("", ""); // Empty credentials
 

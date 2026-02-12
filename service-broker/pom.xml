@@ -9,6 +9,9 @@
     <version>1.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
+    <name>Service Broker</name>
+    <description>Atomic Service Broker</description>
+
     <modules>
         <module>broker-service-api</module>
         <module>broker-service-spi</module>
@@ -20,6 +23,8 @@
         <module>export-service</module>
         <module>login-service</module>
         <module>shrapnel-data</module>
+        <module>social-media-api</module>
+        <module>social-media</module>
         <module>user-api</module>
         <module>user-service</module>
         <module>user-access-service</module>
@@ -244,6 +249,16 @@
             <dependency>
                 <groupId>com.angrysurfer.atomic</groupId>
                 <artifactId>search-service</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.angrysurfer.atomic</groupId>
+                <artifactId>social-media-api</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.angrysurfer.atomic</groupId>
+                <artifactId>social-media</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <!-- Lombok with version management -->

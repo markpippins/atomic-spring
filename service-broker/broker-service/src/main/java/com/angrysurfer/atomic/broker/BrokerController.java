@@ -13,9 +13,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.angrysurfer.atomic.admin.logging.service.AdminLoggingService;
 import com.angrysurfer.atomic.broker.api.ServiceRequest;
 import com.angrysurfer.atomic.broker.api.ServiceResponse;
-import com.angrysurfer.atomic.admin.logging.service.AdminLoggingService;
 
 @CrossOrigin(originPatterns = "*", allowedHeaders = "*", allowCredentials = "true", methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT, RequestMethod.DELETE, RequestMethod.OPTIONS})
 @RestController
@@ -58,22 +58,22 @@ public class BrokerController {
         // Log the request before processing it
         UUID logId = null;
         String userId = extractUserId(request); // Extract user ID or set to a default
-        try {
-            var logEntry = adminLoggingService.logRequest(request, userId);
-            if (logEntry != null) {
-                logId = logEntry.getId();
-            }
-        } catch (Exception e) {
-            log.error("Error logging request: {}", e.getMessage(), e);
-        }
+        // try {
+        //     var logEntry = adminLoggingService.logRequest(request, userId);
+        //     if (logEntry != null) {
+        //         logId = logEntry.getId();
+        //     }
+        // } catch (Exception e) {
+        //     log.error("Error logging request: {}", e.getMessage(), e);
+        // }
 
         ServiceResponse<?> response = broker.submit(request);
         
         // Update the log entry with success/failure status
-        if (logId != null) {
-            adminLoggingService.updateLogEntry(logId, response.isOk(), 
-                response.isOk() ? null : extractErrorMessage(response));
-        }
+        // if (logId != null) {
+        //     adminLoggingService.updateLogEntry(logId, response.isOk(), 
+        //         response.isOk() ? null : extractErrorMessage(response));
+        // }
 
         log.debug("returning: {}", response);
 

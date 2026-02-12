@@ -12,6 +12,8 @@
     <artifactId>file-service</artifactId>
     <packaging>jar</packaging>
 
+    <name>File Service</name>
+    <description>Atomic File Service</description>
 
     <dependencies>
         <dependency>

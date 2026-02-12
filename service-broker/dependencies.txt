@@ -8,7 +8,7 @@
 [INFO] user-api                                                           [jar]
 [INFO] user-service                                                       [jar]
 [INFO] search-service                                                     [jar]
-[INFO] service-registry                                                   [jar]
+[INFO] registry-service                                                   [jar]
 [INFO] Login Service                                                      [jar]
 [INFO] Broker Gateway                                                     [jar]
 [INFO] admin-logging                                                      [jar]
@@ -296,13 +296,13 @@
 [INFO]    +- org.springframework:spring-test:jar:6.2.7:test
 [INFO]    \- org.xmlunit:xmlunit-core:jar:2.10.1:test
 [INFO] 
-[INFO] --------------< com.angrysurfer.atomic:service-registry >---------------
-[INFO] Building service-registry 1.0.0-SNAPSHOT                          [7/20]
-[INFO]   from service-registry\pom.xml
+[INFO] --------------< com.angrysurfer.atomic:registry-service >---------------
+[INFO] Building registry-service 1.0.0-SNAPSHOT                          [7/20]
+[INFO]   from registry-service\pom.xml
 [INFO] --------------------------------[ jar ]---------------------------------
 [INFO] 
-[INFO] --- dependency:3.7.0:tree (default-cli) @ service-registry ---
-[INFO] com.angrysurfer.atomic:service-registry:jar:1.0.0-SNAPSHOT
+[INFO] --- dependency:3.7.0:tree (default-cli) @ registry-service ---
+[INFO] com.angrysurfer.atomic:registry-service:jar:1.0.0-SNAPSHOT
 [INFO] +- com.angrysurfer.atomic:broker-service-api:jar:1.0.0-SNAPSHOT:compile
 [INFO] |  \- jakarta.validation:jakarta.validation-api:jar:3.0.2:compile
 [INFO] +- com.angrysurfer.atomic:broker-service-spi:jar:1.0.0-SNAPSHOT:compile
@@ -508,7 +508,7 @@
 [INFO] |        +- org.jboss.logging:jboss-logging:jar:3.6.1.Final:compile
 [INFO] |        \- com.fasterxml:classmate:jar:1.7.0:compile
 [INFO] +- com.angrysurfer.atomic:search-service:jar:1.0.0-SNAPSHOT:compile
-[INFO] +- com.angrysurfer.atomic:service-registry:jar:1.0.0-SNAPSHOT:compile
+[INFO] +- com.angrysurfer.atomic:registry-service:jar:1.0.0-SNAPSHOT:compile
 [INFO] +- com.angrysurfer.atomic:login-service:jar:1.0.0-SNAPSHOT:compile
 [INFO] |  \- org.springframework.boot:spring-boot-starter-data-redis:jar:3.5.0:compile
 [INFO] |     +- io.lettuce:lettuce-core:jar:6.5.5.RELEASE:compile
@@ -681,7 +681,7 @@
 [INFO] |  +- com.angrysurfer.atomic:user-service:jar:1.0.0-SNAPSHOT:compile
 [INFO] |  |  \- com.angrysurfer.atomic:user-api:jar:1.0.0-SNAPSHOT:compile
 [INFO] |  +- com.angrysurfer.atomic:search-service:jar:1.0.0-SNAPSHOT:compile
-[INFO] |  +- com.angrysurfer.atomic:service-registry:jar:1.0.0-SNAPSHOT:compile
+[INFO] |  +- com.angrysurfer.atomic:registry-service:jar:1.0.0-SNAPSHOT:compile
 [INFO] |  +- com.angrysurfer.atomic:login-service:jar:1.0.0-SNAPSHOT:compile
 [INFO] |  |  \- org.springframework.boot:spring-boot-starter-data-redis:jar:3.5.0:compile
 [INFO] |  |     +- io.lettuce:lettuce-core:jar:6.5.5.RELEASE:compile
@@ -1148,7 +1148,7 @@
 [INFO] |  |  |        \- org.latencyutils:LatencyUtils:jar:2.0.3:runtime
 [INFO] |  |  +- com.angrysurfer.atomic:user-service:jar:1.0.0-SNAPSHOT:compile
 [INFO] |  |  +- com.angrysurfer.atomic:search-service:jar:1.0.0-SNAPSHOT:compile
-[INFO] |  |  +- com.angrysurfer.atomic:service-registry:jar:1.0.0-SNAPSHOT:compile
+[INFO] |  |  +- com.angrysurfer.atomic:registry-service:jar:1.0.0-SNAPSHOT:compile
 [INFO] |  |  \- com.angrysurfer.atomic:login-service:jar:1.0.0-SNAPSHOT:compile
 [INFO] |  |     \- org.springframework.boot:spring-boot-starter-data-redis:jar:3.5.0:compile
 [INFO] |  |        +- io.lettuce:lettuce-core:jar:6.5.5.RELEASE:compile
@@ -1349,7 +1349,7 @@
 [INFO] |  |  +- com.angrysurfer.atomic:user-service:jar:1.0.0-SNAPSHOT:compile
 [INFO] |  |  |  \- com.angrysurfer.atomic:user-api:jar:1.0.0-SNAPSHOT:compile
 [INFO] |  |  +- com.angrysurfer.atomic:search-service:jar:1.0.0-SNAPSHOT:compile
-[INFO] |  |  +- com.angrysurfer.atomic:service-registry:jar:1.0.0-SNAPSHOT:compile
+[INFO] |  |  +- com.angrysurfer.atomic:registry-service:jar:1.0.0-SNAPSHOT:compile
 [INFO] |  |  +- com.angrysurfer.atomic:login-service:jar:1.0.0-SNAPSHOT:compile
 [INFO] |  |  |  \- org.springframework.boot:spring-boot-starter-data-redis:jar:3.5.0:compile
 [INFO] |  |  |     +- io.lettuce:lettuce-core:jar:6.5.5.RELEASE:compile
@@ -1545,7 +1545,7 @@
 [INFO]    |  |        \- org.latencyutils:LatencyUtils:jar:2.0.3:runtime
 [INFO]    |  +- com.angrysurfer.atomic:user-service:jar:1.0.0-SNAPSHOT:compile
 [INFO]    |  +- com.angrysurfer.atomic:search-service:jar:1.0.0-SNAPSHOT:compile
-[INFO]    |  +- com.angrysurfer.atomic:service-registry:jar:1.0.0-SNAPSHOT:compile
+[INFO]    |  +- com.angrysurfer.atomic:registry-service:jar:1.0.0-SNAPSHOT:compile
 [INFO]    |  \- com.angrysurfer.atomic:login-service:jar:1.0.0-SNAPSHOT:compile
 [INFO]    |     \- org.springframework.boot:spring-boot-starter-data-redis:jar:3.5.0:compile
 [INFO]    |        +- io.lettuce:lettuce-core:jar:6.5.5.RELEASE:compile
@@ -1585,13 +1585,13 @@
 [INFO]    |     \- org.aspectj:aspectjweaver:jar:1.9.24:compile
 [INFO]    \- com.mysql:mysql-connector-j:jar:9.2.0:compile
 [INFO] 
-[INFO] -----------------< com.angrysurfer.atomic:host-server >-----------------
+[INFO] -----------------< com.angrysurfer.atomic:service-registry >-----------------
 [INFO] Building Host Server 1.0.0-SNAPSHOT                              [20/20]
-[INFO]   from host-server\pom.xml
+[INFO]   from service-registry\pom.xml
 [INFO] --------------------------------[ jar ]---------------------------------
 [INFO] 
-[INFO] --- dependency:3.7.0:tree (default-cli) @ host-server ---
-[INFO] com.angrysurfer.atomic:host-server:jar:1.0.0-SNAPSHOT
+[INFO] --- dependency:3.7.0:tree (default-cli) @ service-registry ---
+[INFO] com.angrysurfer.atomic:service-registry:jar:1.0.0-SNAPSHOT
 [INFO] +- org.springframework.boot:spring-boot-starter-web:jar:3.5.0:compile
 [INFO] |  +- org.springframework.boot:spring-boot-starter:jar:3.5.0:compile
 [INFO] |  |  +- org.springframework.boot:spring-boot:jar:3.5.0:compile
@@ -1683,7 +1683,7 @@
 [INFO] user-api ........................................... SUCCESS [  0.713 s]
 [INFO] user-service ....................................... SUCCESS [  0.927 s]
 [INFO] search-service ..................................... SUCCESS [  0.168 s]
-[INFO] service-registry ................................... SUCCESS [  0.112 s]
+[INFO] registry-service ................................... SUCCESS [  0.112 s]
 [INFO] Login Service ...................................... SUCCESS [  0.761 s]
 [INFO] Broker Gateway ..................................... SUCCESS [  0.685 s]
 [INFO] admin-logging ...................................... SUCCESS [  0.314 s]

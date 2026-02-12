@@ -23,6 +23,8 @@ import static org.mockito.Mockito.*;
 import org.mockito.quality.Strictness;
 import org.mockito.junit.jupiter.MockitoSettings;
 
+import com.angrysurfer.atomic.login.client.UserAccessClient;
+
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
 class LoginServiceTest {
@@ -33,18 +35,27 @@ class LoginServiceTest {
     @Mock
     private ValueOperations<String, Object> valueOperations;
 
+    @Mock
+    private UserAccessClient userAccessClient;
+
     private LoginService loginService;
 
     @BeforeEach
     void setUp() {
         when(redisTemplate.opsForValue()).thenReturn(valueOperations);
-        loginService = new LoginService(redisTemplate);
+        loginService = new LoginService(redisTemplate, userAccessClient);
     }
 
     @Test
     void login_WithValidCredentials_ShouldReturnSuccess() {
-        // Given - In the updated implementation, we're simulating successful validation
-        // The login method now creates a mock user if credentials are not empty
+        // Given
+        UserRegistrationDTO mockUser = new UserRegistrationDTO();
+        mockUser.setId("1");
+        mockUser.setAlias("testuser");
+        mockUser.setAvatarUrl("https://example.com/avatar.jpg");
+        mockUser.setAdmin(false);
+
+        when(userAccessClient.validateUser(any())).thenReturn(mockUser);
 
         // When
         ServiceResponse<LoginResponse> result = loginService.login("testuser", "password123");
@@ -64,29 +75,34 @@ class LoginServiceTest {
 
     @Test
     void login_WithInvalidCredentials_ShouldReturnFailure() {
-        // Given - In the updated implementation, empty credentials will trigger failure
+        // Given
+        when(userAccessClient.validateUser(any())).thenReturn(null);
 
         // When
-        ServiceResponse<LoginResponse> result = loginService.login("", ""); // Empty credentials
+        ServiceResponse<LoginResponse> result = loginService.login("invalid", "invalid");
 
         // Then
         assertFalse(result.isOk());
         assertNotNull(result.getData());
         assertFalse(result.getData().isOk());
         assertNull(result.getData().getToken());
-        assertTrue(result.getData().getErrors().containsKey("credentials"));
-        assertEquals("invalid alias or password", result.getData().getErrors().get("credentials"));
     }
 
     @Test
     void login_WithException_ShouldReturnFailure() {
-        // Given - In the updated implementation, we can't easily simulate exceptions without changing the implementation
-        // So we'll focus on testing the happy path and validation failures
-        // This test could be updated to test other exception scenarios if needed
-        assertDoesNotThrow(() -> {
-            ServiceResponse<LoginResponse> result = loginService.login("testuser", "password123");
-            assertTrue(result.isOk());
-        });
+        // Given
+        when(userAccessClient.validateUser(any())).thenThrow(new RuntimeException("Service down"));
+
+        // When
+        ServiceResponse<LoginResponse> result = loginService.login("testuser", "password123");
+
+        // Then
+        // As per implementation, exceptions from UserAccessClient are caught, logged,
+        // and treated as auth failure
+        assertFalse(result.isOk());
+        assertNotNull(result.getData());
+        assertEquals("invalid credentials", result.getData().getMessage());
+        assertTrue(result.getData().getErrors().containsKey("credentials"));
     }
 
     @Test

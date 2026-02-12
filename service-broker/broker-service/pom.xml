@@ -9,8 +9,12 @@
         <artifactId>atomic</artifactId>
         <version>1.0.0-SNAPSHOT</version>
     </parent>
+
     <artifactId>broker-service</artifactId>
     <packaging>jar</packaging>
+
+    <name>Broker Service</name>
+    <description>Atomic Broker Service</description>
 
     <dependencies>
         <dependency>
@@ -20,11 +24,6 @@
         <dependency>
             <groupId>com.angrysurfer.atomic</groupId>
             <artifactId>broker-service-spi</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.angrysurfer.atomic</groupId>
-            <artifactId>broker-gateway</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
         </dependency>
 
         <dependency>

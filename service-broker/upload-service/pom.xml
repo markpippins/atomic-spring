@@ -12,6 +12,9 @@
     <artifactId>upload-service</artifactId>
     <packaging>jar</packaging>
 
+    <name>Upload Service</name>
+    <description>Atomic Upload Service</description>
+
     <dependencies>
         <dependency>
             <groupId>com.angrysurfer.atomic</groupId>

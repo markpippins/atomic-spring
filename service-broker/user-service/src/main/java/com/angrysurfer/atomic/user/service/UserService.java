@@ -1,28 +1,26 @@
 package com.angrysurfer.atomic.user.service;
 
-import com.angrysurfer.atomic.user.UserDTO;
-import com.angrysurfer.atomic.user.model.Profile;
-import com.angrysurfer.atomic.user.model.User;
-import com.angrysurfer.atomic.user.repository.ProfileRepository;
-import com.angrysurfer.atomic.user.repository.UserRepository;
-import com.angrysurfer.atomic.broker.spi.BrokerOperation;
-import com.angrysurfer.atomic.broker.spi.BrokerParam;
-import com.angrysurfer.atomic.user.ResourceNotFoundException;
-
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
-
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.stereotype.Service;
+
+import com.angrysurfer.atomic.broker.spi.BrokerOperation;
+import com.angrysurfer.atomic.broker.spi.BrokerParam;
+import com.angrysurfer.atomic.user.ResourceNotFoundException;
+import com.angrysurfer.atomic.user.UserDTO;
+import com.angrysurfer.atomic.user.model.User;
+import com.angrysurfer.atomic.user.repository.UserRepository;
+
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 
 @Service("userService")
 public class UserService {
@@ -53,11 +51,8 @@ public class UserService {
 
     private final UserRepository userRepository;
 
-    private final ProfileRepository profileRepository;
-
-    public UserService(UserRepository userRepository, ProfileRepository profileRepository) {
+    public UserService(UserRepository userRepository) {
         this.userRepository = userRepository;
-        this.profileRepository = profileRepository;
         log.info("UserService initialized");
     }
 

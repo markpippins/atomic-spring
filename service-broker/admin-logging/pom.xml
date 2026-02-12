@@ -12,6 +12,9 @@
 
     <artifactId>admin-logging</artifactId>
 
+    <name>Admin Logging</name>
+    <description>Atomic Admin Logging</description>
+
     <properties>
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>

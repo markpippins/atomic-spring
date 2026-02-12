@@ -11,6 +11,10 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>broker-gateway-sec-bot</artifactId>
     <packaging>jar</packaging>
+
+    <name>Broker Gateway Sec Bot</name>
+    <description>Atomic Broker Gateway Sec Bot</description>    
+
     <dependencies>
         <dependency>
             <groupId>com.angrysurfer.atomic</groupId>

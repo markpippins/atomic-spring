@@ -12,6 +12,9 @@
     <artifactId>search-service</artifactId>
     <packaging>jar</packaging>
 
+    <name>Search Service</name>
+    <description>Atomic Search Service</description>
+
     <dependencies>
         <dependency>
             <groupId>com.angrysurfer.atomic</groupId>

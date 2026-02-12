@@ -32,8 +32,6 @@ public class User implements Serializable {
 
     private String avatarUrl = "https://picsum.photos/50/50";
 
-    @DBRef
-    private Profile profile;
 
     @DBRef
     private Set<User> followers = new HashSet<>();
@@ -107,13 +105,6 @@ public class User implements Serializable {
         this.avatarUrl = avatarUrl;
     }
 
-    public Profile getProfile() {
-        return profile;
-    }
-
-    public void setProfile(Profile profile) {
-        this.profile = profile;
-    }
 
     public Set<User> getFollowers() {
         return followers;

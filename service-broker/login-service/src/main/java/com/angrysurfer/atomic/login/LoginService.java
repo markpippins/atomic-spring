@@ -1,9 +1,7 @@
 package com.angrysurfer.atomic.login;
 
 import java.util.Map;
-import java.util.List;
 import java.util.UUID;
-import java.util.ArrayList;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,10 +9,16 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
 
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+
 import com.angrysurfer.atomic.broker.api.ServiceResponse;
 import com.angrysurfer.atomic.broker.spi.BrokerOperation;
 import com.angrysurfer.atomic.broker.spi.BrokerParam;
+import com.angrysurfer.atomic.login.client.UserAccessClient;
 import com.angrysurfer.atomic.user.UserRegistrationDTO;
+
+import feign.FeignException;
 
 @Service("loginService")
 public class LoginService {
@@ -22,10 +26,12 @@ public class LoginService {
     private static final Logger log = LoggerFactory.getLogger(LoginService.class);
 
     private final RedisTemplate<String, Object> redisTemplate;
+    private final UserAccessClient userAccessClient;
 
-    public LoginService(RedisTemplate<String, Object> redisTemplate) {
+    public LoginService(RedisTemplate<String, Object> redisTemplate, UserAccessClient userAccessClient) {
         this.redisTemplate = redisTemplate;
-        log.info("LoginService initialized with Redis integration");
+        this.userAccessClient = userAccessClient;
+        log.info("LoginService initialized with Redis integration and UserAccessClient");
     }
 
     @BrokerOperation("login")
@@ -37,45 +43,44 @@ public class LoginService {
         ServiceResponse<LoginResponse> serviceResponse = new ServiceResponse<>();
 
         try {
-            // For now, we'll simulate user validation (in a real implementation, this would call the user-access-service)
-            // Since we don't have direct access to the broker anymore, we'll return a mock response
-            // In a real implementation, you'd either inject the user-access-service directly or use a different mechanism
-            UserRegistrationDTO user = new UserRegistrationDTO();
-            user.setId("1");
-            user.setAlias(alias);
-            user.setEmail(alias + "@example.com");
-            user.setIdentifier(password);
-            user.setAvatarUrl("https://example.com/avatar.jpg");
-            user.setAdmin(false);
+            UserRegistrationDTO user = null;
+            try {
+                MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+                params.add("alias", alias);
+                params.add("identifier", password);
+                user = userAccessClient.validateUser(params);
+            } catch (FeignException.Unauthorized e) {
+                log.warn("Unauthorized login attempt for user: {}", alias);
+            } catch (Exception e) {
+                log.error("Error calling user-access-service:", e);
+                // Treat as failure
+            }
 
-            // Simulate successful validation
-            if (alias != null && password != null && !alias.trim().isEmpty() && !password.trim().isEmpty()) {
-                // User is valid
+            if (user != null) {
+                // Generate UUID token for successful login
+                UUID token = UUID.randomUUID();
+
+                LoginResponse response = new LoginResponse(token.toString(), user.getId(), user.getAvatarUrl(),
+                        user.isAdmin());
+
+                // Store user in Redis with TTL (e.g., 24 hours)
+                ValueOperations<String, Object> ops = redisTemplate.opsForValue();
+                ops.set("user:" + token.toString(), user, java.time.Duration.ofHours(24));
+
+                serviceResponse.setData(response);
+                serviceResponse.setOk(true);
             } else {
-                // Invalid credentials
+                // Invalid credentials or error
                 LoginResponse response = new LoginResponse("FAILURE", "invalid credentials");
                 response.addError("credentials", "invalid alias or password");
 
                 serviceResponse.setOk(false);
                 serviceResponse.setData(response);
-                return serviceResponse;
             }
-
-            // Generate UUID token for successful login
-            UUID token = UUID.randomUUID();
-            
-            LoginResponse response = new LoginResponse(token.toString(), user.getId(), user.getAvatarUrl(), user.isAdmin());
-            
-            // Store user in Redis with TTL (e.g., 24 hours)
-            ValueOperations<String, Object> ops = redisTemplate.opsForValue();
-            ops.set("user:" + token.toString(), user, java.time.Duration.ofHours(24));
-
-            serviceResponse.setData(response);
-            serviceResponse.setOk(true);
             return serviceResponse;
 
         } catch (Exception e) {
-            log.error("Error during login:", e);
+            log.error("Error during login processing:", e);
             serviceResponse.setData(new LoginResponse("FAILURE", e.getMessage()));
             serviceResponse.setOk(false);
             return serviceResponse;
@@ -86,24 +91,24 @@ public class LoginService {
     @BrokerOperation("logout")
     public ServiceResponse<Boolean> logout(@BrokerParam("token") String token) {
         log.info("Logout user with token {}", token);
-        
+
         ServiceResponse<Boolean> serviceResponse = new ServiceResponse<>();
-        
+
         try {
             // Validate token format
-            UUID userToken = UUID.fromString(token);
-            
+            UUID.fromString(token);
+
             // Remove user from Redis
             String key = "user:" + token;
             Object user = redisTemplate.opsForValue().get(key);
             boolean removed = user != null && redisTemplate.delete(key);
-            
+
             serviceResponse.setData(removed);
             serviceResponse.setOk(true);
-            
+
             log.info("Logout {} for token {}", removed ? "successful" : "failed (token not found)", token);
             return serviceResponse;
-            
+
         } catch (IllegalArgumentException e) {
             serviceResponse.setData(false);
             serviceResponse.setOk(false);
@@ -120,22 +125,22 @@ public class LoginService {
     @BrokerOperation("isLoggedIn")
     public ServiceResponse<Boolean> isLoggedIn(@BrokerParam("token") String token) {
         log.debug("Checking login status for token {}", token);
-        
+
         ServiceResponse<Boolean> serviceResponse = new ServiceResponse<>();
-        
+
         try {
             // Validate token format
-            UUID userToken = UUID.fromString(token);
-            
+            UUID.fromString(token);
+
             // Check if user exists in Redis
             String key = "user:" + token;
             Object user = redisTemplate.opsForValue().get(key);
             boolean loggedIn = user != null;
-            
+
             serviceResponse.setData(loggedIn);
             serviceResponse.setOk(true);
             return serviceResponse;
-            
+
         } catch (IllegalArgumentException e) {
             serviceResponse.setData(false);
             serviceResponse.setOk(false);
@@ -152,17 +157,17 @@ public class LoginService {
     @BrokerOperation("getUserRegistrationForToken")
     public ServiceResponse<UserRegistrationDTO> getUserRegistrationForToken(@BrokerParam("token") String token) {
         log.debug("Retrieving user for token {}", token);
-        
+
         ServiceResponse<UserRegistrationDTO> serviceResponse = new ServiceResponse<>();
-        
+
         try {
             // Validate token format
-            UUID userToken = UUID.fromString(token);
-            
+            UUID.fromString(token);
+
             // Get user from Redis
             String key = "user:" + token;
             Object userObj = redisTemplate.opsForValue().get(key);
-            
+
             if (userObj instanceof UserRegistrationDTO) {
                 UserRegistrationDTO user = (UserRegistrationDTO) userObj;
                 serviceResponse.setData(user);
@@ -173,7 +178,7 @@ public class LoginService {
                 serviceResponse.addError("token", "Token not found or expired");
             }
             return serviceResponse;
-            
+
         } catch (IllegalArgumentException e) {
             serviceResponse.setData(null);
             serviceResponse.setOk(false);
@@ -189,6 +194,7 @@ public class LoginService {
 
     /**
      * Get the logged-in user by token
+     * 
      * @param token the UUID token
      * @return the UserRegistrationDTO if found, null otherwise
      */
@@ -199,13 +205,17 @@ public class LoginService {
     }
 
     /**
-     * Get all currently logged-in users (this is a limitation with Redis; would require a Redis KEYS operation)
+     * Get all currently logged-in users (this is a limitation with Redis; would
+     * require a Redis KEYS operation)
+     * 
      * @return map of tokens to users (may be limited to current instance data)
      */
     public Map<UUID, UserRegistrationDTO> getLoggedInUsers() {
-        log.warn("Getting all logged-in users from Redis is inefficient and may not return all users across instances. Consider redesigning to avoid this operation.");
+        log.warn(
+                "Getting all logged-in users from Redis is inefficient and may not return all users across instances. Consider redesigning to avoid this operation.");
         // For scalability, avoid KEYS operation in production
-        // Instead, return empty map as Redis implementation doesn't support this efficiently
+        // Instead, return empty map as Redis implementation doesn't support this
+        // efficiently
         return new java.util.HashMap<>();
     }
 

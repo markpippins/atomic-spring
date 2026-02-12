@@ -22,9 +22,12 @@ class EndToEndIntegrationTest {
 
     private LoginService loginService;
 
+    @Mock
+    private com.angrysurfer.atomic.login.client.UserAccessClient userAccessClient;
+
     @BeforeEach
     void setUp() {
-        loginService = new LoginService(redisTemplate);
+        loginService = new LoginService(redisTemplate, userAccessClient);
     }
 
     @Nested
@@ -38,9 +41,10 @@ class EndToEndIntegrationTest {
             userDto.setAlias("testUser");
 
             // In a real integration test, we would have the full chain:
-            // Controller -> Service -> Broker -> Other Service -> Broker -> Service -> Controller -> Response
+            // Controller -> Service -> Broker -> Other Service -> Broker -> Service ->
+            // Controller -> Response
             // For this test, we're focusing on the service interaction level
-            
+
             assertNotNull(loginService);
         }
 
@@ -85,7 +89,7 @@ class EndToEndIntegrationTest {
         UserRegistrationDTO userDTO = new UserRegistrationDTO();
         userDTO.setId("123");
         userDTO.setAlias("testAlias");
-        
+
         assertNotNull(userDTO);
         assertEquals("123", userDTO.getId());
         assertEquals("testAlias", userDTO.getAlias());

@@ -12,6 +12,9 @@
     <artifactId>shrapnel-data</artifactId>
     <packaging>jar</packaging>
 
+    <name>Shrapnel Data</name>
+    <description>Atomic Shrapnel Data</description>
+
     <dependencies>
         <dependency>
             <groupId>org.projectlombok</groupId>

@@ -11,6 +11,9 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>user-service</artifactId>
     <packaging>jar</packaging>
+    
+    <name>User Service</name>
+    <description>Atomic User Service</description>
 
     <dependencies>
         <dependency>

@@ -39,11 +39,14 @@ class LoginServiceE2ETest {
 
     private Map<String, Object> redisStore; // In-memory store
 
+    @Mock
+    private com.angrysurfer.atomic.login.client.UserAccessClient userAccessClient;
+
     @BeforeEach
     void setUp() {
         redisStore = new HashMap<>();
         when(redisTemplate.opsForValue()).thenReturn(valueOperations);
-        
+
         // Mock ValueOperations.set to store in our in-memory map
         doAnswer(invocation -> {
             String key = invocation.getArgument(0);
@@ -57,14 +60,38 @@ class LoginServiceE2ETest {
         when(valueOperations.get(anyString())).thenAnswer(invocation -> redisStore.get(invocation.getArgument(0)));
 
         // Mock RedisTemplate.delete to remove from our in-memory map
-        when(redisTemplate.delete(anyString())).thenAnswer(invocation -> redisStore.remove(invocation.getArgument(0)) != null);
+        when(redisTemplate.delete(anyString()))
+                .thenAnswer(invocation -> redisStore.remove(invocation.getArgument(0)) != null);
 
-        loginService = new LoginService(redisTemplate);
+        // Mock UserAccessClient
+        when(userAccessClient.validateUser(any())).thenAnswer(invocation -> {
+            org.springframework.util.MultiValueMap<String, String> params = invocation.getArgument(0);
+            String alias = params.getFirst("alias");
+            String password = params.getFirst("identifier");
+
+            if (alias != null && !alias.isEmpty() && password != null && !password.isEmpty()) {
+                UserRegistrationDTO user = new UserRegistrationDTO();
+                user.setId("1"); // Default ID
+                if ("user2".equals(alias))
+                    user.setId("2");
+                if ("user3".equals(alias))
+                    user.setId("3");
+                user.setAlias(alias);
+                user.setAvatarUrl("https://example.com/avatar.jpg");
+                user.setAdmin(false);
+                return user;
+            } else {
+                throw new feign.FeignException.Unauthorized("Unauthorized", null, null, null);
+            }
+        });
+
+        loginService = new LoginService(redisTemplate, userAccessClient);
     }
 
     @Test
     void completeAuthenticationFlowE2E() {
-        // Scenario: Complete authentication flow - login, check status, get user, logout
+        // Scenario: Complete authentication flow - login, check status, get user,
+        // logout
 
         // Step 1: Login the user with valid credentials (non-empty strings)
         var loginResult = loginService.login("e2eUser", "password123");
@@ -149,8 +176,8 @@ class LoginServiceE2ETest {
         // Step 5: Logout one user and verify others remain logged in
         assertTrue(loginService.logout(token1).getData());
         assertFalse(loginService.isLoggedIn(token1).getData()); // User1 logged out
-        assertTrue(loginService.isLoggedIn(token2).getData());  // User2 still logged in
-        assertTrue(loginService.isLoggedIn(token3).getData());  // User3 still logged in
+        assertTrue(loginService.isLoggedIn(token2).getData()); // User2 still logged in
+        assertTrue(loginService.isLoggedIn(token3).getData()); // User3 still logged in
     }
 
     @Test
@@ -197,11 +224,11 @@ class LoginServiceE2ETest {
 
         // Step 3: Test with malformed tokens
         String[] malformedTokens = {
-            null,
-            "",
-            "not-a-uuid",
-            "12345",
-            "this-is-not-a-valid-uuid-format-at-all"
+                null,
+                "",
+                "not-a-uuid",
+                "12345",
+                "this-is-not-a-valid-uuid-format-at-all"
         };
 
         for (String malformedToken : malformedTokens) {

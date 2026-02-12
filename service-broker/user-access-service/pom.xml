@@ -12,6 +12,9 @@
     <artifactId>user-access-service</artifactId>
     <packaging>jar</packaging>
 
+    <name>User Access Service</name>
+    <description>Atomic User Access Service</description>
+
     <dependencies>
         <dependency>
             <groupId>com.angrysurfer.atomic</groupId>
