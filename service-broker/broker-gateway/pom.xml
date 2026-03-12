@@ -56,7 +56,7 @@
         </dependency>
         <dependency>
             <groupId>com.angrysurfer.atomic</groupId>
-            <artifactId>registry-service</artifactId>
+            <artifactId>broker-discovery-service</artifactId>
         </dependency>
         <!-- <dependency>
             <groupId>com.angrysurfer.atomic</groupId>

@@ -32,7 +32,7 @@
         <module>note-service</module>
         <module>search-service</module>
         <module>admin-logging</module>
-        <module>registry-service</module>
+        <module>broker-discovery-service</module>
         <!-- <module>vaadin-client</module> -->
     </modules>
 
@@ -223,7 +223,7 @@
             </dependency>
             <dependency>
                 <groupId>com.angrysurfer.atomic</groupId>
-                <artifactId>registry-service</artifactId>
+                <artifactId>broker-discovery-service</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

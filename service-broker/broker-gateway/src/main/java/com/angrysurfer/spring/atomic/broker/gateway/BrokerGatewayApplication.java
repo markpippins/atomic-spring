@@ -1,0 +1,44 @@
+package com.angrysurfer.spring.atomic.broker.gateway;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.FilterType;
+import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
+
+import com.angrysurfer.spring.atomic.broker.BrokerController;
+
+@SpringBootApplication
+@EnableMongoRepositories(basePackages = {
+    "com.angrysurfer.atomic.broker",
+    "com.angrysurfer.atomic.user",
+    "com.angrysurfer.atomic.fs",
+    "com.angrysurfer.atomic.login",
+    "com.angrysurfer.atomic.note",
+    "com.angrysurfer.atomic.search",
+    "com.angrysurfer.atomic.registry",
+    "com.angrysurfer.atomic.admin.logging"
+})
+@ComponentScan(
+    basePackages = {
+        "com.angrysurfer.atomic.broker",
+        "com.angrysurfer.atomic.user",
+        "com.angrysurfer.atomic.fs",
+        "com.angrysurfer.atomic.login",
+        "com.angrysurfer.atomic.note",
+        "com.angrysurfer.atomic.search",
+        "com.angrysurfer.atomic.registry",
+        "com.angrysurfer.atomic.admin.logging"
+    },
+    excludeFilters = @ComponentScan.Filter(
+        type = FilterType.ASSIGNABLE_TYPE,
+        classes = BrokerController.class
+    )
+)
+public class BrokerGatewayApplication {
+
+	public static void main(String[] args) {
+		SpringApplication.run(BrokerGatewayApplication.class, args);
+	}
+
+}
