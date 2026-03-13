@@ -1,7 +1,7 @@
 # User Service Implementation Details
 
 ## Overview
-The user service is part of the Atomic platform microservices architecture. It provides user management functionality using MongoDB for document-based storage. The service exposes operations through the broker gateway using the `@BrokerOperation` annotation.
+The user service is part of the Nexus platform microservices architecture. It provides user management functionality using MongoDB for document-based storage. The service exposes operations through the broker gateway using the `@BrokerOperation` annotation.
 
 ## Service Architecture
 - **Service Name**: userService
@@ -116,7 +116,7 @@ The user service is part of the Atomic platform microservices architecture. It p
 ## Data Models
 
 ### User Entity
-- **Class**: `com.angrysurfer.atomic.user.model.User`
+- **Class**: `com.angrysurfer.nexus.user.model.User`
 - **Fields**:
   - `id` (String): MongoDB ObjectId
   - `identifier` (String): User identifier (password)
@@ -129,7 +129,7 @@ The user service is part of the Atomic platform microservices architecture. It p
   - `friends` (Set<User>): Users who are friends with this user
 
 ### UserDTO
-- **Class**: `com.angrysurfer.atomic.user.UserDTO`
+- **Class**: `com.angrysurfer.nexus.user.UserDTO`
 - **Fields**:
   - `id` (String): MongoDB ObjectId as String
   - `alias` (String): User alias/username

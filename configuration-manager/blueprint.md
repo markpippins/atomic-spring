@@ -1,7 +1,7 @@
 # Service Registry Blueprint
 
 ## Overview
-The Service Registry is a Spring Boot module responsible for tracking infrastructure components (Servers/Hosts), software frameworks, and service deployments across the atomic ecosystem. It provides a discovery mechanism and health monitoring for all registered services.
+The Service Registry is a Spring Boot module responsible for tracking infrastructure components (Servers/Hosts), software frameworks, and service deployments across the nexus ecosystem. It provides a discovery mechanism and health monitoring for all registered services.
 
 ## Project Outline
 - **Tech Stack**: Spring Boot 3, Spring Data JPA, MySQL, Redis (Caching), Jackson (JSON Serialization).

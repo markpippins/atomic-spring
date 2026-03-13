@@ -73,7 +73,7 @@ The user access service supports configuration for:
 
 ### Running MongoDB with Docker
 
-The Atomic platform provides convenient scripts to start MongoDB:
+The Nexus platform provides convenient scripts to start MongoDB:
 
 **On Windows:**
 ```bash

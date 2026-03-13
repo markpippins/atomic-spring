@@ -1,6 +1,6 @@
 # User Service
 
-The User Service is a microservice responsible for managing user-related operations in the Atomic platform.
+The User Service is a microservice responsible for managing user-related operations in the Nexus platform.
 
 ## Overview
 
@@ -29,7 +29,7 @@ spring.data.mongodb.uri=mongodb://mongoUser:somePassword@localhost:27017/userser
 
 ### Running MongoDB with Docker
 
-The Atomic platform provides convenient scripts to start MongoDB:
+The Nexus platform provides convenient scripts to start MongoDB:
 
 **On Windows:**
 ```bash
@@ -44,7 +44,7 @@ mongodb-docker-start.bat
 Alternatively, you can start MongoDB manually with:
 
 ```bash
-docker run --name atomic-mongodb -p 27017:27017 -e MONGO_INITDB_ROOT_USERNAME=mongoUser -e MONGO_INITDB_ROOT_PASSWORD=somePassword -d mongo:latest
+docker run --name nexus-mongodb -p 27017:27017 -e MONGO_INITDB_ROOT_USERNAME=mongoUser -e MONGO_INITDB_ROOT_PASSWORD=somePassword -d mongo:latest
 ```
 
 Or use a docker-compose file:
@@ -54,7 +54,7 @@ version: '3.8'
 services:
   mongodb:
     image: mongo:latest
-    container_name: atomic-mongodb
+    container_name: nexus-mongodb
     ports:
       - "27017:27017"
     environment:
@@ -99,4 +99,4 @@ The service uses the following collections:
 
 ## API
 
-The service exposes operations through the broker pattern, allowing for flexible integration with other services in the Atomic platform.
+The service exposes operations through the broker pattern, allowing for flexible integration with other services in the Nexus platform.

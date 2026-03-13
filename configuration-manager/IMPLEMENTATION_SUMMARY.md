@@ -2,11 +2,11 @@
 
 ## What Was Built
 
-A comprehensive **Server/Service/Configuration Management System** for the Atomic Platform that addresses the growing cognitive load of managing multiple microservices across different frameworks.
+A comprehensive **Server/Service/Configuration Management System** for the Nexus Platform that addresses the growing cognitive load of managing multiple microservices across different frameworks.
 
 ## Problem Statement
 
-The Atomic Platform has accumulated:
+The Nexus Platform has accumulated:
 - Multiple Spring Boot services (broker-gateway, user-service, login-service, etc.)
 - Quarkus services (quarkus-broker-gateway)
 - Node.js services (Moleculer, Express)
@@ -108,7 +108,7 @@ Total: **43 REST endpoints**
 
 ## Sample Data
 
-The system initializes with real data from the Atomic Platform:
+The system initializes with real data from the Nexus Platform:
 
 ### Frameworks (6)
 - Spring Boot 3.5.0
@@ -307,7 +307,7 @@ GET /api/services/framework/{springBootId}
 
 ## Conclusion
 
-The Host Server provides a solid foundation for managing the growing complexity of the Atomic Platform. With 43 REST endpoints, 5 core entities, and comprehensive documentation, it's ready to handle current services and scale to support future frameworks like Micronaut, NestJS, and AdonisJS.
+The Host Server provides a solid foundation for managing the growing complexity of the Nexus Platform. With 43 REST endpoints, 5 core entities, and comprehensive documentation, it's ready to handle current services and scale to support future frameworks like Micronaut, NestJS, and AdonisJS.
 
 The system successfully addresses the cognitive load problem by providing:
 - **Centralized management** of all services

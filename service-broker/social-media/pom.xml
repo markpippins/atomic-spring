@@ -3,8 +3,8 @@
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <parent>
-        <groupId>com.angrysurfer.atomic</groupId>
-        <artifactId>atomic</artifactId>
+        <groupId>com.angrysurfer.nexus</groupId>
+        <artifactId>nexus</artifactId>
         <version>1.0.0-SNAPSHOT</version>
     </parent>
 
@@ -13,19 +13,19 @@
     <packaging>jar</packaging>
 
     <name>Social Media Service</name>
-    <description>Atomic Social Media Service</description>
+    <description>Nexus Social Media Service</description>
 
     <dependencies>
         <dependency>
-            <groupId>com.angrysurfer.atomic</groupId>
+            <groupId>com.angrysurfer.nexus</groupId>
             <artifactId>broker-service-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.angrysurfer.atomic</groupId>
+            <groupId>com.angrysurfer.nexus</groupId>
             <artifactId>broker-service-spi</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.angrysurfer.atomic</groupId>
+            <groupId>com.angrysurfer.nexus</groupId>
             <artifactId>social-media-api</artifactId>
         </dependency>
         <dependency>

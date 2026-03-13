@@ -10,7 +10,7 @@ The Note Service provides operations for creating, retrieving, updating, and del
 
 - **MongoDB Persistence**: Notes are stored in MongoDB with efficient querying
 - **Token-Based Authentication**: Validates user tokens via the login service through broker communication
-- **Broker Integration**: Full integration with the Atomic broker system
+- **Broker Integration**: Full integration with the Nexus broker system
 - **Secure Access**: Users can only access their own notes via token validation
 
 ## Data Model
@@ -34,7 +34,7 @@ The service exposes the following broker operations:
 
 ## Architecture
 
-The service follows the Atomic architecture pattern:
+The service follows the Nexus architecture pattern:
 1. Client sends request to broker-gateway
 2. Request routed to note-service via broker
 3. note-service validates token by calling login-service through broker

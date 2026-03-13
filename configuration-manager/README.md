@@ -1,10 +1,10 @@
 # Host Server - Service Management System
 
-A comprehensive server/service/configuration management system for the Atomic Platform. This service provides centralized management of servers, services, frameworks, deployments, and configurations across the entire microservices ecosystem.
+A comprehensive server/service/configuration management system for the Nexus Platform. This service provides centralized management of servers, services, frameworks, deployments, and configurations across the entire microservices ecosystem.
 
 ## Overview
 
-The Host Server is a production-ready service management system providing centralized management of servers, services, frameworks, deployments, and configurations across the entire microservices ecosystem. It serves as the central service registry for the Atomic Platform and handles the growing complexity of managing multiple services across different frameworks (Spring Boot, Quarkus, Micronaut, NestJS, AdonisJS, Moleculer, etc.) using the broker pattern.
+The Host Server is a production-ready service management system providing centralized management of servers, services, frameworks, deployments, and configurations across the entire microservices ecosystem. It serves as the central service registry for the Nexus Platform and handles the growing complexity of managing multiple services across different frameworks (Spring Boot, Quarkus, Micronaut, NestJS, AdonisJS, Moleculer, etc.) using the broker pattern.
 
 ### ✅ **PRODUCTION READY CAPABILITIES**
 

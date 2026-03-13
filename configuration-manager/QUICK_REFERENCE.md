@@ -305,7 +305,7 @@ curl http://localhost:8085/actuator/health
 5. **Monitor logs:**
    ```bash
    # Increase logging level in application.properties
-   logging.level.com.angrysurfer.atomic.hostserver=DEBUG
+   logging.level.com.angrysurfer.nexus.hostserver=DEBUG
    ```
 
 ## Next Steps

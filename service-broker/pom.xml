@@ -4,13 +4,13 @@
 
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.angrysurfer.atomic</groupId>
-    <artifactId>atomic</artifactId>
+    <groupId>com.angrysurfer.nexus</groupId>
+    <artifactId>nexus</artifactId>
     <version>1.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>Service Broker</name>
-    <description>Atomic Service Broker</description>
+    <description>Nexus Service Broker</description>
 
     <modules>
         <module>broker-service-api</module>
@@ -182,82 +182,82 @@
             </dependency>
             <!-- Internal project modules -->
             <dependency>
-                <groupId>com.angrysurfer.atomic</groupId>
+                <groupId>com.angrysurfer.nexus</groupId>
                 <artifactId>broker-service-api</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.angrysurfer.atomic</groupId>
+                <groupId>com.angrysurfer.nexus</groupId>
                 <artifactId>broker-service-spi</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.angrysurfer.atomic</groupId>
+                <groupId>com.angrysurfer.nexus</groupId>
                 <artifactId>file-service-api</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.angrysurfer.atomic</groupId>
+                <groupId>com.angrysurfer.nexus</groupId>
                 <artifactId>file-service</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.angrysurfer.atomic</groupId>
+                <groupId>com.angrysurfer.nexus</groupId>
                 <artifactId>export-service</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.angrysurfer.atomic</groupId>
+                <groupId>com.angrysurfer.nexus</groupId>
                 <artifactId>user-api</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.angrysurfer.atomic</groupId>
+                <groupId>com.angrysurfer.nexus</groupId>
                 <artifactId>login-service</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.angrysurfer.atomic</groupId>
+                <groupId>com.angrysurfer.nexus</groupId>
                 <artifactId>broker-service</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.angrysurfer.atomic</groupId>
+                <groupId>com.angrysurfer.nexus</groupId>
                 <artifactId>broker-discovery-service</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.angrysurfer.atomic</groupId>
+                <groupId>com.angrysurfer.nexus</groupId>
                 <artifactId>user-service</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.angrysurfer.atomic</groupId>
+                <groupId>com.angrysurfer.nexus</groupId>
                 <artifactId>user-access-service</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.angrysurfer.atomic</groupId>
+                <groupId>com.angrysurfer.nexus</groupId>
                 <artifactId>upload-service</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.angrysurfer.atomic</groupId>
+                <groupId>com.angrysurfer.nexus</groupId>
                 <artifactId>shrapnel-data</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.angrysurfer.atomic</groupId>
+                <groupId>com.angrysurfer.nexus</groupId>
                 <artifactId>search-service</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.angrysurfer.atomic</groupId>
+                <groupId>com.angrysurfer.nexus</groupId>
                 <artifactId>social-media-api</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.angrysurfer.atomic</groupId>
+                <groupId>com.angrysurfer.nexus</groupId>
                 <artifactId>social-media</artifactId>
                 <version>${project.version}</version>
             </dependency>

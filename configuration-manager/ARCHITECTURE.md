@@ -2,7 +2,7 @@
 
 ## Overview
 
-The Host Server is a comprehensive service management system designed to handle the cognitive load of managing multiple microservices across different frameworks and deployment environments in the Atomic Platform.
+The Host Server is a comprehensive service management system designed to handle the cognitive load of managing multiple microservices across different frameworks and deployment environments in the Nexus Platform.
 
 ## Design Principles
 
@@ -356,4 +356,4 @@ ENTRYPOINT ["java", "-jar", "/app.jar"]
 
 ## Conclusion
 
-The Host Server provides a solid foundation for managing the growing complexity of the Atomic Platform's microservices ecosystem. Its flexible data model and comprehensive API enable effective service management, dependency tracking, and configuration management across multiple frameworks and environments.
+The Host Server provides a solid foundation for managing the growing complexity of the Nexus Platform's microservices ecosystem. Its flexible data model and comprehensive API enable effective service management, dependency tracking, and configuration management across multiple frameworks and environments.
