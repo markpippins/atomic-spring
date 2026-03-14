@@ -26,9 +26,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import com.angrysurfer.spring.nexus.broker.Broker;
 import com.angrysurfer.spring.nexus.broker.api.ServiceRequest;
 import com.angrysurfer.spring.nexus.broker.api.ServiceResponse;
-import com.angrysurfer.spring.nexus.fs.ReactiveRestFsClient;
-import com.angrysurfer.spring.nexus.fs.RestFsClient;
-import com.angrysurfer.spring.nexus.fs.RestFsService;
 import com.angrysurfer.spring.nexus.fs.api.FsListResponse;
 
 @ExtendWith(MockitoExtension.class)
